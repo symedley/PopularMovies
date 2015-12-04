@@ -16,8 +16,8 @@ import java.util.List;
  * @param context   The current context. Used to inflate hte layout view.
  * @param movieList    A list of objects to display.
  */
-public class MovieListAdapter extends ArrayAdapter<PopMovie> {
-    public MovieListAdapter(Context context, List<PopMovie> movieList) {
+public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
+    public MovieGridAdapter(Context context, List<PopMovie> movieList) {
         super(context, 0, movieList);
     }
 

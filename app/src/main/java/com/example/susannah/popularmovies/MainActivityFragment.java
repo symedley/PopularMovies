@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ListView;
 
 import java.util.Arrays;
@@ -14,7 +15,7 @@ import java.util.Arrays;
  */
 public class MainActivityFragment extends Fragment {
 
-    private MovieListAdapter movieListAdapter;
+    private MovieGridAdapter movieGridAdapter;
 
     PopMovie[] popMovies = {
             new PopMovie("Matrix", R.drawable.thumb),
@@ -29,11 +30,11 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        movieListAdapter = new MovieListAdapter(getActivity(), Arrays.asList(popMovies));
+        movieGridAdapter = new MovieGridAdapter(getActivity(), Arrays.asList(popMovies));
 
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.list_view_movies);
-        listView.setAdapter(movieListAdapter);
+            GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+        gridView.setAdapter(movieGridAdapter);
 
         return rootView;
     }
