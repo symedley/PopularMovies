@@ -1,3 +1,6 @@
+#After submitting 1 version of ApiKey, ignore it
+ApiKey.java
+
 .gradle
 /.idea/
 *.iml

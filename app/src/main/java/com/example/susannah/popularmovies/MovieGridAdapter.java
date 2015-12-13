@@ -17,8 +17,8 @@ import java.util.List;
  * @param movieList    A list of objects to display.
  */
 public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
-    public MovieGridAdapter(Context context, List<PopMovie> movieList) {
-        super(context, 0, movieList);
+    public MovieGridAdapter(Context context, int layoutResId, List<PopMovie> movieList) {
+        super(context, layoutResId, movieList);
     }
 
     /**
