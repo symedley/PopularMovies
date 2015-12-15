@@ -42,12 +42,13 @@ public class MainActivityFragment extends Fragment {
     private MovieGridAdapter movieGridAdapter;
 
     PopMovie[] popMovieArray = {
-            new PopMovie("Matrix", R.drawable.thumb),
-            new PopMovie("Inside Out", R.drawable.thumb)
+            new PopMovie("Placeholder1"),
+            new PopMovie("Placeholder2")
     };
     public ArrayList<PopMovie> popMovies;
 
     public MainActivityFragment() {
+        popMovies = new ArrayList( Arrays.asList(popMovieArray));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        popMovies = new ArrayList( Arrays.asList(popMovieArray));
+        //popMovies = new ArrayList( Arrays.asList(popMovieArray));
         movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
                 R.id.gridView, popMovies);
 
@@ -139,7 +140,7 @@ public class MainActivityFragment extends Fragment {
 
             // first clear out the existing array
             // TODO replace this with directly adding to the ArrayList so that I can avoid the magic number
-            popMovieArray = new PopMovie[100];
+            popMovies = new ArrayList();
 
             JSONObject forecastJson = new JSONObject(movieJsonStr);
             JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
@@ -166,11 +167,24 @@ public class MainActivityFragment extends Fragment {
                 video = oneMovieJson.getBoolean(TMD_VIDEO);
                 voteAverage = Float.parseFloat(oneMovieJson.getString(TMD_VOTE_AVERAGE));
 
-                PopMovie oneMovie = new PopMovie(title, R.drawable.thumb);
+                PopMovie oneMovie = new PopMovie(
+                        posterPath,
+                        adult,
+                        overview,
+                        releaseDate,
+                        genreIds,
+                        origTitle,
+                        origLang,
+                        title,
+                        backdropPath,
+                        popularity,
+                        voteCount,
+                        video,
+                        voteAverage);
 
                 // resultStrs is a placeholder until i figure out how to get the
                 // full movie object back from the async task
-                popMovieArray[i] = oneMovie;
+                popMovies.add(oneMovie);
                 resultStrs[i] = title;
             }
 
@@ -261,7 +275,7 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] strings) {
             if (strings != null) {
-                popMovies = new ArrayList( Arrays.asList(popMovieArray));
+                //popMovies = new ArrayList( Arrays.asList(popMovieArray));
                 movieGridAdapter.clear();
                 movieGridAdapter.addAll(popMovies);
             }
