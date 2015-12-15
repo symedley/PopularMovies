@@ -5,10 +5,66 @@ package com.example.susannah.popularmovies;
  * Represents 1 movie in the list array.
  */
 public class PopMovie {
+
+    int thumb; // integer reference to a thumbnail image
+    String posterPath;
+    boolean adult;
+    String overview;
+    String releaseDate;
+    int genreIds[];
+    String origTitle;
+    String origLang;
     String title;
-    int thumb; // integer reference to a thumbnail image?
-    public PopMovie(String vTitle, int vThumb){
+    String backdropPath;
+    float popularity;
+    int voteCount;
+    boolean video;
+    float voteAverage;
+
+    public PopMovie(
+            String vPosterPath,
+            boolean vAdult,
+            String vOverview,
+            String vReleaseDate,
+            int vGenreIds[],
+            String vOrigTitle,
+            String vOrigLang,
+            String vTitle,
+            String vBackdropPath,
+            float vPopularity,
+            int vVoteCount,
+            boolean vVideo,
+            float vVoteAverage
+    ) {
+
+        posterPath = vPosterPath;
+        adult = vAdult;
+        overview = vOverview;
+        releaseDate = vReleaseDate;
+        genreIds = vGenreIds;
+        origTitle = vOrigTitle;
+        origLang = vOrigLang;
         title = vTitle;
-        thumb = vThumb;
+        backdropPath = vBackdropPath;
+        popularity = vPopularity;
+        voteCount = vVoteCount;
+        video = vVideo;
+        voteAverage = vVoteAverage;
+
+        // TODO deal better with the dummy image
+        thumb = R.drawable.thumb;
     }
+
+    public PopMovie(
+            String vTitle
+    ) {
+
+
+        title = vTitle;
+
+
+        // TODO deal better with the dummy image
+        thumb = R.drawable.thumb;
+    }
+
 }
