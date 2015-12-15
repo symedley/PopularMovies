@@ -137,33 +137,40 @@ public class MainActivityFragment extends Fragment {
             final String TMD_VOTE_AVERAGE = "vote_average";        // float
             float voteAverage;
 
+            // first clear out the existing array
+            // TODO replace this with directly adding to the ArrayList so that I can avoid the magic number
+            popMovieArray = new PopMovie[100];
+
             JSONObject forecastJson = new JSONObject(movieJsonStr);
             JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
             String[] resultStrs = new String[movieArray.length()];
             for (int i = 0; i < movieArray.length(); i++) {
-                JSONObject oneMovie = movieArray.getJSONObject(i);
+                JSONObject oneMovieJson = movieArray.getJSONObject(i);
 
-                posterPath = oneMovie.getString(TMD_POSTER_PATH);
-                adult = oneMovie.getBoolean(TMD_ADULT);
-                overview = oneMovie.getString(TMD_OVERVIEW);
-                releaseDate = oneMovie.getString(TMD_RELEASE_DATE);
-                JSONArray genreIdArray = oneMovie.getJSONArray(TMD_GENRE_IDS);
+                posterPath = oneMovieJson.getString(TMD_POSTER_PATH);
+                adult = oneMovieJson.getBoolean(TMD_ADULT);
+                overview = oneMovieJson.getString(TMD_OVERVIEW);
+                releaseDate = oneMovieJson.getString(TMD_RELEASE_DATE);
+                JSONArray genreIdArray = oneMovieJson.getJSONArray(TMD_GENRE_IDS);
                 int[] genreIds = new int[genreIdArray.length()];
                 for (int j = 0; j < genreIdArray.length(); j++) {
                     genreIds[j] = genreIdArray.getInt(j);
                 }
-                id = oneMovie.getInt(TMD_ID);
-                origTitle = oneMovie.getString(TMD_ORIGINAL_TITLE);
-                origLang = oneMovie.getString(TMD_ORIGINAL_LANGUAGE);
-                title = oneMovie.getString(TMD_TITLE);
-                backdropPath = oneMovie.getString(TMD_BACKDROP_PATH);
-                popularity = Float.parseFloat(oneMovie.getString(TMD_POPULARITY));
-                voteCount = oneMovie.getInt(TMD_VOTE_COUNT);
-                video = oneMovie.getBoolean(TMD_VIDEO);
-                voteAverage = Float.parseFloat(oneMovie.getString(TMD_VOTE_AVERAGE));
+                id = oneMovieJson.getInt(TMD_ID);
+                origTitle = oneMovieJson.getString(TMD_ORIGINAL_TITLE);
+                origLang = oneMovieJson.getString(TMD_ORIGINAL_LANGUAGE);
+                title = oneMovieJson.getString(TMD_TITLE);
+                backdropPath = oneMovieJson.getString(TMD_BACKDROP_PATH);
+                popularity = Float.parseFloat(oneMovieJson.getString(TMD_POPULARITY));
+                voteCount = oneMovieJson.getInt(TMD_VOTE_COUNT);
+                video = oneMovieJson.getBoolean(TMD_VIDEO);
+                voteAverage = Float.parseFloat(oneMovieJson.getString(TMD_VOTE_AVERAGE));
+
+                PopMovie oneMovie = new PopMovie(title, R.drawable.thumb);
 
                 // resultStrs is a placeholder until i figure out how to get the
                 // full movie object back from the async task
+                popMovieArray[i] = oneMovie;
                 resultStrs[i] = title;
             }
 
@@ -254,16 +261,10 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] strings) {
             if (strings != null) {
-                popMovieArray = new PopMovie[strings.length];
-                for (int i = 0; i < Array.getLength(strings); i++) {
-                    popMovieArray[i] = new PopMovie(strings[i], R.drawable.thumb);
-                }
-                // popMovies = new ArrayList<PopMovie>(Arrays.asList(strings));
                 popMovies = new ArrayList( Arrays.asList(popMovieArray));
                 movieGridAdapter.clear();
                 movieGridAdapter.addAll(popMovies);
             }
         }
-
     }
 }
