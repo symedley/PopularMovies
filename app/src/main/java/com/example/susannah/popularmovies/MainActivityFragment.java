@@ -45,7 +45,7 @@ public class MainActivityFragment extends Fragment {
             new PopMovie("Matrix", R.drawable.thumb),
             new PopMovie("Inside Out", R.drawable.thumb)
     };
-    public List popMovies;
+    public ArrayList<PopMovie> popMovies;
 
     public MainActivityFragment() {
     }
@@ -60,8 +60,9 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        popMovies = Arrays.asList(popMovieArray);
-        movieGridAdapter = new MovieGridAdapter(getActivity(), R.id.gridView, popMovies);
+        popMovies = new ArrayList( Arrays.asList(popMovieArray));
+        movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
+                R.id.gridView, popMovies);
 
         // Get a reference to the ListView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
@@ -253,11 +254,12 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] strings) {
             if (strings != null) {
-                popMovies = new ArrayList<PopMovie>();
+                popMovieArray = new PopMovie[strings.length];
                 for (int i = 0; i < Array.getLength(strings); i++) {
-                    popMovies.add(new PopMovie(strings[i], R.drawable.thumb));
+                    popMovieArray[i] = new PopMovie(strings[i], R.drawable.thumb);
                 }
                 // popMovies = new ArrayList<PopMovie>(Arrays.asList(strings));
+                popMovies = new ArrayList( Arrays.asList(popMovieArray));
                 movieGridAdapter.clear();
                 movieGridAdapter.addAll(popMovies);
             }
