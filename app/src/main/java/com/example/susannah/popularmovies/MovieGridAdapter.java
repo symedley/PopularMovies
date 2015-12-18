@@ -1,12 +1,15 @@
 package com.example.susannah.popularmovies;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +42,29 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
         // If this is a new View object we're getting, then inflate the layout.
         // If not, this view already has the layout inflated from a previous call to getView,
         // and we modify the View widgets as usual.
+        Context context = getContext() ;
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_movie, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.list_item_movie, parent, false);
+        }
+        ImageView thumbView = (ImageView) convertView.findViewById(R.id.list_item_thumb);
+
+        if (popMovie.posterPath != null) {
+            final String BASE_URL = "http://image.tmdb.org/t/p/";
+            Uri.Builder uriBuilder = new Uri.Builder();
+            uriBuilder.scheme(context.getString(R.string.uriScheme));
+            uriBuilder.authority(context.getString(R.string.uriAuth));
+            uriBuilder.appendPath(context.getString(R.string.uriT))
+                    .appendPath(context.getString(R.string.uriP));
+            uriBuilder.appendPath(popMovie.posterPath);
+            Picasso.with(getContext()).load(uriBuilder.build().toString()).into(thumbView);
+        } else  {
+            thumbView.setImageResource(popMovie.thumb);
         }
 
-        ImageView thumbView = (ImageView) convertView.findViewById(R.id.list_item_thumb);
-        thumbView.setImageResource(popMovie.thumb);
+        /*Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                .appendQueryParameter("test", “w185” ).  // that’s the image size
+        .appendQueryParameter("", popMovie.posterPath)
+                .build();*/
 
         TextView movieListView = (TextView) convertView.findViewById(R.id.list_item_title);
         movieListView.setText(popMovie.title);
