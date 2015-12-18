@@ -43,7 +43,7 @@ public class PopMovie {
             float vVoteAverage
     ) {
 
-        posterPath = vPosterPath;
+        posterPath = vPosterPath.replaceFirst("/","");
         adult = vAdult;
         overview = vOverview;
         releaseDate = vReleaseDate;

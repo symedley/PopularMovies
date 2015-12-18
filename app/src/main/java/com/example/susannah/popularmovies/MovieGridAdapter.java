@@ -2,6 +2,7 @@ package com.example.susannah.popularmovies;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,8 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
         super(context, layout, layoutResId, movieList);
     }
 
+    private static final String LOG_TAG = MovieGridAdapter.class.getSimpleName();
+
     /**
      * Provides a view for an AdapterView (ListView, GridView, etc.)
      *
@@ -38,6 +41,7 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
     public View getView(int position, View convertView, ViewGroup parent){
         PopMovie popMovie = getItem(position);
 
+        String IMAGE_SIZE = "w185";
         // Adapters recycle views to AdapterViews.
         // If this is a new View object we're getting, then inflate the layout.
         // If not, this view already has the layout inflated from a previous call to getView,
@@ -55,8 +59,10 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
             uriBuilder.authority(context.getString(R.string.uriAuth));
             uriBuilder.appendPath(context.getString(R.string.uriT))
                     .appendPath(context.getString(R.string.uriP));
+            uriBuilder.appendPath(IMAGE_SIZE);
             uriBuilder.appendPath(popMovie.posterPath);
-            Picasso.with(getContext()).load(uriBuilder.build().toString()).into(thumbView);
+            String u = uriBuilder.build().toString();
+            Picasso.with(getContext()).load( u ).into(thumbView);
         } else  {
             thumbView.setImageResource(popMovie.thumb);
         }

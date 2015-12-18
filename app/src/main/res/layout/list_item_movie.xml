@@ -16,20 +16,21 @@
 
     <ImageView
         android:id="@+id/list_item_thumb"
-        android:layout_width="50dp"
-        android:layout_height="50dp"/>
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"/>
 
         <TextView
             android:id="@+id/list_item_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:text="Movie title" />
-
 
         <TextView
             android:id="@+id/list_item_rating"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:text="Rating" />
 
     </LinearLayout>
