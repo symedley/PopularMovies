@@ -1,5 +1,11 @@
 package com.example.susannah.popularmovies;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 /**
  * Created by Susannah on 11/29/2015.
  * Represents 1 movie in the list array.
@@ -53,18 +59,15 @@ public class PopMovie {
 
         // TODO deal better with the dummy image
         thumb = R.drawable.thumb;
+
     }
 
     public PopMovie(
-            String vTitle
-    ) {
-
+            String vTitle ) {
 
         title = vTitle;
-
 
         // TODO deal better with the dummy image
         thumb = R.drawable.thumb;
     }
-
 }
