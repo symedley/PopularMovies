@@ -6,4 +6,5 @@
     <string name="uriAuth">image.tmdb.org</string>
     <string name="uriT">t</string>
     <string name="uriP">p</string>
+    <string name="w185">w185</string>
 </resources>
