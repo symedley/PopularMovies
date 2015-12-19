@@ -18,6 +18,7 @@ public class PopMovie {
     String overview;
     String releaseDate;
     int genreIds[];
+    int tmdId; // the movie ID, which I will need later
     String origTitle;
     String origLang;
     String title;
@@ -33,6 +34,7 @@ public class PopMovie {
             String vOverview,
             String vReleaseDate,
             int vGenreIds[],
+            int vTmdId,
             String vOrigTitle,
             String vOrigLang,
             String vTitle,
@@ -48,6 +50,7 @@ public class PopMovie {
         overview = vOverview;
         releaseDate = vReleaseDate;
         genreIds = vGenreIds;
+        tmdId = vTmdId;
         origTitle = vOrigTitle;
         origLang = vOrigLang;
         title = vTitle;
