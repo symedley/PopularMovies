@@ -83,6 +83,11 @@ public class MainActivityFragment extends Fragment {
         inflater.inflate(R.menu.mainactivityfragment, menu);
     }
 
+    /*
+     * Options Menu
+     * Refresh
+     * Sort: The sort order can be by most popular, or by highest-rated
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemId;
@@ -145,6 +150,7 @@ public class MainActivityFragment extends Fragment {
             JSONObject forecastJson = new JSONObject(movieJsonStr);
             JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
             String[] resultStrs = new String[movieArray.length()];
+            Log.v(LOG_TAG, movieArray.length() + " movies were returned");
             for (int i = 0; i < movieArray.length(); i++) {
                 JSONObject oneMovieJson = movieArray.getJSONObject(i);
 
@@ -173,6 +179,7 @@ public class MainActivityFragment extends Fragment {
                         overview,
                         releaseDate,
                         genreIds,
+                        id,
                         origTitle,
                         origLang,
                         title,
@@ -211,13 +218,18 @@ public class MainActivityFragment extends Fragment {
             String moviesJsonStr = null;
 
             final String API_KEY_PARAM = "api_key";
+            final String TOP_RATED = "top_rated";
+            final String SORT_BY_PARAM = "sort_by";
+            final String POPULARITY_DESC = "popularity.desc"; // sort by value is popularity descending
 
             try {
                 // Construct a URL for the query.
                 // The API documentation is here: http://docs.themoviedb.apiary.io/#
                 // but the documentation tool is almost unusable.
                 final String BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
-                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                final String BASE_URL_DISCOVER = "https://api.themoviedb.org/3/discover/movie";
+                Uri builtUri = Uri.parse(BASE_URL_DISCOVER).buildUpon()
+                        .appendQueryParameter(SORT_BY_PARAM, POPULARITY_DESC)
                         .appendQueryParameter(API_KEY_PARAM, ApiKey.API_KEY)
                         .build();
 
