@@ -3,8 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.susannah.popularmovies.MainActivityFragment">
-    <item android:id="@+id/action_refresh"
+    <item
+        android:id="@+id/action_refresh"
         android:title="@string/action_refresh"
-        app:showAsAction="never"
-      />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_sort_order"
+        android:title="@string/sort_order"
+        app:showAsAction="never" />
 </menu>

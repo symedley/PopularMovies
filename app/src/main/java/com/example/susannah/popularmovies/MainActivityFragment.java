@@ -1,7 +1,10 @@
 package com.example.susannah.popularmovies;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +43,7 @@ import java.util.zip.Inflater;
 public class MainActivityFragment extends Fragment {
 
     private MovieGridAdapter movieGridAdapter;
+    boolean sortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
 
     PopMovie[] popMovieArray = {
             new PopMovie("Placeholder1"),
@@ -48,7 +52,8 @@ public class MainActivityFragment extends Fragment {
     public ArrayList<PopMovie> popMovies;
 
     public MainActivityFragment() {
-        popMovies = new ArrayList( Arrays.asList(popMovieArray));
+        popMovies = new ArrayList(Arrays.asList(popMovieArray));
+        sortPopular = true;
     }
 
     @Override
@@ -72,8 +77,17 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
+    /*
+    * Sort order: user can choose to sort by Most Popular or by Highest Rated
+    *
+     */
     private void updateMovies() {
         FetchMovieTask fetchMovieTask = new FetchMovieTask();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort = prefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_default));
+        if (sort == getString(R.string.pref_sort_popular))
+            sortPopular = true;
         fetchMovieTask.execute();
     }
 
@@ -96,6 +110,15 @@ public class MainActivityFragment extends Fragment {
             updateMovies();
             return true;
         }
+        if (itemId == R.id.action_settings) {
+            Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+        if (itemId == R.id.action_sort_order) {
+            updateMovies();
+            return true;
+        }
         return super.onOptionsItemSelected(menuItem);
     }
 
@@ -108,7 +131,6 @@ public class MainActivityFragment extends Fragment {
     public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
-        private final String _PARAM1 = "top_rated";
 
         private String[] getMovieDataFromJson(String movieJsonStr)
                 throws JSONException {
@@ -221,6 +243,8 @@ public class MainActivityFragment extends Fragment {
             final String TOP_RATED = "top_rated";
             final String SORT_BY_PARAM = "sort_by";
             final String POPULARITY_DESC = "popularity.desc"; // sort by value is popularity descending
+            final String RATED_DESC = "vote_average.desc"; // sort by value is popularity descending
+            String sortPref;
 
             try {
                 // Construct a URL for the query.
@@ -228,8 +252,13 @@ public class MainActivityFragment extends Fragment {
                 // but the documentation tool is almost unusable.
                 final String BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
                 final String BASE_URL_DISCOVER = "https://api.themoviedb.org/3/discover/movie";
+                if (sortPopular)
+                    sortPref = POPULARITY_DESC;
+                else
+                    sortPref = RATED_DESC;
+
                 Uri builtUri = Uri.parse(BASE_URL_DISCOVER).buildUpon()
-                        .appendQueryParameter(SORT_BY_PARAM, POPULARITY_DESC)
+                        .appendQueryParameter(SORT_BY_PARAM, sortPref)
                         .appendQueryParameter(API_KEY_PARAM, ApiKey.API_KEY)
                         .build();
 
@@ -259,7 +288,7 @@ public class MainActivityFragment extends Fragment {
                 }
 
                 moviesJsonStr = buffer.toString();
-            } catch (IOException e) {
+            } catch ( IOException e ) {
                 Log.e(LOG_TAG, "Error: ", e);
                 // If the data was not successfully retrieved, no need to parse it.
                 return null;
@@ -275,9 +304,10 @@ public class MainActivityFragment extends Fragment {
                     }
                 }
             }
+
             try {
                 return getMovieDataFromJson(moviesJsonStr);
-            } catch (JSONException e) {
+            } catch (JSONException e ) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
                 return null;
