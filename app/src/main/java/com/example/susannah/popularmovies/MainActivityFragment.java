@@ -81,10 +81,14 @@ public class MainActivityFragment extends Fragment {
                 // TODO Can I pass the object PopMovie to the intent as an extra?
                 // or do I have to just pull the primitive objects out of oneMovie
                 // and pass them each individually to the Intent putExtra?
+
+                detailIntent.putExtra(getString(R.string.title), oneMovie.title);
                 detailIntent.putExtra(getString(R.string.original_title), oneMovie.origTitle);
+                // Pass in only the poster image name instead of the whole Uri, so
+                // that the detail view can retrieve a larger image.
                 detailIntent.putExtra(getString(R.string.poster_path), oneMovie.posterPath);
                 detailIntent.putExtra(getString(R.string.synopsis), oneMovie.overview);
-                detailIntent.putExtra(getString(R.string.rating), oneMovie.voteAverage);
+                detailIntent.putExtra(getString(R.string.rating), Float.toString(oneMovie.voteAverage));
                 detailIntent.putExtra(getString(R.string.release_date), oneMovie.releaseDate);
                 startActivity(detailIntent);
             }

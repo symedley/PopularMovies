@@ -1,8 +1,6 @@
 package com.example.susannah.popularmovies;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +11,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Susannah on 11/29/2015.
@@ -41,7 +38,6 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
     public View getView(int position, View convertView, ViewGroup parent){
         PopMovie popMovie = getItem(position);
 
-        String IMAGE_SIZE = "w185";
         // Adapters recycle views to AdapterViews.
         // If this is a new View object we're getting, then inflate the layout.
         // If not, this view already has the layout inflated from a previous call to getView,
@@ -52,8 +48,11 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
         }
         ImageView thumbView = (ImageView) convertView.findViewById(R.id.list_item_thumb);
 
-        if (popMovie.posterPath != null) {
-            final String BASE_URL = "http://image.tmdb.org/t/p/";
+        if (popMovie.posterPathUri != null) {
+            // final String BASE_URL = "http://image.tmdb.org/t/p/";
+            /*
+             * Instead of constructing the URI here, do it in the PopMovie constructor
+             * and save the whole URI. More efficient than regenerating it.
             Uri.Builder uriBuilder = new Uri.Builder();
             uriBuilder.scheme(context.getString(R.string.uriScheme));
             uriBuilder.authority(context.getString(R.string.uriAuth));
@@ -62,7 +61,8 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
             uriBuilder.appendPath(IMAGE_SIZE);
             uriBuilder.appendPath(popMovie.posterPath);
             String u = uriBuilder.build().toString();
-            Picasso.with(getContext()).load( u ).into(thumbView);
+            */
+            Picasso.with(getContext()).load( popMovie.posterPathUri ).into(thumbView);
         } else  {
             thumbView.setImageResource(popMovie.thumb);
         }

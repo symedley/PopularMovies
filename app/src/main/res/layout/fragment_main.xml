@@ -6,11 +6,14 @@
     android:layout_height="match_parent"
     android:columnWidth="90dp"
     android:numColumns="auto_fit"
-    android:verticalSpacing="10dp"
+    android:verticalSpacing="1dp"
     android:horizontalSpacing="10dp"
     android:stretchMode="columnWidth"
     android:gravity="center"
     tools:context="com.example.susannah.popularmovies.MainActivityFragment"
-    tools:showIn="@layout/activity_main">
+    tools:showIn="@layout/activity_main"
+    android:transitionGroup="false"
+    android:stackFromBottom="false"
+    android:smoothScrollbar="false">
 
 </GridView>
