@@ -67,11 +67,6 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
             thumbView.setImageResource(popMovie.thumb);
         }
 
-        /*Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                .appendQueryParameter("test", “w185” ).  // that’s the image size
-        .appendQueryParameter("", popMovie.posterPath)
-                .build();*/
-
         TextView movieListView = (TextView) convertView.findViewById(R.id.list_item_title);
         movieListView.setText(popMovie.title);
 

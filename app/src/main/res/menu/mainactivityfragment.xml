@@ -7,8 +7,4 @@
         android:id="@+id/action_refresh"
         android:title="@string/action_refresh"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_sort_order"
-        android:title="@string/sort_order"
-        app:showAsAction="never" />
 </menu>

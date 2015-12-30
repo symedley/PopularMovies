@@ -14,8 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,13 +25,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.zip.Inflater;
 
 /**
  * Defines the data to display. Defines the adapter to hold the data to display
@@ -46,8 +43,7 @@ public class MainActivityFragment extends Fragment {
     boolean sortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
 
     PopMovie[] popMovieArray = {
-            new PopMovie("Placeholder1"),
-            new PopMovie("Placeholder2")
+            new PopMovie("Retrieving movie data...")
     };
     public ArrayList<PopMovie> popMovies;
 
@@ -66,7 +62,7 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        //popMovies = new ArrayList( Arrays.asList(popMovieArray));
+
         movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
                 R.id.gridView, popMovies);
 
@@ -74,22 +70,46 @@ public class MainActivityFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
         gridView.setAdapter(movieGridAdapter);
 
+        // When user clicks on a movie, open an activity with detail about
+        // that one movie.
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            // get the item clicked on and display it's information
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                PopMovie oneMovie = (PopMovie) parent.getItemAtPosition(position);
+                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                // TODO Can I pass the object PopMovie to the intent as an extra?
+                // or do I have to just pull the primitive objects out of oneMovie
+                // and pass them each individually to the Intent putExtra?
+                detailIntent.putExtra(getString(R.string.original_title), oneMovie.origTitle);
+                detailIntent.putExtra(getString(R.string.poster_path), oneMovie.posterPath);
+                detailIntent.putExtra(getString(R.string.synopsis), oneMovie.overview);
+                detailIntent.putExtra(getString(R.string.rating), oneMovie.voteAverage);
+                detailIntent.putExtra(getString(R.string.release_date), oneMovie.releaseDate);
+                startActivity(detailIntent);
+            }
+        });
         return rootView;
     }
 
     /*
     * Sort order: user can choose to sort by Most Popular or by Highest Rated
-    *
-     */
+    */
     private void updateMovies() {
         FetchMovieTask fetchMovieTask = new FetchMovieTask();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sort = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
-        if (sort == getString(R.string.pref_sort_popular))
+        if (sort.equals( getString(R.string.pref_sort_popular)))
             sortPopular = true;
+        else  if (sort.equals(  getString(R.string.pref_sort_rated)))
+            sortPopular = false;
+        else
+            // this should not happen
+            sortPopular = false;
         fetchMovieTask.execute();
     }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -99,6 +119,7 @@ public class MainActivityFragment extends Fragment {
 
     /*
      * Options Menu
+     * The user has selected something from the menu.
      * Refresh
      * Sort: The sort order can be by most popular, or by highest-rated
      */
@@ -113,10 +134,6 @@ public class MainActivityFragment extends Fragment {
         if (itemId == R.id.action_settings) {
             Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
             startActivity(settingsIntent);
-            return true;
-        }
-        if (itemId == R.id.action_sort_order) {
-            updateMovies();
             return true;
         }
         return super.onOptionsItemSelected(menuItem);

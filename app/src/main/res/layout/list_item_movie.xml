@@ -26,12 +26,5 @@
             android:layout_height="fill_parent"
             android:text="Movie title" />
 
-        <TextView
-            android:id="@+id/list_item_rating"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:text="Rating" />
-
     </LinearLayout>
 </LinearLayout>
