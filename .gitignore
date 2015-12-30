@@ -36,3 +36,6 @@ proguard/
 
 # Log Files
 *.log
+
+# gvim temp files
+*.*~
