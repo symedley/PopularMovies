@@ -19,40 +19,63 @@
             android:textAppearance="?android:attr/textAppearanceListItem"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Movie title" />
+            android:text="Movie title"
+            android:layout_gravity="left"
+            android:elegantTextHeight="true"
+            android:password="false"
+            android:textStyle="bold"
+            android:textSize="@dimen/design_tab_text_size"
+            android:layout_marginBottom="@dimen/abc_text_size_small_material" />
 
         <TextView
             android:id="@+id/original_title"
             android:textAppearance="?android:attr/textAppearanceListItemSmall"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Original title" />
+            android:text="Original title"
+            android:textSize="@dimen/design_tab_text_size_2line" />
 
         <ImageView
             android:id="@+id/movie_poster"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Synopsis:"
+            android:id="@+id/synopsisLabel"
+            android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
+            android:textStyle="bold"
+            android:textSize="@dimen/abc_text_size_small_material" />
 
         <TextView
             android:id="@+id/synopsis"
             android:textAppearance="?android:attr/textAppearanceListItemSmall"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Synopsis" />
+            android:text="Synopsis"
+            android:textSize="@dimen/design_tab_text_size_2line"
+            android:layout_marginBottom="@dimen/abc_text_size_small_material" />
 
         <TextView
             android:id="@+id/rating"
             android:textAppearance="?android:attr/textAppearanceListItemSmall"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Rating" />
+            android:text="Rating"
+            android:textSize="@dimen/design_tab_text_size_2line"
+            android:layout_marginBottom="@dimen/abc_text_size_small_material" />
 
         <TextView
             android:id="@+id/release_date"
             android:textAppearance="?android:attr/textAppearanceListItemSmall"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Release date" />
+            android:text="Release date"
+            android:textSize="@dimen/design_tab_text_size_2line"
+            android:layout_marginBottom="@dimen/abc_text_size_small_material"/>
 
     </LinearLayout>
 

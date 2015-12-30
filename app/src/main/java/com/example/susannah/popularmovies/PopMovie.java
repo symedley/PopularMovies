@@ -2,6 +2,7 @@ package com.example.susannah.popularmovies;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -14,6 +15,8 @@ public class PopMovie {
 
     int thumb; // integer reference to a thumbnail image
     String posterPath;
+    String posterPathUri;
+
     boolean adult;
     String overview;
     String releaseDate;
@@ -45,7 +48,23 @@ public class PopMovie {
             float vVoteAverage
     ) {
 
-        posterPath = vPosterPath.replaceFirst("/","");
+        posterPath = vPosterPath.replaceFirst("/", "");
+
+        // final String BASE_URL = "http://image.tmdb.org/t/p/";
+        final String URI_SCHEME = "http";
+        final String URI_AUTH = "image.tmdb.org";
+        final String URI_T = "t";
+        final String URI_P = "p";
+        final String IMAGE_SIZE = "w185";
+        Uri.Builder uriBuilder = new Uri.Builder();
+        uriBuilder.scheme(URI_SCHEME);
+        uriBuilder.authority(URI_AUTH);
+        uriBuilder.appendPath(URI_T)
+                .appendPath(URI_P);
+        uriBuilder.appendPath(IMAGE_SIZE);
+        uriBuilder.appendPath(posterPath);
+        posterPathUri = uriBuilder.build().toString();
+
         adult = vAdult;
         overview = vOverview;
         releaseDate = vReleaseDate;
@@ -66,7 +85,7 @@ public class PopMovie {
     }
 
     public PopMovie(
-            String vTitle ) {
+            String vTitle) {
 
         title = vTitle;
 
