@@ -265,6 +265,9 @@ public class MainActivityFragment extends Fragment {
             final String SORT_BY_PARAM = "sort_by";
             final String POPULARITY_DESC = "popularity.desc"; // sort by value is popularity descending
             final String RATED_DESC = "vote_average.desc"; // sort by value is popularity descending
+            final String VOTE_COUNT = "vote_count.gte";
+            final String MIN_VOTES = "50";
+            //  add "vote_count.gte=x" so only movies with a lot of votes show up when doing vote average
             String sortPref;
 
             try {
@@ -280,6 +283,7 @@ public class MainActivityFragment extends Fragment {
 
                 Uri builtUri = Uri.parse(BASE_URL_DISCOVER).buildUpon()
                         .appendQueryParameter(SORT_BY_PARAM, sortPref)
+                        .appendQueryParameter(VOTE_COUNT, MIN_VOTES)
                         .appendQueryParameter(API_KEY_PARAM, ApiKey.API_KEY)
                         .build();
 
