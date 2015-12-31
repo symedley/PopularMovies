@@ -13,6 +13,9 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+    /*
+     * The ToolBar title will be automatically set to the name of the app.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        toolbar.setSubtitle("sorted by ...");
+        //toolbar.setSubtitle("sorted by ...");
     }
 
     @Override
