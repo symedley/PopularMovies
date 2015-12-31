@@ -54,7 +54,8 @@
             android:layout_height="fill_parent"
             android:text="Synopsis"
             android:textSize="@dimen/design_tab_text_size_2line"
-            android:layout_marginBottom="@dimen/abc_text_size_small_material" />
+            android:layout_marginBottom="@dimen/abc_text_size_small_material"
+            android:layout_marginRight="@dimen/abc_text_size_small_material" />
 
         <TextView
             android:id="@+id/rating"
