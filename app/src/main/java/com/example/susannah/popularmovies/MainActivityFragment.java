@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -81,6 +81,7 @@ public class MainActivityFragment extends Fragment {
                 // TODO Can I pass the object PopMovie to the intent as an extra?
                 // or do I have to just pull the primitive objects out of oneMovie
                 // and pass them each individually to the Intent putExtra?
+                // Looks like I would have to have OneMovie implement Parcelable
 
                 detailIntent.putExtra(getString(R.string.title), oneMovie.title);
                 detailIntent.putExtra(getString(R.string.original_title), oneMovie.origTitle);

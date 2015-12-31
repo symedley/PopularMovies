@@ -2,7 +2,6 @@ package com.example.susannah.popularmovies;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 
 /**
  * Created by Susannah on 12/28/2015.
