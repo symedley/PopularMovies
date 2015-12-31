@@ -4,16 +4,17 @@
     android:id="@+id/gridView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:columnWidth="90dp"
+    android:columnWidth="100dp"
     android:numColumns="auto_fit"
-    android:verticalSpacing="1dp"
-    android:horizontalSpacing="10dp"
+    android:verticalSpacing="0dp"
+    android:horizontalSpacing="0dp"
     android:stretchMode="columnWidth"
     android:gravity="center"
     tools:context="com.example.susannah.popularmovies.MainActivityFragment"
     tools:showIn="@layout/activity_main"
     android:transitionGroup="false"
     android:stackFromBottom="false"
-    android:smoothScrollbar="false">
+    android:smoothScrollbar="false"
+    android:background="@android:color/black">
 
 </GridView>

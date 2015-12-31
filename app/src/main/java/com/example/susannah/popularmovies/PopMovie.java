@@ -55,7 +55,8 @@ public class PopMovie {
         final String URI_AUTH = "image.tmdb.org";
         final String URI_T = "t";
         final String URI_P = "p";
-        final String IMAGE_SIZE = "w185";
+        // A ‘size’, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using “w185”.
+        final String IMAGE_SIZE = "w342";
         Uri.Builder uriBuilder = new Uri.Builder();
         uriBuilder.scheme(URI_SCHEME);
         uriBuilder.authority(URI_AUTH);

@@ -49,26 +49,10 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
         ImageView thumbView = (ImageView) convertView.findViewById(R.id.list_item_thumb);
 
         if (popMovie.posterPathUri != null) {
-            // final String BASE_URL = "http://image.tmdb.org/t/p/";
-            /*
-             * Instead of constructing the URI here, do it in the PopMovie constructor
-             * and save the whole URI. More efficient than regenerating it.
-            Uri.Builder uriBuilder = new Uri.Builder();
-            uriBuilder.scheme(context.getString(R.string.uriScheme));
-            uriBuilder.authority(context.getString(R.string.uriAuth));
-            uriBuilder.appendPath(context.getString(R.string.uriT))
-                    .appendPath(context.getString(R.string.uriP));
-            uriBuilder.appendPath(IMAGE_SIZE);
-            uriBuilder.appendPath(popMovie.posterPath);
-            String u = uriBuilder.build().toString();
-            */
             Picasso.with(getContext()).load( popMovie.posterPathUri ).into(thumbView);
         } else  {
             thumbView.setImageResource(popMovie.thumb);
         }
-
-        TextView movieListView = (TextView) convertView.findViewById(R.id.list_item_title);
-        movieListView.setText(popMovie.title);
 
         return convertView;
     }
