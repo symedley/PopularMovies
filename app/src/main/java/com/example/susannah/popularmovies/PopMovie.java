@@ -2,9 +2,10 @@ package com.example.susannah.popularmovies;
 
 import android.net.Uri;
 
-/**
+/** PopMovie holds the data for one retrieved movie. Created when parsing JSON from the movie database.
+ *
  * Created by Susannah on 11/29/2015.
- * Represents 1 movie in the list array.
+ *
  */
 public class PopMovie {
 
@@ -50,7 +51,7 @@ public class PopMovie {
         final String URI_AUTH = "image.tmdb.org";
         final String URI_T = "t";
         final String URI_P = "p";
-        // A ‘size’, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using “w185”.
+        // A size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
         final String IMAGE_SIZE = "w342";
         Uri.Builder uriBuilder = new Uri.Builder();
         uriBuilder.scheme(URI_SCHEME);

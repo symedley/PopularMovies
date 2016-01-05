@@ -14,7 +14,10 @@ import com.squareup.picasso.Picasso;
 
 import static com.example.susannah.popularmovies.R.*;
 
-/**
+/** DetailFragment displays the details of a single movie
+ *
+ * The data is passed through as extras.
+ *
  * Created by Susannah on 12/28/2015.
  */
 public class DetailFragment extends Fragment {
@@ -63,7 +66,7 @@ public class DetailFragment extends Fragment {
                     final String URI_AUTH = "image.tmdb.org";
                     final String URI_T = "t";
                     final String URI_P = "p";
-                    final String IMAGE_SIZE = "w342"; // a ‘size’, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using “w185”.
+                    final String IMAGE_SIZE = "w342"; // a size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
                     Uri.Builder uriBuilder = new Uri.Builder();
                     uriBuilder.scheme(context.getString(R.string.uriScheme));
                     uriBuilder.authority(context.getString(R.string.uriAuth));
