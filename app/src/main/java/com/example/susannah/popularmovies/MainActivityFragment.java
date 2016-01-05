@@ -30,10 +30,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
+/** MainActivityFragment is where most of the action happens. Holds the array of data and the grid adapter.
+ *
  * Defines the data to display. Defines the adapter to hold the data to display
  * and sets the adapter to the GridView named in the .xml file.
- * <p/>
+ *
  * This class will have to create the call to the movie database and initialize a background
  * task to fetch and parse data.
  */

@@ -11,7 +11,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-/**
+/** MovieGridAdapter is a custom grid adapter to display movie posters in a grid
+ *
  * Created by Susannah on 11/29/2015.
  *
  * @param context   The current context. Used to inflate hte layout view.
@@ -24,8 +25,7 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
 
     private static final String LOG_TAG = MovieGridAdapter.class.getSimpleName();
 
-    /**
-     * Provides a view for an AdapterView (ListView, GridView, etc.)
+    /** method getView. Provides a view for an AdapterView (ListView, GridView, etc.)
      *
      * @param position    The AdapterView position that is requesting a view
      * @param convertView The recycled view to populate.
