@@ -40,6 +40,8 @@ import java.util.Arrays;
  */
 public class MainActivityFragment extends Fragment {
 
+    private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+
     private MovieGridAdapter movieGridAdapter;
     boolean sortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
 
@@ -56,6 +58,12 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            Log.v(LOG_TAG,"saved instance state was null");
+        } else {
+
+            Log.v(LOG_TAG,"saved instance state was null");
+        }
         setHasOptionsMenu(true);
     }
 
