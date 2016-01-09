@@ -3,9 +3,8 @@ package com.example.susannah.popularmovies;
 import android.net.Uri;
 
 /** PopMovie holds the data for one retrieved movie. Created when parsing JSON from the movie database.
- *
+ * <p/>
  * Created by Susannah on 11/29/2015.
- *
  */
 public class PopMovie {
 

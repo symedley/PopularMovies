@@ -1,7 +1,6 @@
 package com.example.susannah.popularmovies;
 
 
-
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -15,7 +14,7 @@ import java.util.List;
  * The user has selected Settings from the menu.
  */
 public class SettingsActivity extends PreferenceActivity
-        implements Preference.OnPreferenceChangeListener{
+        implements Preference.OnPreferenceChangeListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +29,7 @@ public class SettingsActivity extends PreferenceActivity
         // setupActionBar();
     }
 
-    /**
+    /*
      * Attaches a listener so the summary is always updated with the preference value.
      * Also fires the listener once, to initialize the summary (so it shows up before the value
      * is changed.)

@@ -59,54 +59,57 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            Log.v(LOG_TAG,"saved instance state was null");
+            Log.v(LOG_TAG, "saved instance state was NOT null");
         } else {
-
-            Log.v(LOG_TAG,"saved instance state was null");
+            Log.v(LOG_TAG, "saved instance state was null");
         }
         setHasOptionsMenu(true);
     }
 
+    View rootView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        if (rootView == null) {
+            rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
-                R.id.gridView, popMovies);
+            movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
+                    R.id.gridView, popMovies);
 
-        // Get a reference to the ListView, and attach this adapter to it.
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-        gridView.setAdapter(movieGridAdapter);
+            // Get a reference to the ListView, and attach this adapter to it.
+            GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+            gridView.setAdapter(movieGridAdapter);
 
-        // When user clicks on a movie, open an activity with detail about
-        // that one movie.
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            // get the item clicked on and display it's information
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                PopMovie oneMovie = (PopMovie) parent.getItemAtPosition(position);
-                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                // TODO Can I pass the object PopMovie to the intent as an extra?
-                // or do I have to just pull the primitive objects out of oneMovie
-                // and pass them each individually to the Intent putExtra?
-                // Looks like I would have to have OneMovie implement Parcelable
+            // When user clicks on a movie, open an activity with detail about
+            // that one movie.
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                // get the item clicked on and display it's information
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    PopMovie oneMovie = (PopMovie) parent.getItemAtPosition(position);
+                    Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                    // TODO Can I pass the object PopMovie to the intent as an extra?
+                    // or do I have to just pull the primitive objects out of oneMovie
+                    // and pass them each individually to the Intent putExtra?
+                    // Looks like I would have to have OneMovie implement Parcelable
 
-                detailIntent.putExtra(getString(R.string.title), oneMovie.title);
-                detailIntent.putExtra(getString(R.string.original_title), oneMovie.origTitle);
-                // Pass in only the poster image name instead of the whole Uri, so
-                // that the detail view can retrieve a larger image.
-                detailIntent.putExtra(getString(R.string.poster_path), oneMovie.posterPath);
-                detailIntent.putExtra(getString(R.string.synopsis), oneMovie.overview);
-                detailIntent.putExtra(getString(R.string.rating), Float.toString(oneMovie.voteAverage));
-                detailIntent.putExtra(getString(R.string.release_date), oneMovie.releaseDate);
-                startActivity(detailIntent);
-            }
-        });
+                    detailIntent.putExtra(getString(R.string.title), oneMovie.title);
+                    detailIntent.putExtra(getString(R.string.original_title), oneMovie.origTitle);
+                    // Pass in only the poster image name instead of the whole Uri, so
+                    // that the detail view can retrieve a larger image.
+                    detailIntent.putExtra(getString(R.string.poster_path), oneMovie.posterPath);
+                    detailIntent.putExtra(getString(R.string.synopsis), oneMovie.overview);
+                    detailIntent.putExtra(getString(R.string.rating), Float.toString(oneMovie.voteAverage));
+                    detailIntent.putExtra(getString(R.string.release_date), oneMovie.releaseDate);
+                    startActivity(detailIntent);
+                }
+            });
+        }
         return rootView;
     }
 
-    /*
+    /** updateMovies checks the sort order and then starts the fetchMovieTask
     * Sort order: user can choose to sort by Most Popular or by Highest Rated
     */
     private void updateMovies() {
@@ -114,9 +117,9 @@ public class MainActivityFragment extends Fragment {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sort = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
-        if (sort.equals( getString(R.string.pref_sort_popular)))
+        if (sort.equals(getString(R.string.pref_sort_popular)))
             sortPopular = true;
-        else  if (sort.equals(  getString(R.string.pref_sort_rated)))
+        else if (sort.equals(getString(R.string.pref_sort_rated)))
             sortPopular = false;
         else
             // this should not happen
@@ -131,8 +134,7 @@ public class MainActivityFragment extends Fragment {
         inflater.inflate(R.menu.mainactivityfragment, menu);
     }
 
-    /*
-     * Options Menu
+    /** Options Menu
      * The user has selected something from the menu.
      * Refresh
      * Sort: The sort order can be by most popular, or by highest-rated
@@ -158,6 +160,16 @@ public class MainActivityFragment extends Fragment {
         super.onStart();
         updateMovies();
     }
+
+    @Override
+    /** onSAveInstanceState: so a screen rotation won't cause a new database query, do some magic or cheat.
+     *
+     */
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        //savedInstanceState.putString(KEY_TITLE, title);
+    }
+
 
     public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
 
@@ -323,7 +335,7 @@ public class MainActivityFragment extends Fragment {
                 }
 
                 moviesJsonStr = buffer.toString();
-            } catch ( IOException e ) {
+            } catch (IOException e) {
                 Log.e(LOG_TAG, "Error: ", e);
                 // If the data was not successfully retrieved, no need to parse it.
                 return null;
@@ -342,7 +354,7 @@ public class MainActivityFragment extends Fragment {
 
             try {
                 return getMovieDataFromJson(moviesJsonStr);
-            } catch (JSONException e ) {
+            } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
                 return null;

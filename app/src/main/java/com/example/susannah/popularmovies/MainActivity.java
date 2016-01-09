@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 /** MainActivity is where it all starts.
- *
  */
 public class MainActivity extends AppCompatActivity {
 

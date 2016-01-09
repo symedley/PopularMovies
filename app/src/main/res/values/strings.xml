@@ -85,5 +85,7 @@
     <string name="rating">Rating</string>
     <string name="release_date">Release Date</string>
     <string name="title">Title</string>
+    <string name="synopsis_colon">Synopsis:</string>
+    <string name="movie_title">Movie title</string>
 
 </resources>
