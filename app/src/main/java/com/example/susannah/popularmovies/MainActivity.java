@@ -1,6 +1,8 @@
 package com.example.susannah.popularmovies;
 
+//import android.app.FragmentManager;
 import android.content.Intent;
+import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        FragmentManager fm =  getSupportFragmentManager();
+           fm.beginTransaction()
+                    .add(R.id.main, new MainActivityFragment())
+                    .commit();
 
         //toolbar.setSubtitle("sorted by ...");
     }
