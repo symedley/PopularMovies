@@ -17,6 +17,7 @@ import android.view.MenuItem;
  */
 public class MainActivity extends AppCompatActivity {
 
+    static final String FRAGMENT_TAG="MAINACTIVITYFRAGMENT";
     /*
      * The ToolBar title will be automatically set to the name of the app.
      */
@@ -27,9 +28,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FragmentManager fm =  getSupportFragmentManager();
-           fm.beginTransaction()
-                    .add(R.id.main, new MainActivityFragment())
+        MainActivityFragment maf = (MainActivityFragment)fm.findFragmentByTag(FRAGMENT_TAG);
+        if (maf == null) {
+            fm.beginTransaction()
+                    .add(R.id.main, new MainActivityFragment(), FRAGMENT_TAG)
                     .commit();
+        }
 
         //toolbar.setSubtitle("sorted by ...");
     }
