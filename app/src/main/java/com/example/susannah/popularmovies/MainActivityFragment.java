@@ -50,6 +50,8 @@ public class MainActivityFragment extends Fragment {
     };
     public ArrayList<PopMovie> popMovies;
 
+    public static final String KEY_ARRAY = "KEYARRAY";
+
     public MainActivityFragment() {
         popMovies = new ArrayList(Arrays.asList(popMovieArray));
         sortPopular = true;
@@ -60,6 +62,7 @@ public class MainActivityFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             Log.v(LOG_TAG, "saved instance state was NOT null");
+            popMovies = savedInstanceState.getParcelableArrayList(KEY_ARRAY);
         } else {
             Log.v(LOG_TAG, "saved instance state was null");
         }
@@ -72,6 +75,11 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (rootView == null) {
+            if (savedInstanceState == null) {
+                updateMovies();
+            } else {
+                // Pull the data out
+            }
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
@@ -158,7 +166,6 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateMovies();
     }
 
     @Override
@@ -168,8 +175,8 @@ public class MainActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         //savedInstanceState.putString(KEY_TITLE, title);
+        savedInstanceState.putParcelableArrayList(KEY_ARRAY, popMovies);
     }
-
 
     public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
 

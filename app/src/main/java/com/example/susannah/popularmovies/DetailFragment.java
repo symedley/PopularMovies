@@ -113,6 +113,5 @@ public class DetailFragment extends Fragment {
         savedInstanceState.putString(KEY_RATING, rating);
         savedInstanceState.putString(KEY_RELEASEDATE, releaseDate);
         savedInstanceState.putString(KEY_POSTERPATH, posterPath);
-
     }
 }

@@ -149,7 +149,7 @@ public class PopMovie implements Parcelable {
         dest.writeString( origLang);
         dest.writeString(title);
         dest.writeString(backdropPath);
-        // LEFT OFF. TODO
+
         dest.writeFloat(popularity);
         dest.writeInt( voteCount);
 
