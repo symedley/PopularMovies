@@ -102,14 +102,14 @@ public class MainActivityFragment extends Fragment {
                     // and pass them each individually to the Intent putExtra?
                     // Looks like I would have to have OneMovie implement Parcelable
 
-                    detailIntent.putExtra(getString(R.string.title), oneMovie.title);
-                    detailIntent.putExtra(getString(R.string.original_title), oneMovie.origTitle);
+                    detailIntent.putExtra(getString(R.string.title), oneMovie.mTitle);
+                    detailIntent.putExtra(getString(R.string.original_title), oneMovie.mOrigTitle);
                     // Pass in only the poster image name instead of the whole Uri, so
                     // that the detail view can retrieve a larger image.
                     detailIntent.putExtra(getString(R.string.poster_path), oneMovie.posterPath);
-                    detailIntent.putExtra(getString(R.string.synopsis), oneMovie.overview);
-                    detailIntent.putExtra(getString(R.string.rating), Float.toString(oneMovie.voteAverage));
-                    detailIntent.putExtra(getString(R.string.release_date), oneMovie.releaseDate);
+                    detailIntent.putExtra(getString(R.string.synopsis), oneMovie.mOverview);
+                    detailIntent.putExtra(getString(R.string.rating), Float.toString(oneMovie.mVoteAverage));
+                    detailIntent.putExtra(getString(R.string.release_date), oneMovie.mReleaseDate);
                     startActivity(detailIntent);
                 }
             });
@@ -158,6 +158,7 @@ public class MainActivityFragment extends Fragment {
         if (itemId == R.id.action_settings) {
             Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
             startActivity(settingsIntent);
+            updateMovies();
             return true;
         }
         return super.onOptionsItemSelected(menuItem);
@@ -174,7 +175,7 @@ public class MainActivityFragment extends Fragment {
      */
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        //savedInstanceState.putString(KEY_TITLE, title);
+        //savedInstanceState.putString(KEY_TITLE, mTitle);
         savedInstanceState.putParcelableArrayList(KEY_ARRAY, popMovies);
     }
 
@@ -215,8 +216,6 @@ public class MainActivityFragment extends Fragment {
             final String TMD_VOTE_AVERAGE = "vote_average";        // float
             float voteAverage;
 
-            // first clear out the existing array
-            // TODO replace this with directly adding to the ArrayList so that I can avoid the magic number
             popMovies = new ArrayList();
 
             JSONObject forecastJson = new JSONObject(movieJsonStr);
@@ -292,8 +291,8 @@ public class MainActivityFragment extends Fragment {
             final String API_KEY_PARAM = "api_key";
             final String TOP_RATED = "top_rated";
             final String SORT_BY_PARAM = "sort_by";
-            final String POPULARITY_DESC = "popularity.desc"; // sort by value is popularity descending
-            final String RATED_DESC = "vote_average.desc"; // sort by value is popularity descending
+            final String POPULARITY_DESC = "mPopularity.desc"; // sort by value is mPopularity descending
+            final String RATED_DESC = "vote_average.desc"; // sort by value is mPopularity descending
             final String VOTE_COUNT = "vote_count.gte";
             final String MIN_VOTES = "50";
             //  add "vote_count.gte=x" so only movies with a lot of votes show up when doing vote average

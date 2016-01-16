@@ -1,3 +1,6 @@
+/*
+ * Copyright (C) 2016 S Medley
+ */
 package com.example.susannah.popularmovies;
 
 import android.app.Fragment;
@@ -15,20 +18,20 @@ import com.squareup.picasso.Picasso;
 import static com.example.susannah.popularmovies.R.*;
 
 /**
- * DetailFragment displays the details of a single movie
- * The data is passed through as extras.
+ * Displays the details of a single movie, getting the data from extras.
  * <p/>
  * Created by Susannah on 12/28/2015.
  */
 public class DetailFragment extends Fragment {
 
     View root;
-    String title = "Title";
-    String originalTitle;
-    String synopsis;
-    String rating;
-    String releaseDate;
-    String posterPath;
+    String mTitle;
+    String mOriginalTitle;
+    String mSynopsis;
+    String mRating;
+    String mReleaseDate;
+    String mPosterPath;
+
     static final String KEY_TITLE = "TITLE";
     static final String KEY_ORIGTITLE = "ORIGTITLE";
     static final String KEY_SYNOPSIS = "SYNOPSIS";
@@ -36,53 +39,61 @@ public class DetailFragment extends Fragment {
     static final String KEY_RELEASEDATE = "RELEASEDATE";
     static final String KEY_POSTERPATH = "POSTERPATH";
 
+    /** Displays the detailed information about one movie
+     *
+     * @param inflater The inflator used to inflate the layout
+     * @param container The view group in which this view will reside
+     * @param savedInstanceState The saved data to be displayed, if this view has already been created
+     * @return The view created
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         if (root == null) {
             root = inflater.inflate(layout.fragment_detail, container, false);
 
-
-            //Context context = container.getContext();
             Context context = getActivity().getApplicationContext();
 
-
             if (savedInstanceState != null) {
-                title = savedInstanceState.getString(KEY_TITLE);
-                originalTitle = savedInstanceState.getString(KEY_ORIGTITLE);
-                synopsis = savedInstanceState.getString(KEY_SYNOPSIS);
-                rating = savedInstanceState.getString(KEY_RATING);
-                releaseDate = savedInstanceState.getString(KEY_RELEASEDATE);
-                posterPath = savedInstanceState.getString(KEY_POSTERPATH);
-
+                mTitle = savedInstanceState.getString(KEY_TITLE);
+                mOriginalTitle = savedInstanceState.getString(KEY_ORIGTITLE);
+                mSynopsis = savedInstanceState.getString(KEY_SYNOPSIS);
+                mRating = savedInstanceState.getString(KEY_RATING);
+                mReleaseDate = savedInstanceState.getString(KEY_RELEASEDATE);
+                mPosterPath = savedInstanceState.getString(KEY_POSTERPATH);
             } else {
                 Bundle extras = getActivity().getIntent().getExtras();
                 if (extras == null) {
-                    title = "No data";
+                    mTitle = "No data";
                 } else {
-                    title = extras.getString(getString(string.title));
-                    originalTitle = extras.getString(getString(string.original_title));
-                    if (originalTitle.equals(title))
-                        originalTitle = "";
-                    posterPath = extras.getString(getString(string.poster_path));
-                    synopsis = extras.getString(getString(string.synopsis));
-                    rating = extras.getString(getString(string.rating));
-                    releaseDate = extras.getString(getString(string.release_date));
-                                   }
+                    mTitle = extras.getString(getString(string.title));
+                    mOriginalTitle = extras.getString(getString(string.original_title));
+                    if (mOriginalTitle == null)
+                        mOriginalTitle = "";
+                    if (mOriginalTitle.equals(mTitle))
+                        mOriginalTitle = "";
+                    mPosterPath = extras.getString(getString(string.poster_path));
+                    mSynopsis = extras.getString(getString(string.synopsis));
+                    mRating = extras.getString(getString(string.rating));
+                    mReleaseDate = extras.getString(getString(string.release_date));
+                }
             }
-            ((TextView) root.findViewById(id.title)).setText(context.getString(string.title) + ": " + title);
+            ((TextView) root.findViewById(id.title)).setText(
+                        String.format("%s: %s", context.getString(string.title),  mTitle));
 
-            if (originalTitle != null) {
-                ((TextView) root.findViewById(id.original_title)).setText(originalTitle);
+            if (mOriginalTitle != null) {
+                ((TextView) root.findViewById(id.original_title)).setText(mOriginalTitle);
             }
 
-            ((TextView) root.findViewById(id.synopsis)).setText(synopsis);
-            ((TextView) root.findViewById(id.rating)).setText(context.getString(string.rating) + ": " + rating);
-            ((TextView) root.findViewById(id.release_date)).setText(context.getString(string.release_date) + ": " + releaseDate);
+            ((TextView) root.findViewById(id.synopsis)).setText(mSynopsis);
+            ((TextView) root.findViewById(id.rating)).setText(
+                        String.format("%s: %s", context.getString(string.rating) , mRating));
+            ((TextView) root.findViewById(id.release_date)).setText(
+                        String.format("%s: %s", context.getString(string.release_date),mReleaseDate));
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
-            if ((context != null) && (posterPath != null)) {
+
+            // Use the movie database URI of the image and picasso to get the movie poster image to display.
+            if (mPosterPath != null) {
                 final String URI_SCHEME = "http";
                 final String URI_AUTH = "image.tmdb.org";
                 final String URI_T = "t";
@@ -94,24 +105,28 @@ public class DetailFragment extends Fragment {
                 uriBuilder.appendPath(context.getString(R.string.uriT))
                         .appendPath(context.getString(R.string.uriP));
                 uriBuilder.appendPath(IMAGE_SIZE);
-                uriBuilder.appendPath(posterPath);
+                uriBuilder.appendPath(mPosterPath);
                 String u = uriBuilder.build().toString();
                 Picasso.with(context).load(u).into(thumbView);
             }
         }
 
-        ((TextView) root.findViewById(id.title)).setText(title);
+        ((TextView) root.findViewById(id.title)).setText(mTitle);
         return root;
     }
 
+    /** Save the data for 1 movie so the view can be recreated (for eg. this is a screen rotation)
+     *
+     * @param savedInstanceState the place to store the data
+     */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putString(KEY_TITLE, title);
-        savedInstanceState.putString(KEY_ORIGTITLE, originalTitle);
-        savedInstanceState.putString(KEY_SYNOPSIS, synopsis);
-        savedInstanceState.putString(KEY_RATING, rating);
-        savedInstanceState.putString(KEY_RELEASEDATE, releaseDate);
-        savedInstanceState.putString(KEY_POSTERPATH, posterPath);
+        savedInstanceState.putString(KEY_TITLE, mTitle);
+        savedInstanceState.putString(KEY_ORIGTITLE, mOriginalTitle);
+        savedInstanceState.putString(KEY_SYNOPSIS, mSynopsis);
+        savedInstanceState.putString(KEY_RATING, mRating);
+        savedInstanceState.putString(KEY_RELEASEDATE, mReleaseDate);
+        savedInstanceState.putString(KEY_POSTERPATH, mPosterPath);
     }
 }

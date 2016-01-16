@@ -13,20 +13,20 @@ public class PopMovie implements Parcelable {
     String posterPath;
     String posterPathUri;
 
-    boolean adult;
-    String overview;
-    String releaseDate;
-    int genreIds[];
-    int tmdId; // the movie ID, which I will need later
-    String origTitle;
-    String origLang;
-    String title;
-    String backdropPath;
-    float popularity;
-    int voteCount;
-    boolean video;
-    float voteAverage;
-    int thumb; // integer reference to a thumbnail image
+    boolean mAdult;
+    String mOverview;
+    String mReleaseDate;
+    int mGenreIds[];
+    int mTmdId; // the movie ID, which I will need later
+    String mOrigTitle;
+    String mOrigLang;
+    String mTitle;
+    String mBackdropPath;
+    float mPopularity;
+    int mVoteCount;
+    boolean mVideo;
+    float mVoteAverage;
+    int mThumb; // integer reference to a thumbnail image
 
     public PopMovie(
             String vPosterPath,
@@ -63,31 +63,31 @@ public class PopMovie implements Parcelable {
         uriBuilder.appendPath(posterPath);
         posterPathUri = uriBuilder.build().toString();
 
-        adult = vAdult;
-        overview = vOverview;
-        releaseDate = vReleaseDate;
-        genreIds = vGenreIds;
-        tmdId = vTmdId;
-        origTitle = vOrigTitle;
-        origLang = vOrigLang;
-        title = vTitle;
-        backdropPath = vBackdropPath;
-        popularity = vPopularity;
-        voteCount = vVoteCount;
-        video = vVideo;
-        voteAverage = vVoteAverage;
+        mAdult = vAdult;
+        mOverview = vOverview;
+        mReleaseDate = vReleaseDate;
+        mGenreIds = vGenreIds;
+        mTmdId = vTmdId;
+        mOrigTitle = vOrigTitle;
+        mOrigLang = vOrigLang;
+        mTitle = vTitle;
+        mBackdropPath = vBackdropPath;
+        mPopularity = vPopularity;
+        mVoteCount = vVoteCount;
+        mVideo = vVideo;
+        mVoteAverage = vVoteAverage;
 
         // TODO deal better with the dummy image
-        thumb = R.drawable.thumb;
+        mThumb = R.drawable.thumb;
     }
 
     public PopMovie(
             String vTitle) {
 
-        title = vTitle;
+        mTitle = vTitle;
 
         // TODO deal better with the dummy image
-        thumb = R.drawable.thumb;
+        mThumb = R.drawable.thumb;
     }
 
     /** private creator called when creating the object from the parcel
@@ -99,27 +99,26 @@ public class PopMovie implements Parcelable {
         posterPath = parcelIn.readString();
         parcelIn.writeString(posterPathUri);
         int adultInt = parcelIn.readInt();
-        adult = (adultInt==1) ? true : false;
+        mAdult = (adultInt==1) ? true : false;
 
-        overview = parcelIn.readString();
-        releaseDate = parcelIn.readString();
+        mOverview = parcelIn.readString();
+        mReleaseDate = parcelIn.readString();
 
-        genreIds = parcelIn.createIntArray();
+        mGenreIds = parcelIn.createIntArray();
 
-        tmdId = parcelIn.readInt();
-        origTitle = parcelIn.readString();
-        origLang = parcelIn.readString();
-        title = parcelIn.readString();
-        backdropPath = parcelIn.readString();
-        // LEFT OFF. TODO
-        popularity = parcelIn.readFloat();
-        voteCount = parcelIn.readInt();
+        mTmdId = parcelIn.readInt();
+        mOrigTitle = parcelIn.readString();
+        mOrigLang = parcelIn.readString();
+        mTitle = parcelIn.readString();
+        mBackdropPath = parcelIn.readString();
+        mPopularity = parcelIn.readFloat();
+        mVoteCount = parcelIn.readInt();
 
         int videoInt = parcelIn.readInt();
-        video = (videoInt==1) ? true : false;
+        mVideo = (videoInt==1) ? true : false;
 
-        voteAverage = parcelIn.readFloat();
-        thumb = parcelIn.readInt();
+        mVoteAverage = parcelIn.readFloat();
+        mThumb = parcelIn.readInt();
     }
 
     @Override
@@ -131,37 +130,36 @@ public class PopMovie implements Parcelable {
     }
 
     @Override
-    /** writeToParcel
+    /** Write the one movie's data, in sequence, to a parcel so it can be unpacked later
      *
      */
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(posterPath);
         dest.writeString(posterPathUri);
 
-        int adultInt = (adult) ? 1 : 0;
+        int adultInt = (mAdult) ? 1 : 0;
         dest.writeInt(adultInt);
 
-        dest.writeString(overview);
-        dest.writeString(releaseDate);
-        dest.writeIntArray(genreIds);
-        dest.writeInt(tmdId);
-        dest.writeString( origTitle);
-        dest.writeString( origLang);
-        dest.writeString(title);
-        dest.writeString(backdropPath);
+        dest.writeString(mOverview);
+        dest.writeString(mReleaseDate);
+        dest.writeIntArray(mGenreIds);
+        dest.writeInt(mTmdId);
+        dest.writeString(mOrigTitle);
+        dest.writeString(mOrigLang);
+        dest.writeString(mTitle);
+        dest.writeString(mBackdropPath);
 
-        dest.writeFloat(popularity);
-        dest.writeInt( voteCount);
+        dest.writeFloat(mPopularity);
+        dest.writeInt(mVoteCount);
 
-        int videoInt = (video) ? 1 : 0;
+        int videoInt = (mVideo) ? 1 : 0;
         dest.writeInt(  videoInt);
 
-        dest.writeFloat(voteAverage);
-        dest.writeInt( thumb); // integer reference to a thumbnail image
+        dest.writeFloat(mVoteAverage);
+        dest.writeInt(mThumb); // integer reference to a thumbnail image
     }
 
-    /**
-     * Parcelable.Creator is an interface that must be defined. It generates instances of PopMovie from a parcel.
+    /** Parcelable.Creator is an interface that must be defined. It generates instances of PopMovie from a parcel.
      * It creates an object called CREATOR object which is of type PopMovie.
      * 2 required methods
      * newArray will not be useful because we're using an ArrayAdapter which requires a ListArray (?)

@@ -1,3 +1,6 @@
+/*
+ * Copyright (C) 2016 S Medley
+ */
 package com.example.susannah.popularmovies;
 
 import android.content.Context;
@@ -11,7 +14,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-/** MovieGridAdapter is a custom grid adapter to display movie posters in a grid
+/**
+ * MovieGridAdapter is a custom grid adapter to display movie posters in a grid
  * <p/>
  * Created by Susannah on 11/29/2015.
  *
@@ -25,7 +29,7 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
 
     private static final String LOG_TAG = MovieGridAdapter.class.getSimpleName();
 
-    /** method getView. Provides a view for an AdapterView (ListView, GridView, etc.)
+    /** Provides a view for an AdapterView (ListView, GridView, etc.)
      *
      * @param position    The AdapterView position that is requesting a view
      * @param convertView The recycled view to populate.
@@ -50,7 +54,7 @@ public class MovieGridAdapter extends ArrayAdapter<PopMovie> {
         if (popMovie.posterPathUri != null) {
             Picasso.with(getContext()).load(popMovie.posterPathUri).into(thumbView);
         } else {
-            thumbView.setImageResource(popMovie.thumb);
+            thumbView.setImageResource(popMovie.mThumb);
         }
 
         return convertView;

@@ -46,7 +46,7 @@ public class SettingsActivity extends PreferenceActivity
                         .getString(preference.getKey(), ""));
     }
 
-    // true means retrieve and sort by popular movies, false means sort by rating
+    // true means retrieve and sort by popular movies, false means sort by mRating
     boolean isSortByRating;
 
     @Override

@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     static final String FRAGMENT_TAG="MAINACTIVITYFRAGMENT";
     /*
-     * The ToolBar title will be automatically set to the name of the app.
+     * The ToolBar mTitle will be automatically set to the name of the app.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
