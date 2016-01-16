@@ -37,6 +37,8 @@ import java.util.Arrays;
  *
  * This class will have to create the call to the movie database and initialize a background
  * task to fetch and parse data.
+ *
+ * See MIN_VOTES to adjust how many votes a movie must have to be included in the results.
  */
 public class MainActivityFragment extends Fragment {
 
@@ -50,7 +52,7 @@ public class MainActivityFragment extends Fragment {
     };
     public ArrayList<PopMovie> popMovies;
 
-    public static final String KEY_ARRAY = "KEYARRAY";
+    public static final String KEY_SAVED_INSTANCE_ARRAY = "KEY_SAVED_INSTANCE_ARRAY";
 
     public MainActivityFragment() {
         popMovies = new ArrayList(Arrays.asList(popMovieArray));
@@ -62,7 +64,7 @@ public class MainActivityFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             Log.v(LOG_TAG, "saved instance state was NOT null");
-            popMovies = savedInstanceState.getParcelableArrayList(KEY_ARRAY);
+            popMovies = savedInstanceState.getParcelableArrayList(KEY_SAVED_INSTANCE_ARRAY);
         } else {
             Log.v(LOG_TAG, "saved instance state was null");
         }
@@ -158,7 +160,6 @@ public class MainActivityFragment extends Fragment {
         if (itemId == R.id.action_settings) {
             Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
             startActivity(settingsIntent);
-            updateMovies();
             return true;
         }
         return super.onOptionsItemSelected(menuItem);
@@ -176,14 +177,14 @@ public class MainActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         //savedInstanceState.putString(KEY_TITLE, mTitle);
-        savedInstanceState.putParcelableArrayList(KEY_ARRAY, popMovies);
+        savedInstanceState.putParcelableArrayList(KEY_SAVED_INSTANCE_ARRAY, popMovies);
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
+    public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
 
-        private String[] getMovieDataFromJson(String movieJsonStr)
+        private Boolean getMovieDataFromJson(String movieJsonStr)
                 throws JSONException {
             // These are the names of the JSON objects that need to be extracted.
             final String TMD_RESULTS = "results";
@@ -260,13 +261,11 @@ public class MainActivityFragment extends Fragment {
                         video,
                         voteAverage);
 
-                // resultStrs is a placeholder until i figure out how to get the
-                // full movie object back from the async task
                 popMovies.add(oneMovie);
-                resultStrs[i] = title;
+                //resultStrs[i] = title;
             }
-
-            return resultStrs;
+            return Boolean.TRUE;
+            //return resultStrs;
         }
 
         /*
@@ -275,10 +274,9 @@ public class MainActivityFragment extends Fragment {
          * params might need to be something other than String. PErhaps should tell the
          * method whether to retrieve most popular or most highly rated.
          *
-         * TODO does this ever not return null? Why?
          */
         @Override
-        protected String[] doInBackground(String... params) {
+        protected Boolean doInBackground(String... params) {
 
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -294,7 +292,7 @@ public class MainActivityFragment extends Fragment {
             final String POPULARITY_DESC = "mPopularity.desc"; // sort by value is mPopularity descending
             final String RATED_DESC = "vote_average.desc"; // sort by value is mPopularity descending
             final String VOTE_COUNT = "vote_count.gte";
-            final String MIN_VOTES = "50";
+            final String MIN_VOTES = "100";
             //  add "vote_count.gte=x" so only movies with a lot of votes show up when doing vote average
             String sortPref;
 
@@ -326,7 +324,7 @@ public class MainActivityFragment extends Fragment {
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
-                    return null;
+                    return Boolean.FALSE;
                 }
 
                 reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -337,14 +335,14 @@ public class MainActivityFragment extends Fragment {
 
                 if (buffer.length() == 0) {
                     // Stream was empty
-                    return null;
+                    return Boolean.FALSE;
                 }
 
                 moviesJsonStr = buffer.toString();
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error: ", e);
                 // If the data was not successfully retrieved, no need to parse it.
-                return null;
+                return Boolean.FALSE;
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -363,14 +361,13 @@ public class MainActivityFragment extends Fragment {
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
-                return null;
+                return Boolean.FALSE;
             }
         }
 
         @Override
-        protected void onPostExecute(String[] strings) {
-            if (strings != null) {
-                //popMovies = new ArrayList( Arrays.asList(popMovieArray));
+        protected void onPostExecute(Boolean success) {
+            if ((success != null) && (success == Boolean.TRUE)) {
                 movieGridAdapter.clear();
                 movieGridAdapter.addAll(popMovies);
             }
