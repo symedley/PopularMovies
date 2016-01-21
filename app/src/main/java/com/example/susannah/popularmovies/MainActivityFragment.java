@@ -1,5 +1,6 @@
 package com.example.susannah.popularmovies;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -63,10 +64,7 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            Log.v(LOG_TAG, "saved instance state was NOT null");
             popMovies = savedInstanceState.getParcelableArrayList(KEY_SAVED_INSTANCE_ARRAY);
-        } else {
-            Log.v(LOG_TAG, "saved instance state was null");
         }
         setHasOptionsMenu(true);
     }
@@ -149,6 +147,7 @@ public class MainActivityFragment extends Fragment {
      * Refresh
      * Sort: The sort order can be by most popular, or by highest-rated
      */
+    public static final int RESULT_KEY = 7;
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemId;
@@ -157,12 +156,20 @@ public class MainActivityFragment extends Fragment {
             updateMovies();
             return true;
         }
+
         if (itemId == R.id.action_settings) {
             Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
-            startActivity(settingsIntent);
+            startActivityForResult(settingsIntent, RESULT_KEY);
             return true;
         }
         return super.onOptionsItemSelected(menuItem);
+    }
+
+    public void onActivityResult( int requestCode, int resultsCode, Intent data) {
+        super.onActivityResult(requestCode, resultsCode, data);
+        if (requestCode == RESULT_KEY) {
+            updateMovies();
+        }
     }
 
     @Override
@@ -171,7 +178,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
-    /** onSAveInstanceState: so a screen rotation won't cause a new database query, do some magic or cheat.
+    /** onSaveInstanceState: so a screen rotation won't cause a new database query, do some magic or cheat.
      *
      */
     public void onSaveInstanceState(Bundle savedInstanceState) {

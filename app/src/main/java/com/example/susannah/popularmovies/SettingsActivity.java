@@ -1,6 +1,7 @@
 package com.example.susannah.popularmovies;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -16,6 +17,7 @@ import java.util.List;
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
 
+    public static final int RESULT_KEY = 7;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +28,7 @@ public class SettingsActivity extends PreferenceActivity
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_sort_key)));
 
         PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+        setResult(RESULT_KEY);
         // setupActionBar();
     }
 
@@ -45,9 +48,6 @@ public class SettingsActivity extends PreferenceActivity
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
     }
-
-    // true means retrieve and sort by popular movies, false means sort by mRating
-    boolean isSortByRating;
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {

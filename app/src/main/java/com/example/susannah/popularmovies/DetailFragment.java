@@ -39,6 +39,23 @@ public class DetailFragment extends Fragment {
     static final String KEY_RELEASEDATE = "RELEASEDATE";
     static final String KEY_POSTERPATH = "POSTERPATH";
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mTitle = savedInstanceState.getString(KEY_TITLE);
+            mOriginalTitle = savedInstanceState.getString(KEY_ORIGTITLE);
+            mSynopsis = savedInstanceState.getString(KEY_SYNOPSIS);
+            mRating = savedInstanceState.getString(KEY_RATING);
+            mReleaseDate = savedInstanceState.getString(KEY_RELEASEDATE);
+            mPosterPath = savedInstanceState.getString(KEY_POSTERPATH);
+
+        } else {
+
+        }
+        setHasOptionsMenu(true);
+    }
+
     /** Displays the detailed information about one movie
      *
      * @param inflater The inflator used to inflate the layout
@@ -54,14 +71,7 @@ public class DetailFragment extends Fragment {
 
             Context context = getActivity().getApplicationContext();
 
-            if (savedInstanceState != null) {
-                mTitle = savedInstanceState.getString(KEY_TITLE);
-                mOriginalTitle = savedInstanceState.getString(KEY_ORIGTITLE);
-                mSynopsis = savedInstanceState.getString(KEY_SYNOPSIS);
-                mRating = savedInstanceState.getString(KEY_RATING);
-                mReleaseDate = savedInstanceState.getString(KEY_RELEASEDATE);
-                mPosterPath = savedInstanceState.getString(KEY_POSTERPATH);
-            } else {
+            if (savedInstanceState == null) {
                 Bundle extras = getActivity().getIntent().getExtras();
                 if (extras == null) {
                     mTitle = "No data";
@@ -121,12 +131,12 @@ public class DetailFragment extends Fragment {
      */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putString(KEY_TITLE, mTitle);
         savedInstanceState.putString(KEY_ORIGTITLE, mOriginalTitle);
         savedInstanceState.putString(KEY_SYNOPSIS, mSynopsis);
         savedInstanceState.putString(KEY_RATING, mRating);
         savedInstanceState.putString(KEY_RELEASEDATE, mReleaseDate);
         savedInstanceState.putString(KEY_POSTERPATH, mPosterPath);
+        super.onSaveInstanceState(savedInstanceState);
     }
 }

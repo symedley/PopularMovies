@@ -16,10 +16,10 @@
 
     <string name="pref_sort_popular" translatable="false">Popular</string>
     <string name="pref_sort_rated" translatable="false">Rated</string>
-    <string name="pref_sort_default" translatable="false">Popular</string>
+    <string name="pref_sort_default" translatable="false">Rated</string>
     <string name="pref_sort_label_popular" translatable="false">Most popular</string>
     <string name="pref_sort_label_rated" translatable="false">Most highly rated</string>
-    <string name="pref_sort_label_default" translatable="false">Most popular</string>
+    <string name="pref_sort_label_default" translatable="false">Most highly rated</string>
 
     <string name="pref_sort_label" translatable="false">Sort Order</string>
 
