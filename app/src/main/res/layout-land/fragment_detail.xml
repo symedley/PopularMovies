@@ -1,92 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:id="@+id/linearLayout"
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="false"
         android:layout_alignParentEnd="false">
 
-        <TextView
-            android:id="@+id/title"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:text="@string/movie_title"
-            android:layout_gravity="start"
-            android:elegantTextHeight="true"
-            android:textStyle="bold"
-            android:textSize="@dimen/design_tab_text_size"
-            android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
-            android:layout_marginBottom="@dimen/abc_text_size_small_material" />
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:id="@+id/linearLayout"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentEnd="false">
 
-        <TextView
-            android:id="@+id/original_title"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/original_title"
-            android:textSize="@dimen/design_tab_text_size_2line" />
+            <TextView
+                android:id="@+id/title"
+                android:textAppearance="?android:attr/textAppearanceListItem"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/movie_title"
+                android:layout_gravity="start"
+                android:elegantTextHeight="true"
+                android:textStyle="bold"
+                android:textSize="@dimen/design_tab_text_size"
+                android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
+                android:layout_marginBottom="@dimen/abc_text_size_small_material" />
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/synopsis_colon"
-            android:id="@+id/synopsisLabel"
-            android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
-            android:textStyle="bold"
-            android:textSize="@dimen/abc_text_size_small_material" />
+            <TextView
+                android:id="@+id/original_title"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/original_title"
+                android:textSize="@dimen/design_tab_text_size_2line" />
 
-        <TextView
-            android:id="@+id/synopsis"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/synopsis"
-            android:textSize="@dimen/design_tab_text_size_2line"
-            android:layout_marginBottom="@dimen/abc_text_size_small_material"
-            android:layout_marginRight="@dimen/abc_text_size_small_material" />
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/synopsis_colon"
+                android:id="@+id/synopsisLabel"
+                android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
+                android:textStyle="bold"
+                android:textSize="@dimen/abc_text_size_small_material" />
 
-        <TextView
-            android:id="@+id/rating"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Rating"
-            android:textSize="@dimen/design_tab_text_size_2line"
-            android:layout_marginBottom="@dimen/abc_text_size_small_material" />
+            <TextView
+                android:id="@+id/synopsis"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/synopsis"
+                android:textSize="@dimen/design_tab_text_size_2line"
+                android:layout_marginBottom="@dimen/abc_text_size_small_material"
+                android:layout_marginRight="@dimen/abc_text_size_small_material" />
 
-        <TextView
-            android:id="@+id/release_date"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Release date"
-            android:textSize="@dimen/design_tab_text_size_2line"
-            android:layout_below="@+id/movie_poster" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/rating"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Rating"
+                android:textSize="@dimen/design_tab_text_size_2line"
+                android:layout_marginBottom="@dimen/abc_text_size_small_material" />
+
+            <TextView
+                android:id="@+id/release_date"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Release date"
+                android:textSize="@dimen/design_tab_text_size_2line"
+                android:layout_below="@+id/movie_poster" />
+
+
+        </LinearLayout>
+    </ScrollView>
 
     <ImageView
         android:id="@+id/movie_poster"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/linearLayout"
         android:layout_toEndOf="@+id/linearLayout"
         android:layout_marginLeft="37dp"
         android:layout_marginStart="37dp" />
+</LinearLayout>
 
-</RelativeLayout>

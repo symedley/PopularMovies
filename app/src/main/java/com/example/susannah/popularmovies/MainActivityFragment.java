@@ -97,7 +97,6 @@ public class MainActivityFragment extends Fragment {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     PopMovie oneMovie = (PopMovie) parent.getItemAtPosition(position);
                     Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                    // TODO Can I pass the object PopMovie to the intent as an extra?
                     // or do I have to just pull the primitive objects out of oneMovie
                     // and pass them each individually to the Intent putExtra?
                     // Looks like I would have to have OneMovie implement Parcelable

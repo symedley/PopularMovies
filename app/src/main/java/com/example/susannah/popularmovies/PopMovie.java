@@ -77,7 +77,6 @@ public class PopMovie implements Parcelable {
         mVideo = vVideo;
         mVoteAverage = vVoteAverage;
 
-        // TODO deal better with the dummy image
         mThumb = R.drawable.thumb;
     }
 
@@ -86,7 +85,6 @@ public class PopMovie implements Parcelable {
 
         mTitle = vTitle;
 
-        // TODO deal better with the dummy image
         mThumb = R.drawable.thumb;
     }
 
