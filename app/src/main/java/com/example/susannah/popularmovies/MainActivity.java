@@ -27,17 +27,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        /*
-        FragmentManager fm =  getSupportFragmentManager();
-        MainActivityFragment maf = (MainActivityFragment)fm.findFragmentByTag(FRAGMENT_TAG);
 
-            fm.beginTransaction()
-                    .add(R.id.main, new MainActivityFragment(), FRAGMENT_TAG)
-                    .commit();
-
-        //toolbar.setSubtitle("sorted by ...");
-        */
     }
-
-
 }
