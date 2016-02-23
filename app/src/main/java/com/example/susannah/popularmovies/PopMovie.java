@@ -17,7 +17,7 @@ public class PopMovie implements Parcelable {
     String mOverview;
     String mReleaseDate;
     int mGenreIds[];
-    int mTmdId; // the movie ID, which I will need later
+    int mTmdId; // The Movie Database ID, which I will need later
     String mOrigTitle;
     String mOrigLang;
     String mTitle;
