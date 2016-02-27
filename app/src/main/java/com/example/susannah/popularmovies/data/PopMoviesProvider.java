@@ -23,8 +23,8 @@ public class PopMoviesProvider extends ContentProvider {
     private static final int POPMOVIE = 100;
     private static final int POPMOVIE_WITH_ID = 200;
 
-
-    public SQLiteQueryBuilder sSQLiteQueryBuilder;
+    //The Query builder might only be needed if you're defining a JOIN between tables
+    //private static final SQLiteQueryBuilder sSQLiteQueryBuilder;
 
     private static UriMatcher buildUriMatcher() {
 

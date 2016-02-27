@@ -3,11 +3,15 @@ package com.example.susannah.popularmovies;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.example.susannah.popularmovies.data.PopMoviesContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,12 +47,19 @@ import java.util.Arrays;
  *
  * See MIN_VOTES to adjust how many votes a movie must have to be included in the results.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
+    // Related to Content Provider, Loader and SQLiteDatabase
+    private static final int CURSOR_LOADER_ID = 0;
+
     private MovieGridAdapter movieGridAdapter;
     boolean sortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
+
+    // Changing to using SQLite and Content Provider
+    private PopMovieAdapter mPopMovieAdapter;
+    private GridView mGridView;
 
     PopMovie[] popMovieArray = {
             new PopMovie("Retrieving movie data...")
@@ -58,6 +71,22 @@ public class MainActivityFragment extends Fragment {
     public MainActivityFragment() {
         popMovies = new ArrayList(Arrays.asList(popMovieArray));
         sortPopular = true;
+    }
+
+    public void onActivityCreated(Bundle savedInstanceState) {
+        // TODO can this be moved to onCreateView?
+        Cursor c =
+                getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                        new String[]{PopMoviesContract.PopMovieEntry._ID},
+                        null,
+                        null,
+                        null);
+        if (c.getCount() == 0){
+            updateMovies();
+        }
+        // initialize loader
+        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -79,19 +108,28 @@ public class MainActivityFragment extends Fragment {
                 updateMovies();
             } else {
                 // Pull the data out
+                // can this logic be moved here from the onACtivityCreated method? TODO
             }
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-            movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
-                    R.id.gridView, popMovies);
+            // START new SQLite and Provider
+            // PopMovieAdapter created with activity, cursor, flags, loaderID
+            mPopMovieAdapter = new PopMovieAdapter(getActivity(), null, 0, CURSOR_LOADER_ID);
+//   WAS         movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
+//                    R.id.gridView, popMovies);
+            // initialize to the GridView in fragment_main.xml
+            mGridView = (GridView) rootView.findViewById(R.id.gridView);
+//   WAS         // Get a reference to the ListView, and attach this adapter to it.
+//            GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
+            // set the GridView's adapter to be our CursorAdapter, PopMovieAdapter
+            mGridView.setAdapter(mPopMovieAdapter);
+// WAS            gridView.setAdapter(movieGridAdapter);
 
-            // Get a reference to the ListView, and attach this adapter to it.
-            GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
-            gridView.setAdapter(movieGridAdapter);
+            // END
 
             // When user clicks on a movie, open an activity with detail about
             // that one movie.
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 // get the item clicked on and display it's information
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -112,6 +150,7 @@ public class MainActivityFragment extends Fragment {
                     startActivity(detailIntent);
                 }
             });
+
         }
         return rootView;
     }
@@ -120,7 +159,7 @@ public class MainActivityFragment extends Fragment {
     * Sort order: user can choose to sort by Most Popular or by Highest Rated
     */
     private void updateMovies() {
-        FetchMovieTask fetchMovieTask = new FetchMovieTask();
+        FetchMovieTask fetchMovieTask = new FetchMovieTask(getContext());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sort = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
@@ -178,7 +217,6 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     /** onSaveInstanceState: so a screen rotation won't cause a new database query, do some magic or cheat.
-     *
      */
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
@@ -186,197 +224,24 @@ public class MainActivityFragment extends Fragment {
         savedInstanceState.putParcelableArrayList(KEY_SAVED_INSTANCE_ARRAY, popMovies);
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
-
-        private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
-
-        private Boolean getMovieDataFromJson(String movieJsonStr)
-                throws JSONException {
-            // These are the names of the JSON objects that need to be extracted.
-            final String TMD_RESULTS = "results";
-            final String TMD_POSTER_PATH = "poster_path";
-            String posterPath;
-            final String TMD_ADULT = "adult";
-            boolean adult;
-            final String TMD_OVERVIEW = "overview";
-            String overview;
-            final String TMD_RELEASE_DATE = "release_date";
-            String releaseDate;
-            final String TMD_GENRE_IDS = "genre_ids";       // An array of int. Usually between 1 and 5 entries
-
-            final String TMD_ID = "id";                            // int
-            int id;
-            final String TMD_ORIGINAL_TITLE = "original_title";        // string
-            String origTitle;
-            final String TMD_ORIGINAL_LANGUAGE = "original_language";// 2 character string eg "en"
-            String origLang;
-            final String TMD_TITLE = "title";                    // string
-            String title;
-            final String TMD_BACKDROP_PATH = "backdrop_path";        // string which is a relative path
-            String backdropPath;
-            final String TMD_POPULARITY = "popularity";            // float
-            float popularity;
-            final String TMD_VOTE_COUNT = "vote_count";            // int
-            int voteCount;
-            final String TMD_VIDEO = "video";                    // boolean
-            boolean video;
-            final String TMD_VOTE_AVERAGE = "vote_average";        // float
-            float voteAverage;
-
-            popMovies = new ArrayList();
-
-            JSONObject forecastJson = new JSONObject(movieJsonStr);
-            JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
-            String[] resultStrs = new String[movieArray.length()];
-            Log.v(LOG_TAG, movieArray.length() + " movies were returned");
-            for (int i = 0; i < movieArray.length(); i++) {
-                JSONObject oneMovieJson = movieArray.getJSONObject(i);
-
-                posterPath = oneMovieJson.getString(TMD_POSTER_PATH);
-                adult = oneMovieJson.getBoolean(TMD_ADULT);
-                overview = oneMovieJson.getString(TMD_OVERVIEW);
-                releaseDate = oneMovieJson.getString(TMD_RELEASE_DATE);
-                JSONArray genreIdArray = oneMovieJson.getJSONArray(TMD_GENRE_IDS);
-                int[] genreIds = new int[genreIdArray.length()];
-                for (int j = 0; j < genreIdArray.length(); j++) {
-                    genreIds[j] = genreIdArray.getInt(j);
-                }
-                id = oneMovieJson.getInt(TMD_ID);
-                origTitle = oneMovieJson.getString(TMD_ORIGINAL_TITLE);
-                origLang = oneMovieJson.getString(TMD_ORIGINAL_LANGUAGE);
-                title = oneMovieJson.getString(TMD_TITLE);
-                backdropPath = oneMovieJson.getString(TMD_BACKDROP_PATH);
-                popularity = Float.parseFloat(oneMovieJson.getString(TMD_POPULARITY));
-                voteCount = oneMovieJson.getInt(TMD_VOTE_COUNT);
-                video = oneMovieJson.getBoolean(TMD_VIDEO);
-                voteAverage = Float.parseFloat(oneMovieJson.getString(TMD_VOTE_AVERAGE));
-
-                PopMovie oneMovie = new PopMovie(
-                        posterPath,
-                        adult,
-                        overview,
-                        releaseDate,
-                        genreIds,
-                        id,
-                        origTitle,
-                        origLang,
-                        title,
-                        backdropPath,
-                        popularity,
-                        voteCount,
-                        video,
-                        voteAverage);
-
-                popMovies.add(oneMovie);
-                //resultStrs[i] = title;
-            }
-            return Boolean.TRUE;
-            //return resultStrs;
-        }
-
-        /*
-         * Creates the URI and sends the message to the database.
-         * Gets the resulting JSON and parses the data.
-         * params might need to be something other than String. PErhaps should tell the
-         * method whether to retrieve most popular or most highly rated.
-         *
-         */
-        @Override
-        protected Boolean doInBackground(String... params) {
-
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            // Will contain the raw JSON response as a string.
-            String moviesJsonStr = null;
-
-            final String API_KEY_PARAM = "api_key";
-            final String TOP_RATED = "top_rated";
-            final String SORT_BY_PARAM = "sort_by";
-            final String POPULARITY_DESC = "mPopularity.desc"; // sort by value is mPopularity descending
-            final String RATED_DESC = "vote_average.desc"; // sort by value is mPopularity descending
-            final String VOTE_COUNT = "vote_count.gte";
-            final String MIN_VOTES = "100";
-            //  add "vote_count.gte=x" so only movies with a lot of votes show up when doing vote average
-            String sortPref;
-
-            try {
-                // Construct a URL for the query.
-                // The API documentation is here: http://docs.themoviedb.apiary.io/#
-                // but the documentation tool is almost unusable.
-                final String BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
-                final String BASE_URL_DISCOVER = "https://api.themoviedb.org/3/discover/movie";
-                if (sortPopular)
-                    sortPref = POPULARITY_DESC;
-                else
-                    sortPref = RATED_DESC;
-
-                Uri builtUri = Uri.parse(BASE_URL_DISCOVER).buildUpon()
-                        .appendQueryParameter(SORT_BY_PARAM, sortPref)
-                        .appendQueryParameter(VOTE_COUNT, MIN_VOTES)
-                        .appendQueryParameter(API_KEY_PARAM, ApiKey.API_KEY)
-                        .build();
-
-                URL url = new URL(builtUri.toString());
-
-                Log.v(LOG_TAG, " URL is " + url.toString());
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    return Boolean.FALSE;
-                }
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty
-                    return Boolean.FALSE;
-                }
-
-                moviesJsonStr = buffer.toString();
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error: ", e);
-                // If the data was not successfully retrieved, no need to parse it.
-                return Boolean.FALSE;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream ", e);
-                    }
-                }
-            }
-
-            try {
-                return getMovieDataFromJson(moviesJsonStr);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
-                return Boolean.FALSE;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            if ((success != null) && (success == Boolean.TRUE)) {
-                movieGridAdapter.clear();
-                movieGridAdapter.addAll(popMovies);
-            }
-        }
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(),
+                PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
     }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mPopMovieAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader ) {
+        mPopMovieAdapter.swapCursor(null);
+    }
+
 }

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.example.susannah.popularmovies.PopMovie;
 
@@ -47,6 +48,7 @@ public class TestProvider extends AndroidTestCase {
         // PopMoviesProvider class.
         ComponentName componentName = new ComponentName(mContext.getPackageName(),
                 PopMoviesProvider.class.getName());
+
         try {
             // Fetch the provider info using the component name from the PackageManager
             // This throws an exception if the provider isn't registered.
@@ -56,6 +58,7 @@ public class TestProvider extends AndroidTestCase {
             assertEquals("Error: PopMoviesProvider registered with authority: " + providerInfo.authority +
                             " instead of authority: " + PopMoviesContract.CONTENT_AUTHORITY,
                     providerInfo.authority, PopMoviesContract.CONTENT_AUTHORITY);
+
         } catch (PackageManager.NameNotFoundException e) {
             // I guess the provider isn't registered correctly.
             assertTrue("Error: PopMoviesProvider not registered at " + mContext.getPackageName(),
