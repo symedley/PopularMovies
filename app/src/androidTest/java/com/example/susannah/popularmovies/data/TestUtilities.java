@@ -18,7 +18,8 @@ public class TestUtilities extends AndroidTestCase {
     // they could be translated into long, but I haven't needed to yet
     static final String TEST_DATE = "2014-12-20";
     // static final long TEST_DATE = 1419033600L;  // December 20th, 2014
-    static final String TEST_POSTERPATH = "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg "; //(Interstellar)
+    static final String TEST_POSTERPATH = "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg "; //(Interstellar)
+    static final String TEST_POSTERPATHURI = "http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg "; //(Interstellar)
     static final String TEST_TITLE = "Interstellar";
     static final int TEST_TMDID = 157336;
     static final String TEST_BACKDROPPATH = "\\/xu9zaAevzQ5nnrsXN6JcahLnG4i.jpg";
@@ -27,6 +28,8 @@ public class TestUtilities extends AndroidTestCase {
         ContentValues movieValues = new ContentValues();
 // _ID will be populated automatically, right?
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH,
+                TEST_POSTERPATH); //(Interstellar)
+        movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI,
                 TEST_POSTERPATH); //(Interstellar)
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, 0); // boolean as int
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW,

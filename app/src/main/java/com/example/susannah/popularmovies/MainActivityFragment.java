@@ -1,6 +1,7 @@
 package com.example.susannah.popularmovies;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -54,10 +55,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     // Related to Content Provider, Loader and SQLiteDatabase
     private static final int CURSOR_LOADER_ID = 0;
 
-    private MovieGridAdapter movieGridAdapter;
+    // private MovieGridAdapter mMovieGridAdapter;
+
     boolean sortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
 
     // Changing to using SQLite and Content Provider
+    // mPopMovieAdapter is the Cursor Adapter.
+    // The old adapter was a grid adapter derived from ArrayAdapter.
     private PopMovieAdapter mPopMovieAdapter;
     private GridView mGridView;
 
@@ -104,18 +108,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (rootView == null) {
-            if (savedInstanceState == null) {
-                updateMovies();
-            } else {
-                // Pull the data out
-                // can this logic be moved here from the onACtivityCreated method? TODO
-            }
+
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             // START new SQLite and Provider
             // PopMovieAdapter created with activity, cursor, flags, loaderID
             mPopMovieAdapter = new PopMovieAdapter(getActivity(), null, 0, CURSOR_LOADER_ID);
-//   WAS         movieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
+//   WAS         mMovieGridAdapter = new MovieGridAdapter(getActivity(), R.layout.fragment_main,
 //                    R.id.gridView, popMovies);
             // initialize to the GridView in fragment_main.xml
             mGridView = (GridView) rootView.findViewById(R.id.gridView);
@@ -123,7 +122,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 //            GridView gridView = (GridView) rootView.findViewById(R.id.gridView);
             // set the GridView's adapter to be our CursorAdapter, PopMovieAdapter
             mGridView.setAdapter(mPopMovieAdapter);
-// WAS            gridView.setAdapter(movieGridAdapter);
+// WAS            gridView.setAdapter(mMovieGridAdapter);
 
             // END
 
@@ -133,21 +132,82 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 @Override
                 // get the item clicked on and display it's information
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    PopMovie oneMovie = (PopMovie) parent.getItemAtPosition(position);
-                    Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                    // or do I have to just pull the primitive objects out of oneMovie
-                    // and pass them each individually to the Intent putExtra?
-                    // Looks like I would have to have OneMovie implement Parcelable
 
-                    detailIntent.putExtra(getString(R.string.title), oneMovie.mTitle);
-                    detailIntent.putExtra(getString(R.string.original_title), oneMovie.mOrigTitle);
-                    // Pass in only the poster image name instead of the whole Uri, so
-                    // that the detail view can retrieve a larger image.
-                    detailIntent.putExtra(getString(R.string.poster_path), oneMovie.posterPath);
-                    detailIntent.putExtra(getString(R.string.synopsis), oneMovie.mOverview);
-                    detailIntent.putExtra(getString(R.string.rating), Float.toString(oneMovie.mVoteAverage));
-                    detailIntent.putExtra(getString(R.string.release_date), oneMovie.mReleaseDate);
-                    startActivity(detailIntent);
+                    String selection = PopMoviesContract.PopMovieEntry._ID;
+                    String []  selectionArgs = new String[]{String.valueOf(position + 1)};
+
+                    Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(position + 1);
+                    Cursor c =
+                            getActivity().getContentResolver().query(
+                                    uri,
+                                    null,
+                                    null,
+                                    null,
+                                    null);
+
+                    if (c != null) {
+                        c.moveToFirst();
+                        int idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH);
+                        String posterPath = c.getString(idx);
+                         idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
+                        String posterPathUri = c.getString(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ADULT);
+                        boolean adult = c.getInt(idx) == 1 ? true : false;
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
+                        String overview = c.getString(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
+                        String releaseDate = c.getString(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+                        int tmdId = c.getInt(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
+                        String origTitle = c.getString(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGLANG);
+                        String origLang = c.getString(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
+                        String title = c.getString(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_BACKDROPPATH);
+                        String backdropPath = c.getString(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY);
+                        float popularity = c.getFloat(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT);
+                        int voteCount = c.getInt(idx);
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO);
+                        boolean video = c.getInt(idx) == 1 ? true : false;
+                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE);
+                        float voteAverage = c.getFloat(idx);
+                        PopMovie oneMovie = new PopMovie(
+                                posterPath,
+                                adult,
+                                overview,
+                                releaseDate,
+                                new int[]{1},
+                                tmdId,
+                                origTitle,
+                                origLang,
+                                title,
+                                backdropPath,
+                                popularity,
+                                voteCount,
+                                video,
+                                voteAverage);
+
+
+                        Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                        // or do I have to just pull the primitive objects out of oneMovie
+                        // and pass them each individually to the Intent putExtra?
+                        // Looks like I would have to have OneMovie implement Parcelable
+
+                        detailIntent.putExtra(getString(R.string.title), oneMovie.mTitle);
+                        detailIntent.putExtra(getString(R.string.original_title), oneMovie.mOrigTitle);
+                        // Pass in only the poster image name instead of the whole Uri, so
+                        // that the detail view can retrieve a larger image.
+                        detailIntent.putExtra(getString(R.string.poster_path), oneMovie.posterPath);
+                        detailIntent.putExtra(getString(R.string.synopsis), oneMovie.mOverview);
+                        detailIntent.putExtra(getString(R.string.rating), Float.toString(oneMovie.mVoteAverage));
+                        detailIntent.putExtra(getString(R.string.release_date), oneMovie.mReleaseDate);
+                        startActivity(detailIntent);
+                    }
+
                 }
             });
 
@@ -171,6 +231,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             // this should not happen
             sortPopular = false;
         fetchMovieTask.execute();
+        // TODO revisit this vvv. The bulk insert should handle notification,
+        // so why is this necessary?
+        getLoaderManager().restartLoader(CURSOR_LOADER_ID , null, this);
     }
 
 
@@ -203,6 +266,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         return super.onOptionsItemSelected(menuItem);
     }
 
+    /** Make the data be refreshed after changing a setting.
+     * TODO revisit whether this is needed.
+     * TODO should this be replaced by making an OnDataChanged method in this class
+     * and calling it from onResume in MainActivity?
+     */
     public void onActivityResult( int requestCode, int resultsCode, Intent data) {
         super.onActivityResult(requestCode, resultsCode, data);
         if (requestCode == RESULT_KEY) {
@@ -216,7 +284,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
-    /** onSaveInstanceState: so a screen rotation won't cause a new database query, do some magic or cheat.
+    /** onSaveInstanceState: so a screen rotation won't cause a new database query,
+     * do some magic or cheat.
      */
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
@@ -224,6 +293,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         savedInstanceState.putParcelableArrayList(KEY_SAVED_INSTANCE_ARRAY, popMovies);
     }
 
+
+    /** onCreateLoader - attach the query to our DB Loader.
+     *
+     * @param id
+     * @param args
+     * @return
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
@@ -236,11 +312,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+" "+Thread.currentThread().getStackTrace()[2].getMethodName());
         mPopMovieAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader ) {
+
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+" "+Thread.currentThread().getStackTrace()[2].getMethodName());
+
         mPopMovieAdapter.swapCursor(null);
     }
 

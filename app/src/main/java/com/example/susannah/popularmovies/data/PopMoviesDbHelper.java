@@ -13,7 +13,7 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     public static final String DATABASE_NAME = "popmovies.db";
-    private static final int  DATABASE_VERSION = 1;
+    private static final int  DATABASE_VERSION = 2;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version
@@ -28,6 +28,7 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.PopMovieEntry._ID +
                 " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH + " TEXT NOT NULL, " +
+                PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI + " TEXT NOT NULL, " +
                 PopMoviesContract.PopMovieEntry.COLUMN_ADULT + " INTEGER NOT NULL, " + // Boolean
                 PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE + " TEXT NOT NULL, " +

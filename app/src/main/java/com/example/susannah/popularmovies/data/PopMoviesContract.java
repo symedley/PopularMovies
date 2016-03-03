@@ -22,6 +22,7 @@ public class PopMoviesContract {
         // Columns
         // Because of BaseColumns, I don't think I need to define _ID
         public static final String COLUMN_POSTERPATH = "PosterPath";
+        public static final String COLUMN_POSTERPATHURI = "PosterPathUri";
         public static final String COLUMN_ADULT = "Adult";
         public static final String COLUMN_OVERVIEW = "Overview";
         public static final String COLUMN_RELEASEDATE = "ReleaseDate";

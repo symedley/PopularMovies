@@ -83,6 +83,7 @@ public class PopMoviesProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
+                return retCursor;
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri " + uri);
@@ -123,7 +124,7 @@ public class PopMoviesProvider extends ContentProvider {
                 count = db.delete(
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES, selection, selectionArgs);
                 // reset _ID ?
-                db.execSQL("DELETE FORM SQLITE_SEQUENCE WHERE NAME = '" +
+                db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "'");
                 break;
             case POPMOVIE_WITH_ID:
@@ -137,6 +138,9 @@ public class PopMoviesProvider extends ContentProvider {
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (count != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return count;
     }
@@ -178,6 +182,7 @@ public class PopMoviesProvider extends ContentProvider {
                 }
                 if (count > 0) {
                     getContext().getContentResolver().notifyChange(uri, null);
+                    Log.v(LOG_TAG,  Thread.currentThread().getStackTrace()[2].getMethodName() + " bulk instered "+count+" records");
                 }
                 return count;
             default:

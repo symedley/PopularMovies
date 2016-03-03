@@ -49,7 +49,7 @@ public class PopMovieAdapter extends CursorAdapter {
         Log.d(LOG_TAG, "newView");
         Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[0].getMethodName());
 
-        View view = LayoutInflater.from(context).inflate(layoutId, parent);
+        View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
 
@@ -68,21 +68,19 @@ public class PopMovieAdapter extends CursorAdapter {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        Log.d(LOG_TAG, "bindView");
-        Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[0].getMethodName());
+        Log.v(LOG_TAG, "bindView");
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+" "+Thread.currentThread().getStackTrace()[2].getMethodName());
 
         // pull the data we need to display out of the cursor
         // the idx thing could be replaced by a "projection" into the database
-        int idx = cursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH);
-        String posterPath = cursor.getString(idx);
-        Log.v(LOG_TAG, "poster path extracted from cursor is " + posterPath);
+        int idx = cursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
+        String posterPathUri = cursor.getString(idx);
+        Log.v(LOG_TAG, "poster path extracted from cursor is " + posterPathUri);
 
-        if (posterPath != null) {
-            Picasso.with(context).load(posterPath).into(viewHolder.imageView);
+        if (posterPathUri != null) {
+            Picasso.with(context).load(posterPathUri).into(viewHolder.imageView);
         } else {
             viewHolder.imageView.setImageResource( R.drawable.thumb );
         }
     }
-
-
 }

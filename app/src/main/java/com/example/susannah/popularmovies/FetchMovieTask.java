@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
+import com.example.susannah.popularmovies.data.PopMoviesProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,10 +70,9 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         ArrayList popMovies = new ArrayList();
 
 
-
         JSONObject forecastJson = new JSONObject(movieJsonStr);
         JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
-       // String[] resultStrs = new String[movieArray.length()];
+        // String[] resultStrs = new String[movieArray.length()];
         // Insert the new weather information into the database
         Vector<ContentValues> cVVector = new Vector<ContentValues>(movieArray.length());
 
@@ -101,11 +101,31 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
             ContentValues movieValues = new ContentValues();
 
+            String fullPosterPath = posterPath.replaceFirst("/", "");
+
+            // final String BASE_URL = "http://image.tmdb.org/t/p/";
+            final String URI_SCHEME = "http";
+            final String URI_AUTH = "image.tmdb.org";
+            final String URI_T = "t";
+            final String URI_P = "p";
+            // A size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
+            final String IMAGE_SIZE = "w342";
+            Uri.Builder uriBuilder = new Uri.Builder();
+            uriBuilder.scheme(URI_SCHEME);
+            uriBuilder.authority(URI_AUTH);
+            uriBuilder.appendPath(URI_T)
+                    .appendPath(URI_P);
+            uriBuilder.appendPath(IMAGE_SIZE);
+            uriBuilder.appendPath(fullPosterPath);
+            fullPosterPath = uriBuilder.build().toString();
+
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH, posterPath);
-            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, (int) (adult? 1:0) );
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI, fullPosterPath);
+            Log.v(LOG_TAG, "fullPosterPath = " + fullPosterPath);
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, (int) (adult ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW, overview);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE, releaseDate);
-           // movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_GENREIDS, genreIds);
+            // movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_GENREIDS, genreIds);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_TMDID, id);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE, origTitle);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGLANG, origLang);
@@ -113,12 +133,13 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_BACKDROPPATH, backdropPath);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY, popularity);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT, voteCount);
-            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO, (int) (video? 1:0));
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO, (int) (video ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE, voteAverage);
 
             cVVector.add(movieValues);
 
             // TODO this is on its way out
+            // the PopMovie constructor doesn't need the whole URI path. It creates that itself.
             PopMovie oneMovie = new PopMovie(
                     posterPath,
                     adult,
@@ -140,10 +161,15 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             //resultStrs[i] = title;
         }
 
-        // add to database
-        if ( cVVector.size() > 0 ) {
-            mContext.getContentResolver().bulkInsert(PopMoviesContract.PopMovieEntry.CONTENT_URI,
-                    cVVector.toArray(new ContentValues[cVVector.size()]));
+        try {
+            int delete = mContext.getContentResolver().delete(PopMoviesContract.PopMovieEntry.CONTENT_URI, null, null);
+            // add to database
+            if (cVVector.size() > 0) {
+                mContext.getContentResolver().bulkInsert(PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                        cVVector.toArray(new ContentValues[cVVector.size()]));
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "exception " + e.getMessage() + " " + e.toString());
         }
 
         return Boolean.TRUE;
@@ -224,7 +250,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
             moviesJsonStr = buffer.toString();
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Error: ", e);
+            Log.e(LOG_TAG, "No data retrieved! Error: " + e.toString() + " " + e.getMessage(), e);
             // If the data was not successfully retrieved, no need to parse it.
             return Boolean.FALSE;
         } finally {
