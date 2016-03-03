@@ -2,8 +2,10 @@ package com.example.susannah.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
@@ -29,8 +31,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     private final Context mContext;
+    private Boolean sortPopular;
 
-    public FetchMovieTask(Context context) {
+    public FetchMovieTask(Boolean sortPop, Context context) {
+        sortPopular = sortPop;
+        Log.v(LOG_TAG, "sortPopular: " + sortPopular);
         mContext = context;
     }
 
@@ -67,13 +72,12 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         final String TMD_VOTE_AVERAGE = "vote_average";        // float
         float voteAverage;
 
-        ArrayList popMovies = new ArrayList();
+//        ArrayList popMovies = new ArrayList();
 
 
         JSONObject forecastJson = new JSONObject(movieJsonStr);
         JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
-        // String[] resultStrs = new String[movieArray.length()];
-        // Insert the new weather information into the database
+
         Vector<ContentValues> cVVector = new Vector<ContentValues>(movieArray.length());
 
         Log.v(LOG_TAG, movieArray.length() + " movies were returned");
@@ -138,27 +142,27 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
             cVVector.add(movieValues);
 
-            // TODO this is on its way out
-            // the PopMovie constructor doesn't need the whole URI path. It creates that itself.
-            PopMovie oneMovie = new PopMovie(
-                    posterPath,
-                    adult,
-                    overview,
-                    releaseDate,
-                    genreIds,
-                    id,
-                    origTitle,
-                    origLang,
-                    title,
-                    backdropPath,
-                    popularity,
-                    voteCount,
-                    video,
-                    voteAverage);
-
-            //TODO this is on its way out
-            popMovies.add(oneMovie);
-            //resultStrs[i] = title;
+//            // TODO this is on its way out
+//            // the PopMovie constructor doesn't need the whole URI path. It creates that itself.
+//            PopMovie oneMovie = new PopMovie(
+//                    posterPath,
+//                    adult,
+//                    overview,
+//                    releaseDate,
+//                    genreIds,
+//                    id,
+//                    origTitle,
+//                    origLang,
+//                    title,
+//                    backdropPath,
+//                    popularity,
+//                    voteCount,
+//                    video,
+//                    voteAverage);
+//
+//            //TODO this is on its way out
+//            popMovies.add(oneMovie);
+//            //resultStrs[i] = title;
         }
 
         try {
@@ -210,12 +214,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             // but the documentation tool is almost unusable.
             final String BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
             final String BASE_URL_DISCOVER = "https://api.themoviedb.org/3/discover/movie";
-            //TODO the sort should be moved to where data is pulled out
-//            if (sortPopular)
-//                sortPref = POPULARITY_DESC;
-//            else
-//                sortPref = RATED_DESC;
-            sortPref = POPULARITY_DESC;
+
+            if (sortPopular)
+                sortPref = POPULARITY_DESC;
+            else
+                sortPref = RATED_DESC;
 
             Uri builtUri = Uri.parse(BASE_URL_DISCOVER).buildUpon()
                     .appendQueryParameter(SORT_BY_PARAM, sortPref)

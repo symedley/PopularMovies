@@ -15,11 +15,11 @@
     <string name="pref_sort_key" translatable="false">Sort</string>
 
     <string name="pref_sort_popular" translatable="false">Popular</string>
-    <string name="pref_sort_rated" translatable="false">Rated</string>
-    <string name="pref_sort_default" translatable="false">Rated</string>
-    <string name="pref_sort_label_popular" translatable="false">Most popular</string>
-    <string name="pref_sort_label_rated" translatable="false">Most highly rated</string>
-    <string name="pref_sort_label_default" translatable="false">Most highly rated</string>
+    <string name="pref_sort_rated" translatable="false">VoteAverage</string> // the database column is VoteAverage
+    <string name="pref_sort_default" translatable="false">VoteAverage</string>
+    <string name="pref_sort_label_popular" translatable="true">Most popular</string>
+    <string name="pref_sort_label_rated" translatable="true">Most highly rated</string>
+    <string name="pref_sort_label_default" translatable="true">Most highly rated</string>
 
     <string name="pref_sort_label" translatable="false">Sort Order</string>
 

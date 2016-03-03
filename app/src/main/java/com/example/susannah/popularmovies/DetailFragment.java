@@ -83,8 +83,6 @@ public class DetailFragment extends Fragment {
                     mOriginalTitle = extras.getString(getString(string.original_title));
                     if (mOriginalTitle == null)
                         mOriginalTitle = "";
-                    if (mOriginalTitle.equals(mTitle))
-                        mOriginalTitle = "";
                     mPosterPathUriString = extras.getString(getString(string.poster_path_uri_string));
                     mSynopsis = extras.getString(getString(string.synopsis));
                     mRating = extras.getString(getString(string.rating));
@@ -92,10 +90,14 @@ public class DetailFragment extends Fragment {
                 }
             }
             ((TextView) root.findViewById(id.title)).setText(
-                        String.format("%s: %s", context.getString(string.title),  mTitle));
+                    String.format("%s: %s", context.getString(string.title), mTitle));
 
-            if (mOriginalTitle != null) {
-                ((TextView) root.findViewById(id.original_title)).setText(mOriginalTitle);
+            TextView tvOrigTitle = (TextView)root.findViewById(id.original_title);
+            tvOrigTitle.setText(mOriginalTitle);
+            if ((mOriginalTitle != "") && !(mOriginalTitle.equals(mTitle))) {
+                tvOrigTitle.setVisibility(View.VISIBLE);
+            } else {
+                tvOrigTitle.setVisibility(View.GONE);
             }
 
             ((TextView) root.findViewById(id.synopsis)).setText(mSynopsis);
@@ -110,14 +112,7 @@ public class DetailFragment extends Fragment {
 
                 //TODO replace the size
                 final String IMAGE_SIZE = "w342"; // a size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
-//                Uri.Builder uriBuilder = new Uri.Builder();
-//                uriBuilder.scheme(context.getString(R.string.uriScheme));
-//                uriBuilder.authority(context.getString(R.string.uriAuth));
-//                uriBuilder.appendPath(context.getString(R.string.uriT))
-//                        .appendPath(context.getString(R.string.uriP));
-//                uriBuilder.appendPath(IMAGE_SIZE);
-//                uriBuilder.appendPath(mPosterPathUriString);
-//                String u = uriBuilder.build().toString();
+
                 Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[2]
                         .getMethodName() + " full poster path: " + mPosterPathUriString);
 

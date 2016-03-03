@@ -46,8 +46,7 @@ public class PopMovieAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         int layoutId = R.layout.list_item_movie;
 
-        Log.d(LOG_TAG, "newView");
-        Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[2].getMethodName());
+        //Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[2].getMethodName());
 
         View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
@@ -67,15 +66,10 @@ public class PopMovieAdapter extends CursorAdapter {
         public void bindView(View view, Context context, Cursor cursor) {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-
-//        Log.v(LOG_TAG, "bindView");
-//        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+" "+Thread.currentThread().getStackTrace()[2].getMethodName());
-
         // pull the data we need to display out of the cursor
         // the idx thing could be replaced by a "projection" into the database
         int idx = cursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
         String posterPathUri = cursor.getString(idx);
-//        Log.v(LOG_TAG, "poster path extracted from cursor is " + posterPathUri);
 
         if (posterPathUri != null) {
             Picasso.with(context).load(posterPathUri).into(viewHolder.imageView);
