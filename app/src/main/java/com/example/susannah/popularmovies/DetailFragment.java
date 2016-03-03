@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ public class DetailFragment extends Fragment {
     String mSynopsis;
     String mRating;
     String mReleaseDate;
-    String mPosterPath;
+    String mPosterPathUriString;
 
     static final String KEY_TITLE = "TITLE";
     static final String KEY_ORIGTITLE = "ORIGTITLE";
@@ -38,6 +39,8 @@ public class DetailFragment extends Fragment {
     static final String KEY_RATING = "RATING";
     static final String KEY_RELEASEDATE = "RELEASEDATE";
     static final String KEY_POSTERPATH = "POSTERPATH";
+
+    static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +51,7 @@ public class DetailFragment extends Fragment {
             mSynopsis = savedInstanceState.getString(KEY_SYNOPSIS);
             mRating = savedInstanceState.getString(KEY_RATING);
             mReleaseDate = savedInstanceState.getString(KEY_RELEASEDATE);
-            mPosterPath = savedInstanceState.getString(KEY_POSTERPATH);
+            mPosterPathUriString = savedInstanceState.getString(KEY_POSTERPATH);
 
         } else {
 
@@ -82,7 +85,7 @@ public class DetailFragment extends Fragment {
                         mOriginalTitle = "";
                     if (mOriginalTitle.equals(mTitle))
                         mOriginalTitle = "";
-                    mPosterPath = extras.getString(getString(string.poster_path));
+                    mPosterPathUriString = extras.getString(getString(string.poster_path_uri_string));
                     mSynopsis = extras.getString(getString(string.synopsis));
                     mRating = extras.getString(getString(string.rating));
                     mReleaseDate = extras.getString(getString(string.release_date));
@@ -103,21 +106,22 @@ public class DetailFragment extends Fragment {
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
 
             // Use the movie database URI of the image and picasso to get the movie poster image to display.
-            if (mPosterPath != null) {
-                final String URI_SCHEME = "http";
-                final String URI_AUTH = "image.tmdb.org";
-                final String URI_T = "t";
-                final String URI_P = "p";
+            if (mPosterPathUriString != null) {
+
+                //TODO replace the size
                 final String IMAGE_SIZE = "w342"; // a size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
-                Uri.Builder uriBuilder = new Uri.Builder();
-                uriBuilder.scheme(context.getString(R.string.uriScheme));
-                uriBuilder.authority(context.getString(R.string.uriAuth));
-                uriBuilder.appendPath(context.getString(R.string.uriT))
-                        .appendPath(context.getString(R.string.uriP));
-                uriBuilder.appendPath(IMAGE_SIZE);
-                uriBuilder.appendPath(mPosterPath);
-                String u = uriBuilder.build().toString();
-                Picasso.with(context).load(u).into(thumbView);
+//                Uri.Builder uriBuilder = new Uri.Builder();
+//                uriBuilder.scheme(context.getString(R.string.uriScheme));
+//                uriBuilder.authority(context.getString(R.string.uriAuth));
+//                uriBuilder.appendPath(context.getString(R.string.uriT))
+//                        .appendPath(context.getString(R.string.uriP));
+//                uriBuilder.appendPath(IMAGE_SIZE);
+//                uriBuilder.appendPath(mPosterPathUriString);
+//                String u = uriBuilder.build().toString();
+                Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[2]
+                        .getMethodName() + " full poster path: " + mPosterPathUriString);
+
+                Picasso.with(context).load(mPosterPathUriString).into(thumbView);
             }
         }
 
@@ -136,7 +140,7 @@ public class DetailFragment extends Fragment {
         savedInstanceState.putString(KEY_SYNOPSIS, mSynopsis);
         savedInstanceState.putString(KEY_RATING, mRating);
         savedInstanceState.putString(KEY_RELEASEDATE, mReleaseDate);
-        savedInstanceState.putString(KEY_POSTERPATH, mPosterPath);
+        savedInstanceState.putString(KEY_POSTERPATH, mPosterPathUriString);
         super.onSaveInstanceState(savedInstanceState);
     }
 }

@@ -25,7 +25,7 @@
 
     <string name="title_activity_detail">Movie Details</string>
     <string name="original_title">Original Title</string>
-    <string name="poster_path">Poster Address</string>
+    <string name="poster_path_uri_string">Poster Address</string>
     <string name="synopsis">Synopsis</string>
     <string name="rating">Rating</string>
     <string name="release_date">Release Date</string>
