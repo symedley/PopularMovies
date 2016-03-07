@@ -201,8 +201,8 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         final String API_KEY_PARAM = "api_key";
         final String TOP_RATED = "top_rated";
         final String SORT_BY_PARAM = "sort_by";
-        final String POPULARITY_DESC = "mPopularity.desc"; // sort by value is mPopularity descending
-        final String RATED_DESC = "vote_average.desc"; // sort by value is mPopularity descending
+        final String POPULARITY_DESC = "popularity.desc"; // sort by value is mPopularity descending
+        final String RATED_DESC = "vote_average.desc"; // sort by value is vote average descending
         final String VOTE_COUNT = "vote_count.gte";
         final String MIN_VOTES = "100";
         //  add "vote_count.gte=x" so only movies with a lot of votes show up when doing vote average

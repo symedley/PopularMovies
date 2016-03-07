@@ -118,8 +118,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                              Bundle savedInstanceState) {
         initializeSortOrder();
 //        mSortOrder = sort; TODO why does sort order not affect
-// the order in the cursor that the adapter is watching?? You click on a movie, and get
-        // the wrong thing.
+// the order in the cursor that the adapter is watching??
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
