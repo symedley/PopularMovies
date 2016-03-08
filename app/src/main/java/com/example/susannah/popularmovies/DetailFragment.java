@@ -111,7 +111,8 @@ public class DetailFragment extends Fragment {
             if (mPosterPathUriString != null) {
 
                 //TODO replace the size
-                final String IMAGE_SIZE = "w342"; // a size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
+//                final String IMAGE_SIZE = "w500"; // a size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
+//                String newUri = mPosterPathUriString.replace(FetchMovieTask.IMAGE_SIZE, IMAGE_SIZE);
 
                 Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[2]
                         .getMethodName() + " full poster path: " + mPosterPathUriString);

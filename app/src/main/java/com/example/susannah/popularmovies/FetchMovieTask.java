@@ -2,14 +2,11 @@ package com.example.susannah.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
-import com.example.susannah.popularmovies.data.PopMoviesProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,13 +18,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Vector;
 
 /**
  * Created by Susannah on 2/24/2016.
  */
 public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
+
+    // A size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
+    public static final String IMAGE_SIZE = "w342";
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     private final Context mContext;
@@ -113,7 +112,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             final String URI_T = "t";
             final String URI_P = "p";
             // A size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
-            final String IMAGE_SIZE = "w342";
+            // final String IMAGE_SIZE = "w342";
             Uri.Builder uriBuilder = new Uri.Builder();
             uriBuilder.scheme(URI_SCHEME);
             uriBuilder.authority(URI_AUTH);
