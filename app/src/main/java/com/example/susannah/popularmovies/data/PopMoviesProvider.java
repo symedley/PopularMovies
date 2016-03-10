@@ -22,6 +22,8 @@ public class PopMoviesProvider extends ContentProvider {
     // Codes for the Uri matcher
     private static final int POPMOVIE = 100;
     private static final int POPMOVIE_WITH_ID = 200;
+    private static final int GENRE = 300;
+    private static final int GENRE_WITH_ID  = 400;
 
     //The Query builder might only be needed if you're defining a JOIN between tables
     //private static final SQLiteQueryBuilder sSQLiteQueryBuilder;
@@ -54,8 +56,14 @@ public class PopMoviesProvider extends ContentProvider {
             case POPMOVIE_WITH_ID: {
                 return PopMoviesContract.PopMovieEntry.CONTENT_ITEM_TYPE;
             }
+            case GENRE: {
+                return PopMoviesContract.GenreEntry.CONTENT_DIR_TYPE;
+            }
+            case GENRE_WITH_ID: {
+                return PopMoviesContract.GenreEntry.CONTENT_ITEM_TYPE;
+            }
             default: {
-                throw new UnsupportedOperationException("Unkown udi: " + uri.toString());
+                throw new UnsupportedOperationException("Unknown uri: " + uri.toString());
             }
         }
     }
@@ -85,6 +93,28 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
+            case GENRE: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopMoviesContract.GenreEntry.TABLE_GENRES,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+            case GENRE_WITH_ID: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopMoviesContract.GenreEntry.TABLE_GENRES,
+                        projection,
+                        PopMoviesContract.GenreEntry.COLUMN_ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))},
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
             default: {
                 throw new UnsupportedOperationException("Unknown uri " + uri);
             }
@@ -108,6 +138,18 @@ public class PopMoviesProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into: " + uri);
                 }
                 break;
+            }
+            case GENRE: {
+                long _id = mOpenHelper.getReadableDatabase().insert(
+                        PopMoviesContract.GenreEntry.TABLE_GENRES,
+                        null,
+                        contentValues);
+                if (_id > 0) {
+                    returnUri = PopMoviesContract.GenreEntry.buildGenresUri(_id);
+                }
+                else {
+                    throw new android.database.SQLException("Failed to insert row into: " + uri);
+                }
             }
             default: {
                 throw new UnsupportedOperationException("Unknown uri " + uri);

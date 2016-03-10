@@ -223,6 +223,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             mSortPopular = false;
         FetchMovieTask fetchMovieTask = new FetchMovieTask(mSortPopular, getContext());
         fetchMovieTask.execute();
+
+//        FetchGenresTask fetchGenresTask = new FetchGenresTask( getContext());
+//        fetchGenresTask.execute();
         // TODO revisit this vvv. The bulk insert should handle notification,
         // so why is this necessary?
         getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);

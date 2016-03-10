@@ -29,12 +29,14 @@ public class TestDb extends AndroidTestCase {
                 c.moveToFirst());
 
         ContentValues testValues = TestUtilities.createPopMovieValues();
-
         long locationRowId;
         locationRowId = db.insert(PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES, null, testValues);
-
         assertTrue("Failure to insert Pop Movie values", locationRowId != -1);
 
+        // Genre table
+         testValues = TestUtilities.createGenreValues();
+        locationRowId = db.insert(PopMoviesContract.GenreEntry.TABLE_GENRES, null, testValues);
+        assertTrue("Failure to insert Genre values", locationRowId != -1);
         db.close();
     }
 }

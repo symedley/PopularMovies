@@ -24,6 +24,9 @@ public class TestUtilities extends AndroidTestCase {
     static final int TEST_TMDID = 157336;
     static final String TEST_BACKDROPPATH = "\\/xu9zaAevzQ5nnrsXN6JcahLnG4i.jpg";
 
+    static final int TEST_GENRE_ID = 2;
+    static final String TEST_GENRE_NAME = "Comedy";
+
     static ContentValues createPopMovieValues() {
         ContentValues movieValues = new ContentValues();
 // _ID will be populated automatically, right?
@@ -49,6 +52,14 @@ public class TestUtilities extends AndroidTestCase {
         return movieValues;
     }
 
+    static ContentValues createGenreValues() {
+        ContentValues movieValues = new ContentValues();
+        movieValues.put(PopMoviesContract.GenreEntry.COLUMN_ID,
+                TEST_GENRE_ID); //(2)
+        movieValues.put(PopMoviesContract.GenreEntry.COLUMN_NAME,
+                TEST_GENRE_NAME); //(comedy)
+        return movieValues;
+    }
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
         assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());

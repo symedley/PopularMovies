@@ -36,6 +36,23 @@ public class TestProvider extends AndroidTestCase {
         );
         assertEquals("Error: Records not deleted from PopMovie table during delete", 0, cursor.getCount());
         cursor.close();
+
+        // Genre IDs table
+        mContext.getContentResolver().delete(
+                PopMoviesContract.GenreEntry.CONTENT_URI,
+                null,
+                null
+        );
+
+         cursor = mContext.getContentResolver().query(
+                PopMoviesContract.GenreEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals("Error: Records not deleted from Genre table during delete", 0, cursor.getCount());
+        cursor.close();
     }
     /*
         This test checks to make sure that the content provider is registered correctly.

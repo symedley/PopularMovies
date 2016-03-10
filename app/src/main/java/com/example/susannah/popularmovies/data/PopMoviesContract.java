@@ -57,4 +57,37 @@ public class PopMoviesContract {
             return CONTENT_URI.buildUpon().appendPath(title).build();
         }
     }
+
+    /** GenreEntry - one entry in the Genres table of the database.
+     *
+     * Does not need to implement BaseColumns because each genre comes with its own
+     * id integer.
+     */
+    public static final class GenreEntry {
+        public static final String TABLE_GENRES = "genres";
+
+        // Columns
+        public static final String COLUMN_ID = "Id";
+        public static final String COLUMN_NAME = "Name";
+
+        // create content uri
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(TABLE_GENRES).build();
+        // create cursor of base type directory for multiple entries
+        public static final String CONTENT_DIR_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_GENRES;
+        // create cursor of base type item for single entry
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_GENRES;
+
+        // for building URIs on insertion
+        public static Uri buildGenresUri(long id ) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        // for building URIs by genre name
+        public static Uri buildGenresTitle(String name) {
+            return CONTENT_URI.buildUpon().appendPath(name).build();
+        }
+    }
 }
