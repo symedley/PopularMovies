@@ -42,7 +42,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     // private MovieGridAdapter mMovieGridAdapter;
 
     private boolean mSortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
-    private String mSortOrder = null; // Popularity.DESC or VoteAverage.DESC. But it's not working.
+//    private String mSortOrder = null; // Popularity.DESC or VoteAverage.DESC. But it's not working.
+//    SharedPreferences.OnSharedPreferenceChangeListener listener ;
 
     // Changing to using SQLite and Content Provider
     // mPopMovieAdapter is the Cursor Adapter.
@@ -93,30 +94,46 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if (itemId == R.id.action_settings) {
             Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
             startActivityForResult(settingsIntent, RESULT_KEY);
-            initializeSortOrder();
+
             return true;
         }
         return super.onOptionsItemSelected(menuItem);
     }
 
-    private void initializeSortOrder() {
+    private String initializeSortOrder() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        String sortOrd;
         String sort = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
-            mSortOrder = sort; // the Strings match the database column names
         if (sort.equals(getString(R.string.pref_sort_popular))) {
             mSortPopular = true;
-        }else if (sort.equals(getString(R.string.pref_sort_rated)))
+            sortOrd = PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " DESC";
+        }else if (sort.equals(getString(R.string.pref_sort_rated))) {
             mSortPopular = false;
-        else
+            sortOrd = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+        } else {
             // this should not happen
             mSortPopular = false;
+            sortOrd = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+            Log.e(LOG_TAG, "The sort order was not retrieved correctly from preferences");
+        }
+        return sortOrd;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         initializeSortOrder();
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        listener =
+//                new SharedPreferences.OnSharedPreferenceChangeListener() {
+//                    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+//                        // listener implementation
+//                        initializeSortOrder();
+//                    }
+//                };
+//        prefs.registerOnSharedPreferenceChangeListener(listener);
 //        mSortOrder = sort; TODO why does sort order not affect
 // the order in the cursor that the adapter is watching??
         if (rootView == null) {
@@ -139,7 +156,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                     String selection = PopMoviesContract.PopMovieEntry._ID;
-                    String []  selectionArgs = new String[]{String.valueOf(position + 1)};
+                    // String []  selectionArgs = new String[]{String.valueOf(position + 1)};
 
                     Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(position + 1);
                     Cursor c =
@@ -190,14 +207,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     public void onActivityCreated(Bundle savedInstanceState) {
 
+        String sortOrder = initializeSortOrder();
         Cursor c =
                 getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
 //                        new String[]{PopMoviesContract.PopMovieEntry._ID},
                         null,
                         null,
                         null,
-//                  TODO      mSortOrder
-                        null
+                        sortOrder
                 );
         if (c.getCount() == 0){
             updateMovies();
@@ -218,14 +235,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             mSortPopular = true;
         else if (sort.equals(getString(R.string.pref_sort_rated)))
             mSortPopular = false;
-        else
+        else {
             // this should not happen
+            Log.e(LOG_TAG, "Error retrieving sort order from preferences");
             mSortPopular = false;
+        }
         FetchMovieTask fetchMovieTask = new FetchMovieTask(mSortPopular, getContext());
         fetchMovieTask.execute();
 
-//        FetchGenresTask fetchGenresTask = new FetchGenresTask( getContext());
-//        fetchGenresTask.execute();
+        FetchGenresTask fetchGenresTask = new FetchGenresTask( getContext());
+        fetchGenresTask.execute();
         // TODO revisit this vvv. The bulk insert should handle notification,
         // so why is this necessary?
         getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
@@ -265,12 +284,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        String sortOrder = initializeSortOrder();
         return new CursorLoader(getActivity(),
                 PopMoviesContract.PopMovieEntry.CONTENT_URI,
                 null,
                 null,
                 null,
-                null);
+                sortOrder);
     }
 
     /** The data retrieval is finished, so let the client (this class) know
@@ -284,14 +305,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         // TODO (1) the cursor remains in the original order, even if it gets displayed sorted (!?)
         // TODO (2) DESC doesn't work.
+        String sortOrder = initializeSortOrder();
         Cursor c =
                 getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
 //                        new String[]{PopMoviesContract.PopMovieEntry._ID},
                         null,
                         null,
                         null,
-//                        mSortOrder
-                        null
+                        sortOrder
                 );
 
         mPopMovieAdapter.swapCursor(c);

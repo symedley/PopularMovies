@@ -20,7 +20,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-/**
+/** FetchMovieTask is an Async (background) task for retrieving data via internet from themoviedb.
+ *
  * Created by Susannah on 2/24/2016.
  */
 public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
@@ -30,11 +31,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     private final Context mContext;
-    private Boolean sortPopular;
+    private Boolean mSortPopular;
 
     public FetchMovieTask(Boolean sortPop, Context context) {
-        sortPopular = sortPop;
-        Log.v(LOG_TAG, "sortPopular: " + sortPopular);
+        mSortPopular = sortPop;
+        Log.v(LOG_TAG, "mSortPopular: " + mSortPopular);
         mContext = context;
     }
 
@@ -77,7 +78,9 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         JSONObject forecastJson = new JSONObject(movieJsonStr);
         JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
 
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(movieArray.length());
+        Vector<ContentValues> cVVector = new Vector<>(movieArray.length());
+        // Estimate an average of 3 genres per movie.
+        Vector<ContentValues> genresVector = new Vector<>(3 * movieArray.length());
 
         Log.v(LOG_TAG, movieArray.length() + " movies were returned");
         for (int i = 0; i < movieArray.length(); i++) {
@@ -125,7 +128,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH, posterPath);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI, fullPosterPath);
             Log.v(LOG_TAG, "fullPosterPath = " + fullPosterPath);
-            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, (int) (adult ? 1 : 0));
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, (adult ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW, overview);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE, releaseDate);
             // movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_GENREIDS, genreIds);
@@ -136,32 +139,18 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_BACKDROPPATH, backdropPath);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY, popularity);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT, voteCount);
-            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO, (int) (video ? 1 : 0));
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO,  (video ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE, voteAverage);
 
-            cVVector.add(movieValues);
+            // Genres are a special case
+            for (int j=0; j<genreIdArray.length(); j++) {
+                ContentValues genreValues = new ContentValues();
+                genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_ID, id);
+                genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_GENRE_ID, genreIds[j]);
+                genresVector.add(genreValues);
+            }
 
-//            // TODO this is on its way out
-//            // the PopMovie constructor doesn't need the whole URI path. It creates that itself.
-//            PopMovie oneMovie = new PopMovie(
-//                    posterPath,
-//                    adult,
-//                    overview,
-//                    releaseDate,
-//                    genreIds,
-//                    id,
-//                    origTitle,
-//                    origLang,
-//                    title,
-//                    backdropPath,
-//                    popularity,
-//                    voteCount,
-//                    video,
-//                    voteAverage);
-//
-//            //TODO this is on its way out
-//            popMovies.add(oneMovie);
-//            //resultStrs[i] = title;
+            cVVector.add(movieValues);
         }
 
         try {
@@ -171,8 +160,13 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
                 mContext.getContentResolver().bulkInsert(PopMoviesContract.PopMovieEntry.CONTENT_URI,
                         cVVector.toArray(new ContentValues[cVVector.size()]));
             }
+            if (genresVector.size() > 0) {
+                mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieToGenresEntry.CONTENT_URI,
+                        genresVector.toArray(new ContentValues[genresVector.size()]));
+            }
         } catch (Exception e) {
             Log.e(LOG_TAG, "exception " + e.getMessage() + " " + e.toString());
+            return Boolean.FALSE;
         }
 
         return Boolean.TRUE;
@@ -214,7 +208,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             final String BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
             final String BASE_URL_DISCOVER = "https://api.themoviedb.org/3/discover/movie";
 
-            if (sortPopular)
+            if (mSortPopular)
                 sortPref = POPULARITY_DESC;
             else
                 sortPref = RATED_DESC;
@@ -277,9 +271,13 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         }
     }
 
+    // TODO consider removing this method if not needed
     @Override
     protected void onPostExecute(Boolean success) {
         if ((success != null) && (success == Boolean.TRUE)) {
+            Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
+                    " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+
 //                movieGridAdapter.clear();
 //                movieGridAdapter.addAll(popMovies);
         }

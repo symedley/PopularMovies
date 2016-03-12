@@ -27,28 +27,28 @@ import java.util.Vector;
  */
 public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
 
-        private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
+        private final String LOG_TAG = FetchGenresTask.class.getSimpleName();
         private final Context mContext;
 
         public FetchGenresTask(Context context) {
             mContext = context;
         }
 
-        private Boolean getGenreDataFromJson(String movieJsonStr)
+        private Boolean getGenreDataFromJson(String genreJsonStr)
                 throws JSONException {
             // These are the names of the JSON objects that need to be extracted.
-            final String TMD_RESULTS = "results";
+            final String TMD_GENRES = "genres";
             final String TMD_GENRE_ID = "id";
             int genreId;
             final String TMD_GENRE_NAME = "name";
             String genreName;
 
-            JSONObject forecastJson = new JSONObject(movieJsonStr);
-            JSONArray genreArray = forecastJson.getJSONArray(TMD_RESULTS);
+            JSONObject forecastJson = new JSONObject(genreJsonStr);
+            JSONArray genreArray = forecastJson.getJSONArray(TMD_GENRES);
 
-            Vector<ContentValues> cVVector = new Vector<ContentValues>(genreArray.length());
+            Vector<ContentValues> cVVector = new Vector<>(genreArray.length());
 
-            Log.v(LOG_TAG, genreArray.length() + " movies were returned");
+            Log.v(LOG_TAG, genreArray.length() + " genres were returned");
             for (int i = 0; i < genreArray.length(); i++) {
                 JSONObject oneGenreJson = genreArray.getJSONObject(i);
 
@@ -67,7 +67,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
                 int delete = mContext.getContentResolver().delete(PopMoviesContract.GenreEntry.CONTENT_URI, null, null);
                 // add to database
                 if (cVVector.size() > 0) {
-                    mContext.getContentResolver().bulkInsert(PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                    mContext.getContentResolver().bulkInsert(PopMoviesContract.GenreEntry.CONTENT_URI,
                             cVVector.toArray(new ContentValues[cVVector.size()]));
                 }
             } catch (Exception e) {
@@ -90,7 +90,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
             BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string.
-            String moviesJsonStr = null;
+            String genreJsonString = null;
 
             final String API_KEY_PARAM = "api_key";
 
@@ -106,7 +106,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, " URL is " + url.toString());
+                Log.v(LOG_TAG, " Fetch Genres URL is " + url.toString());
 
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -129,7 +129,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
                     return Boolean.FALSE;
                 }
 
-                moviesJsonStr = buffer.toString();
+                genreJsonString = buffer.toString();
             } catch (IOException e) {
                 Log.e(LOG_TAG, "No data retrieved! Error: " + e.toString() + " " + e.getMessage(), e);
                 // If the data was not successfully retrieved, no need to parse it.
@@ -148,7 +148,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
             }
 
             try {
-                return getGenreDataFromJson(moviesJsonStr);
+                return getGenreDataFromJson(genreJsonString);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
@@ -156,6 +156,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
             }
         }
 
+    // TODO consider removing this method
         @Override
         protected void onPostExecute(Boolean success) {
             if ((success != null) && (success == Boolean.TRUE)) {

@@ -5,7 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-/**
+/** Popular Movies database helpder creates the tables using SQL Strings, handles database upgrades
+ *
  * Created by Susannah on 2/20/2016.
  */
 public class PopMoviesDbHelper extends SQLiteOpenHelper {
@@ -13,7 +14,7 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     public static final String DATABASE_NAME = "popmovies.db";
-    private static final int  DATABASE_VERSION = 3;
+    private static final int  DATABASE_VERSION = 4;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version
@@ -51,6 +52,13 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.GenreEntry.COLUMN_NAME + " TEXT NOT NULL );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_GENRES_TABLE);
+
+        final String SQL_CREATE_MOVIES_TO_GENRES_TABLE = "CREATE TABLE " +
+                PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "(" +
+                PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
+                PopMoviesContract.MovieToGenresEntry.COLUMN_GENRE_ID + " INTEGER NOT NULL );";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TO_GENRES_TABLE);
     }
 
     // Upgrade the database when the version is changed. Just drop the table and recreate it.
@@ -64,6 +72,9 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.GenreEntry.TABLE_GENRES);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.GenreEntry.TABLE_GENRES + "'");
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES);
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
+                PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "'");
 
         onCreate(sqLiteDatabase);
     }
