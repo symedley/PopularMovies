@@ -39,6 +39,14 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         mContext = context;
     }
 
+    /**getMovieDataFromJson - after the data has been received as a JSON buffer, pick it apart and populate the database.
+     *
+     * Delete the old content in the database right before inserting the newly retrieved data
+     *
+     * @param movieJsonStr
+     * @return success/failure
+     * @throws JSONException
+     */
     private Boolean getMovieDataFromJson(String movieJsonStr)
             throws JSONException {
         // These are the names of the JSON objects that need to be extracted.
@@ -127,7 +135,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH, posterPath);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI, fullPosterPath);
-            Log.v(LOG_TAG, "fullPosterPath = " + fullPosterPath);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, (adult ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW, overview);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE, releaseDate);
@@ -154,6 +161,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         }
 
         try {
+            // Delete the old content in the database right before inserting the newly retrieved data
             int delete = mContext.getContentResolver().delete(PopMoviesContract.PopMovieEntry.CONTENT_URI, null, null);
             // add to database
             if (cVVector.size() > 0) {
@@ -221,8 +229,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
             URL url = new URL(builtUri.toString());
 
-            Log.v(LOG_TAG, " URL is " + url.toString());
-
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -271,15 +277,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         }
     }
 
-    // TODO consider removing this method if not needed
     @Override
     protected void onPostExecute(Boolean success) {
         if ((success != null) && (success == Boolean.TRUE)) {
             Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
                     " "+Thread.currentThread().getStackTrace()[2].getMethodName());
-
-//                movieGridAdapter.clear();
-//                movieGridAdapter.addAll(popMovies);
         }
     }
 }

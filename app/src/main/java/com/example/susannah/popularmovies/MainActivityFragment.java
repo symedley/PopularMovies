@@ -30,7 +30,7 @@ import com.example.susannah.popularmovies.data.PopMoviesContract;
  * This class will have to create the call to the movie database and initialize a background
  * task to fetch and parse data.
  *
- * See MIN_VOTES to adjust how many votes a movie must have to be included in the results.
+ * See MIN_VOTES in FetchMovieTask.doInBackground to adjust how many votes a movie must have to be included in the results.
  */
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -39,22 +39,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     // Related to Content Provider, Loader and SQLiteDatabase
     private static final int CURSOR_LOADER_ID = 0;
 
-    // private MovieGridAdapter mMovieGridAdapter;
-
     private boolean mSortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
-//    private String mSortOrder = null; // Popularity.DESC or VoteAverage.DESC. But it's not working.
-//    SharedPreferences.OnSharedPreferenceChangeListener listener ;
 
     // Changing to using SQLite and Content Provider
     // mPopMovieAdapter is the Cursor Adapter.
     // The old adapter was a grid adapter derived from ArrayAdapter.
     private PopMovieAdapter mPopMovieAdapter;
     private GridView mGridView;
-
-//    PopMovie[] popMovieArray = {
-//            new PopMovie("Retrieving movie data...")
-//    };
-//    public ArrayList<PopMovie> popMovies;
 
     View rootView;
 
@@ -125,23 +116,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         initializeSortOrder();
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        listener =
-//                new SharedPreferences.OnSharedPreferenceChangeListener() {
-//                    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-//                        // listener implementation
-//                        initializeSortOrder();
-//                    }
-//                };
-//        prefs.registerOnSharedPreferenceChangeListener(listener);
-//        mSortOrder = sort; TODO why does sort order not affect
-// the order in the cursor that the adapter is watching??
+
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             // START new SQLite and Provider
             // PopMovieAdapter created with activity, cursor, flags, loaderID
-            mPopMovieAdapter = new PopMovieAdapter(getActivity(), null, 0, CURSOR_LOADER_ID);
+            mPopMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);
             // initialize to the GridView in fragment_main.xml
             mGridView = (GridView) rootView.findViewById(R.id.gridView);
             // set the GridView's adapter to be our CursorAdapter, PopMovieAdapter
@@ -155,51 +136,27 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 // get the item clicked on and display it's information
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                    String selection = PopMoviesContract.PopMovieEntry._ID;
+                    // String selection = PopMoviesContract.PopMovieEntry._ID;
                     // String []  selectionArgs = new String[]{String.valueOf(position + 1)};
 
-                    Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(position + 1);
-                    Cursor c =
-                            getActivity().getContentResolver().query(
-                                    uri,
-                                    null,
-                                    null,
-                                    null,
-                                    null);
-
-                    if (c != null) {
-                        c.moveToFirst();
-
+//                    Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(position + 1);
+//                    Cursor c =
+//                            getActivity().getContentResolver().query(
+//                                    uri,
+//                                    null,
+//                                    null,
+//                                    null,
+//                                    null);
+//
+//                    if (c != null) {
+////                        c.moveToFirst();
+//
                         Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                        detailIntent.putExtra(DetailFragment.KEY_POSITION, position + 1);
 
-                        int idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
-                        String title = c.getString(idx);
-                        detailIntent.putExtra(getString(R.string.title), title);
-
-                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
-                        String origTitle = c.getString(idx);
-                        detailIntent.putExtra(getString(R.string.original_title), origTitle);
-
-                        // Pass in only the poster image name instead of the whole Uri, so
-                        // that the detail view can retrieve a larger image.
-                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
-                        String posterPathUri = c.getString(idx);
-                        detailIntent.putExtra(getString(R.string.poster_path_uri_string), posterPathUri);
-
-                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
-                        String overview = c.getString(idx);
-                        detailIntent.putExtra(getString(R.string.synopsis), overview);
-
-                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE);
-                        float voteAverage = c.getFloat(idx);
-                        detailIntent.putExtra(getString(R.string.rating), Float.toString(voteAverage));
-
-                        idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
-                        String releaseDate = c.getString(idx);
-                        detailIntent.putExtra(getString(R.string.release_date), releaseDate);
                         startActivity(detailIntent);
                     }
-                }
+//                }
             });
         }
         return rootView;
@@ -216,12 +173,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         null,
                         sortOrder
                 );
+
         if (c.getCount() == 0){
             updateMovies();
         }
         // initialize loader
         getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
+        c.close();
     }
 
     /** updateMovies checks the sort order and then starts the fetchMovieTask
@@ -268,17 +227,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
-    /** onSaveInstanceState: so a screen rotation won't cause a new database query,
-     * do some magic or cheat.
-     */
-    // TODO when using a content provider, how do i do this?
-    // I might not need this method at all
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        //savedInstanceState.putString(KEY_TITLE, mTitle);
-//        savedInstanceState.putParcelableArrayList(KEY_SAVED_INSTANCE_ARRAY, popMovies);
+    public void onDestroy() {
+        super.onDestroy();
     }
-
 
     /** onCreateLoader - attach the query to our DB Loader.
      */
@@ -298,31 +249,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+" "+Thread.currentThread().getStackTrace()[2].getMethodName());
-
-        // We have to ignore the results in 'data' and re-query the provider
-        // so that the sort order is correct
-
-        // TODO (1) the cursor remains in the original order, even if it gets displayed sorted (!?)
-        // TODO (2) DESC doesn't work.
-        String sortOrder = initializeSortOrder();
-        Cursor c =
-                getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
-//                        new String[]{PopMoviesContract.PopMovieEntry._ID},
-                        null,
-                        null,
-                        null,
-                        sortOrder
-                );
-
-        mPopMovieAdapter.swapCursor(c);
+        mPopMovieAdapter.swapCursor(data);
     }
 
     /** Data needs to be refreshed, so dump the old data
      */
     @Override
     public void onLoaderReset(Loader<Cursor> loader ) {
-        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+" "+Thread.currentThread().getStackTrace()[2].getMethodName());
         mPopMovieAdapter.swapCursor(null);
     }
 

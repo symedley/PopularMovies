@@ -10,8 +10,6 @@ import android.util.Log;
 public class TestPopMovieContract extends AndroidTestCase {
     private static final String TEST_TITLE = "My Neighbor Totoro";
     private static final String TEST_GENRE_NAME= "Comedy";
-    // Weather uses a / before the location name. Do i need the /? TODO
-    // private static final String TEST_TITLE = "/My Neighbor Totoro";
     private static final String LOG_TAG = TestPopMovieContract.class.getSimpleName();
 
     public void testBuildPopMovieTitle() {

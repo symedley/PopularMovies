@@ -5,15 +5,16 @@ package com.example.susannah.popularmovies;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
 
 import static com.example.susannah.popularmovies.R.*;
@@ -29,40 +30,26 @@ public class DetailFragment extends Fragment {
     String mTitle;
     String mOriginalTitle;
     String mSynopsis;
-    String mRating;
+    String mOverview;
     String mReleaseDate;
     String mPosterPathUriString;
 
-    static final String KEY_TITLE = "TITLE";
-    static final String KEY_ORIGTITLE = "ORIGTITLE";
-    static final String KEY_SYNOPSIS = "SYNOPSIS";
-    static final String KEY_RATING = "RATING";
-    static final String KEY_RELEASEDATE = "RELEASEDATE";
-    static final String KEY_POSTERPATH = "POSTERPATH";
+
+    static final String KEY_POSITION = "POSITION";
 
     static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            mTitle = savedInstanceState.getString(KEY_TITLE);
-            mOriginalTitle = savedInstanceState.getString(KEY_ORIGTITLE);
-            mSynopsis = savedInstanceState.getString(KEY_SYNOPSIS);
-            mRating = savedInstanceState.getString(KEY_RATING);
-            mReleaseDate = savedInstanceState.getString(KEY_RELEASEDATE);
-            mPosterPathUriString = savedInstanceState.getString(KEY_POSTERPATH);
-
-        } else {
-
-        }
         setHasOptionsMenu(true);
     }
 
-    /** Displays the detailed information about one movie
+    /**
+     * Displays the detailed information about one movie
      *
-     * @param inflater The inflator used to inflate the layout
-     * @param container The view group in which this view will reside
+     * @param inflater           The inflator used to inflate the layout
+     * @param container          The view group in which this view will reside
      * @param savedInstanceState The saved data to be displayed, if this view has already been created
      * @return The view created
      */
@@ -74,25 +61,42 @@ public class DetailFragment extends Fragment {
 
             Context context = getActivity().getApplicationContext();
 
-            if (savedInstanceState == null) {
-                Bundle extras = getActivity().getIntent().getExtras();
-                if (extras == null) {
-                    mTitle = "No data";
-                } else {
-                    mTitle = extras.getString(getString(string.title));
-                    mOriginalTitle = extras.getString(getString(string.original_title));
+            Bundle extras = getActivity().getIntent().getExtras();
+            if (extras == null) {
+                mTitle = "No data";
+            } else {
+                int position = extras.getInt(KEY_POSITION);
+                Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(position);
+                Cursor c =
+                        getActivity().getContentResolver().query(
+                                uri,
+                                null,
+                                null,
+                                null,
+                                null);
+
+                if (c != null) {
+                    c.moveToFirst();
+
+                    int idx;
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
+                    mTitle = c.getString(idx);
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
+                    mOriginalTitle = c.getString(idx);
                     if (mOriginalTitle == null)
                         mOriginalTitle = "";
-                    mPosterPathUriString = extras.getString(getString(string.poster_path_uri_string));
-                    mSynopsis = extras.getString(getString(string.synopsis));
-                    mRating = extras.getString(getString(string.rating));
-                    mReleaseDate = extras.getString(getString(string.release_date));
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
+                    mPosterPathUriString = c.getString(idx);
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
+                    mSynopsis = c.getString(idx);
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE);
+                    mOverview = c.getString(idx);
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
+                    mReleaseDate = c.getString(idx);
                 }
             }
-            ((TextView) root.findViewById(id.title)).setText(
-                    String.format("%s: %s", context.getString(string.title), mTitle));
 
-            TextView tvOrigTitle = (TextView)root.findViewById(id.original_title);
+            TextView tvOrigTitle = (TextView) root.findViewById(id.original_title);
             tvOrigTitle.setText(mOriginalTitle);
             if ((mOriginalTitle != "") && !(mOriginalTitle.equals(mTitle))) {
                 tvOrigTitle.setVisibility(View.VISIBLE);
@@ -102,41 +106,18 @@ public class DetailFragment extends Fragment {
 
             ((TextView) root.findViewById(id.synopsis)).setText(mSynopsis);
             ((TextView) root.findViewById(id.rating)).setText(
-                        String.format("%s: %s", context.getString(string.rating) , mRating));
+                    String.format("%s: %s", context.getString(string.rating), mOverview));
             ((TextView) root.findViewById(id.release_date)).setText(
-                        String.format("%s: %s", context.getString(string.release_date),mReleaseDate));
+                    String.format("%s: %s", context.getString(string.release_date), mReleaseDate));
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
 
             // Use the movie database URI of the image and picasso to get the movie poster image to display.
             if (mPosterPathUriString != null) {
-
-                //TODO replace the size
-//                final String IMAGE_SIZE = "w500"; // a size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
-//                String newUri = mPosterPathUriString.replace(FetchMovieTask.IMAGE_SIZE, IMAGE_SIZE);
-
-                Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[2]
-                        .getMethodName() + " full poster path: " + mPosterPathUriString);
-
                 Picasso.with(context).load(mPosterPathUriString).into(thumbView);
             }
         }
 
         ((TextView) root.findViewById(id.title)).setText(mTitle);
         return root;
-    }
-
-    /** Save the data for 1 movie so the view can be recreated (for eg. this is a screen rotation)
-     *
-     * @param savedInstanceState the place to store the data
-     */
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString(KEY_TITLE, mTitle);
-        savedInstanceState.putString(KEY_ORIGTITLE, mOriginalTitle);
-        savedInstanceState.putString(KEY_SYNOPSIS, mSynopsis);
-        savedInstanceState.putString(KEY_RATING, mRating);
-        savedInstanceState.putString(KEY_RELEASEDATE, mReleaseDate);
-        savedInstanceState.putString(KEY_POSTERPATH, mPosterPathUriString);
-        super.onSaveInstanceState(savedInstanceState);
     }
 }

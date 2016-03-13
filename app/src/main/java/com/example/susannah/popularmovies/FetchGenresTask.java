@@ -106,8 +106,6 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, " Fetch Genres URL is " + url.toString());
-
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -156,7 +154,6 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
             }
         }
 
-    // TODO consider removing this method
         @Override
         protected void onPostExecute(Boolean success) {
             if ((success != null) && (success == Boolean.TRUE)) {

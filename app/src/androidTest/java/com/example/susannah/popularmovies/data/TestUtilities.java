@@ -38,7 +38,7 @@ public class TestUtilities extends AndroidTestCase {
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW,
                 "Silly humans confuse themselves with paradoxical timetravel.");
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE, TEST_DATE); // String
-// movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_GENREIDS,  // TODO
+        // Genres are done in a separate table.
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_TMDID, TEST_TMDID); // The Movie Database ID, an int
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE, TEST_TITLE);
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGLANG, "EN");
@@ -53,12 +53,12 @@ public class TestUtilities extends AndroidTestCase {
     }
 
     static ContentValues createGenreValues() {
-        ContentValues movieValues = new ContentValues();
-        movieValues.put(PopMoviesContract.GenreEntry.COLUMN_ID,
+        ContentValues genreValues = new ContentValues();
+        genreValues.put(PopMoviesContract.GenreEntry.COLUMN_ID,
                 TEST_GENRE_ID); //(2)
-        movieValues.put(PopMoviesContract.GenreEntry.COLUMN_NAME,
+        genreValues.put(PopMoviesContract.GenreEntry.COLUMN_NAME,
                 TEST_GENRE_NAME); //(comedy)
-        return movieValues;
+        return genreValues;
     }
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {

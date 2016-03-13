@@ -2,7 +2,6 @@ package com.example.susannah.popularmovies;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +31,10 @@ public class PopMovieAdapter extends CursorAdapter {
     /*
      *
      */
-    public PopMovieAdapter(Context context, Cursor c, int flags, int loaderID) {
+    public PopMovieAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
-        Log.d(LOG_TAG, "PopMovieAdapter");
         mContext = context;
-        sLoaderID = loaderID;
+//        sLoaderID = loaderID;
     }
 
     /*
@@ -45,8 +43,6 @@ public class PopMovieAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         int layoutId = R.layout.list_item_movie;
-
-        //Log.d(LOG_TAG, Thread.currentThread().getStackTrace()[2].getMethodName());
 
         View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
