@@ -6,6 +6,7 @@ import android.util.Log;
 
 /**
  * Created by Susannah on 2/21/2016.
+ * Tests
  */
 public class TestPopMovieContract extends AndroidTestCase {
     private static final String TEST_TITLE = "My Neighbor Totoro";
@@ -26,7 +27,13 @@ public class TestPopMovieContract extends AndroidTestCase {
         Log.v(LOG_TAG, "uri with id = " + uri.toString());
         Uri genreUri = PopMoviesContract.GenreEntry.buildGenresTitle(TEST_GENRE_NAME);
         Log.v(LOG_TAG, "movieUri = " + genreUri.toString());
-        assertNotNull("a null Uri was returned from buildPopMoviesUri.", genreUri);
+        assertNotNull("a null Uri was returned from buildGenresTitle.", genreUri);
         assertEquals("Title not properly appended to end of URI", TEST_GENRE_NAME, genreUri.getLastPathSegment());
+    }
+
+    public void testBuildMovieFavorites() {
+        Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(1);
+        Log.v(LOG_TAG, "uri with id = " + uri.toString());
+        assertNotNull("a null Uri was returned from testBuildMovieFavorites.", uri);
     }
 }

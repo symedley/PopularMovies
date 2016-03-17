@@ -11,6 +11,7 @@ import java.util.Set;
 
 /**
  * Created by Susannah on 2/22/2016.
+ * Test Utilities
  */
 public class TestUtilities extends AndroidTestCase {
 
@@ -61,6 +62,13 @@ public class TestUtilities extends AndroidTestCase {
         return genreValues;
     }
 
+    static ContentValues createMovieFavoriteValues() {
+        ContentValues favValues = new ContentValues();
+        favValues.put(PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID,
+                TEST_GENRE_ID); //(2)
+        return favValues;
+    }
+
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
         assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
         validateCurrentRecord(error, valueCursor, expectedValues);
@@ -93,5 +101,16 @@ public class TestUtilities extends AndroidTestCase {
 
         assertTrue("Failure to insert Pop Movie values", locationRowId != -1);
         return locationRowId;
+    }
+
+    static long insertMovieFavoriteValue(Context context) {
+        PopMoviesDbHelper popMoviesDbHelper = new PopMoviesDbHelper(context);
+        SQLiteDatabase db = popMoviesDbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createMovieFavoriteValues();
+
+        long locRowId = db.insert(PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, null, testValues);
+
+        assertTrue( " Failed to insert one favoriate movie", locRowId != -1);
+        return locRowId;
     }
 }

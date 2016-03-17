@@ -9,6 +9,10 @@ import android.provider.BaseColumns;
  * Created by Susannah on 2/20/2016.
  * <p/>
  * Defines the database structure for Popular Movies.
+ * popmovies = table of all the movies stored and all their relevant data
+ * genres = table of the possible genres with their int IDs and their String names (approximately 20)
+ * movieToGenres = a mapping of movie ID to genre ID. Each movie ID can have many entries.
+ * movieFavorites = a simple list of Movie IDs that the user has designated favorites.
  */
 public class PopMoviesContract {
 
@@ -122,6 +126,34 @@ public class PopMoviesContract {
         // for building URIs by genre name
         public static Uri buildMovieByGenreId(int genreId) {
             return CONTENT_URI.buildUpon().appendPath(String.valueOf(genreId)).build();
+        }
+    }
+
+
+    /**
+     * MovieFavorites - if the TMD Movie ID is in here, it is a user favorite
+     * <p/>
+     * Does not need to implement BaseColumns because it's a mapping of one
+     * integer ID to another integer ID
+     */
+    public static final class MovieFavorites {
+        public static final String TABLE_MOVIE_FAVORITES = "movieFavorites";
+
+        // Columns
+        public static final String COLUMN_MOVIE_ID = "MovieID";
+        // create content uri
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(TABLE_MOVIE_FAVORITES).build();
+        // create cursor of base type directory for multiple entries
+        public static final String CONTENT_DIR_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_FAVORITES;
+        // create cursor of base type item for single entry
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_FAVORITES;
+
+        // for building URIs by Movie ID (the ID returned by theMovieDB)
+        public static Uri buildMovieFavoritesUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 }

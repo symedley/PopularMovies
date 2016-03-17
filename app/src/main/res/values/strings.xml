@@ -32,5 +32,6 @@
     <string name="title">Title</string>
     <string name="synopsis_colon">Synopsis:</string>
     <string name="movie_title">Movie title</string>
+    <string name="FAVORITE">FAVORITE</string>
 
 </resources>

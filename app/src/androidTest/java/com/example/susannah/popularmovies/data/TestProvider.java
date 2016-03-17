@@ -9,6 +9,7 @@ import android.util.Log;
 
 /**
  * Created by Susannah on 2/23/2016.
+ * Still more tests
  */
 public class TestProvider extends AndroidTestCase {
     public static final String LOG_TAG = TestProvider.class.getSimpleName();
@@ -42,7 +43,7 @@ public class TestProvider extends AndroidTestCase {
                 null
         );
 
-         cursor = mContext.getContentResolver().query(
+        cursor = mContext.getContentResolver().query(
                 PopMoviesContract.GenreEntry.CONTENT_URI,
                 null,
                 null,
@@ -50,6 +51,23 @@ public class TestProvider extends AndroidTestCase {
                 null
         );
         assertEquals("Error: Records not deleted from Genre table during delete", 0, cursor.getCount());
+        cursor.close();
+
+        // Favorites table
+        mContext.getContentResolver().delete(
+                PopMoviesContract.MovieFavorites.CONTENT_URI,
+                null,
+                null
+        );
+
+        cursor = mContext.getContentResolver().query(
+                PopMoviesContract.MovieFavorites.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals("Error: Records not deleted from Favorites table during delete", 0, cursor.getCount());
         cursor.close();
     }
     /*

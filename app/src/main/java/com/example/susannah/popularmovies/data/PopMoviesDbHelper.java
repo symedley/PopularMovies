@@ -14,7 +14,7 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     public static final String DATABASE_NAME = "popmovies.db";
-    private static final int  DATABASE_VERSION = 4;
+    private static final int  DATABASE_VERSION = 5;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version
@@ -59,6 +59,12 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.MovieToGenresEntry.COLUMN_GENRE_ID + " INTEGER NOT NULL );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TO_GENRES_TABLE);
+
+        final String SQL_CREATE_MOVIE_FAVORITES = "CREATE TABLE " +
+                PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES + "(" +
+                PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID + " INTEGER NOT NULL); ";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_FAVORITES);
     }
 
     // Upgrade the database when the version is changed. Just drop the table and recreate it.
@@ -75,6 +81,9 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "'");
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES);
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
+                PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES + "'");
 
         onCreate(sqLiteDatabase);
     }

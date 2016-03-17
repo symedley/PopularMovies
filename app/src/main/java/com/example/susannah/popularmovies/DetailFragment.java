@@ -8,6 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ public class DetailFragment extends Fragment {
     String mSynopsis;
     String mOverview;
     String mReleaseDate;
+    int mTmdId;
     String mPosterPathUriString;
 
 
@@ -93,12 +95,15 @@ public class DetailFragment extends Fragment {
                     mOverview = c.getString(idx);
                     idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
                     mReleaseDate = c.getString(idx);
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+                    mTmdId = c.getInt(idx);
+                    c.close();
                 }
             }
 
             TextView tvOrigTitle = (TextView) root.findViewById(id.original_title);
             tvOrigTitle.setText(mOriginalTitle);
-            if ((mOriginalTitle != "") && !(mOriginalTitle.equals(mTitle))) {
+            if ((mOriginalTitle.isEmpty()) && !(mOriginalTitle.equals(mTitle))) {
                 tvOrigTitle.setVisibility(View.VISIBLE);
             } else {
                 tvOrigTitle.setVisibility(View.GONE);
@@ -115,6 +120,23 @@ public class DetailFragment extends Fragment {
             if (mPosterPathUriString != null) {
                 Picasso.with(context).load(mPosterPathUriString).into(thumbView);
             }
+            Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(mTmdId);
+            Cursor c =
+                    getActivity().getContentResolver().query(
+                            uri,
+                            null,
+                            null,
+                            null,
+                            null);
+           if (c != null) {
+               if (c.moveToFirst()) {
+                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
+                   Log.d(LOG_TAG, "This movie is a fav");
+               } else {
+                   Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
+               }
+               c.close();
+           }
         }
 
         ((TextView) root.findViewById(id.title)).setText(mTitle);

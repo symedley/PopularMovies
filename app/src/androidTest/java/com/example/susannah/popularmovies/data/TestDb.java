@@ -4,9 +4,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 /**
  * Created by Susannah on 2/22/2016.
+ * More tests
  */
 public class TestDb extends AndroidTestCase {
     public static final String LOG_TAG = TestDb.class.getSimpleName();
@@ -22,11 +24,13 @@ public class TestDb extends AndroidTestCase {
     public void testCreateDb() throws Throwable {
         deleteTheDatabase();
         SQLiteDatabase db = new PopMoviesDbHelper(this.mContext).getWritableDatabase();
-        assertEquals(true, db.isOpen());
+
         assertTrue("Database not open!", db.isOpen());
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
         assertTrue("Error: This means that the database has not been created correctly",
                 c.moveToFirst());
+
+        Log.v(LOG_TAG," c.getCount() " + c.getCount() );
 
         ContentValues testValues = TestUtilities.createPopMovieValues();
         long locationRowId;
@@ -34,9 +38,14 @@ public class TestDb extends AndroidTestCase {
         assertTrue("Failure to insert Pop Movie values", locationRowId != -1);
 
         // Genre table
-         testValues = TestUtilities.createGenreValues();
+        testValues = TestUtilities.createGenreValues();
         locationRowId = db.insert(PopMoviesContract.GenreEntry.TABLE_GENRES, null, testValues);
         assertTrue("Failure to insert Genre values", locationRowId != -1);
+
+        // Favorites table
+        testValues = TestUtilities.createMovieFavoriteValues();
+        locationRowId = db.insert(PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, null, testValues);
+        assertTrue("Failure to insert Fav values", locationRowId != -1);
         db.close();
     }
 }
