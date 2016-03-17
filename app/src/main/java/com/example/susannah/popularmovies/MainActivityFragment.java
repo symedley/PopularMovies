@@ -3,7 +3,6 @@ package com.example.susannah.popularmovies;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -39,6 +38,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     // Related to Content Provider, Loader and SQLiteDatabase
     private static final int CURSOR_LOADER_ID = 0;
 
+    private static final String KEY_DONT_UPDATE_MOVIES = "KEY_DONT_UPDATE_MOVIES";
+
     private boolean mSortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
 
     // Changing to using SQLite and Content Provider
@@ -49,16 +50,23 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     View rootView;
 
+    private Cursor cursor;
+
     public MainActivityFragment() {
         // popMovies = new ArrayList(Arrays.asList(popMovieArray));
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
+                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
         super.onCreate(savedInstanceState);
-//        if (savedInstanceState != null) {
-//            popMovies = savedInstanceState.getParcelableArrayList(KEY_SAVED_INSTANCE_ARRAY);
-//        }
+        int dontUpdate = 0;
+        if (savedInstanceState != null) {
+             dontUpdate = savedInstanceState.getInt(KEY_DONT_UPDATE_MOVIES, 0);
+        }
+        if ((savedInstanceState==null) || dontUpdate==0)
+            updateMovies();
         setHasOptionsMenu(true);
     }
 
@@ -115,6 +123,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
+                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
         initializeSortOrder();
 
         if (rootView == null) {
@@ -135,22 +145,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 @Override
                 // get the item clicked on and display it's information
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    // String selection = PopMoviesContract.PopMovieEntry._ID;
-                    // String []  selectionArgs = new String[]{String.valueOf(position + 1)};
-
-//                    Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(position + 1);
-//                    Cursor c =
-//                            getActivity().getContentResolver().query(
-//                                    uri,
-//                                    null,
-//                                    null,
-//                                    null,
-//                                    null);
-//
-//                    if (c != null) {
-////                        c.moveToFirst();
-//
                         Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
                         detailIntent.putExtra(DetailFragment.KEY_POSITION, position + 1);
 
@@ -158,14 +152,19 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     }
 //                }
             });
+            // if the rootView was null, then this is probably when the app was launched,
+            // so kick off a task to go get fresh data from the database
+//            updateMovies();
         }
         return rootView;
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
-
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
+                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+        // initialize loader
         String sortOrder = initializeSortOrder();
-        Cursor c =
+        cursor =
                 getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
 //                        new String[]{PopMoviesContract.PopMovieEntry._ID},
                         null,
@@ -173,14 +172,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         null,
                         sortOrder
                 );
-
-        if (c.getCount() == 0){
+        if (cursor != null)
+            mPopMovieAdapter.swapCursor(cursor);
+        if (cursor.getCount() == 0){
             updateMovies();
         }
-        // initialize loader
-        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
-        c.close();
     }
 
     /** updateMovies checks the sort order and then starts the fetchMovieTask
@@ -214,7 +211,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * TODO should this be replaced by making an OnDataChanged method in this class
      * and calling it from onResume in MainActivity?
      */
-    public void onActivityResult( int requestCode, int resultsCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultsCode, Intent data) {
         super.onActivityResult(requestCode, resultsCode, data);
         if (requestCode == RESULT_KEY) {
             updateMovies();
@@ -228,7 +225,20 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onDestroy() {
+        cursor.close();
         super.onDestroy();
+    }
+
+    /** Save the data for 1 movie so the view can be recreated (for eg. this is a screen rotation)
+     *
+     * @param savedInstanceState the place to store the data
+     */
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
+                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+        savedInstanceState.putInt(KEY_DONT_UPDATE_MOVIES, 1);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     /** onCreateLoader - attach the query to our DB Loader.
