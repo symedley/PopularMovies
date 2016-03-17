@@ -7,8 +7,6 @@ import android.database.Cursor;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
-import com.example.susannah.popularmovies.PopMovie;
-
 /**
  * Created by Susannah on 2/23/2016.
  */
