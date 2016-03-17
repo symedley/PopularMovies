@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 
@@ -279,9 +280,15 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean success) {
-        if ((success != null) && (success == Boolean.TRUE)) {
-            Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
-                    " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (success != null) {
+          if(success == Boolean.TRUE){
+                Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
+                        " " + Thread.currentThread().getStackTrace()[2].getMethodName());
+            }else{ // oh no! false success!
+              Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
+                      " " + Thread.currentThread().getStackTrace()[2].getMethodName() +
+                        " Failed to retrieve movies!");
+            }
         }
     }
 }

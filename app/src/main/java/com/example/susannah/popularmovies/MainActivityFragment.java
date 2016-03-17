@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 
@@ -260,6 +261,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mPopMovieAdapter.swapCursor(data);
+        if (data.getCount() == 0) {
+            Log.e(LOG_TAG, "TODO: create a pop up to tell the user there was a network problem.");
+        }
     }
 
     /** Data needs to be refreshed, so dump the old data
