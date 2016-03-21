@@ -39,21 +39,39 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:minHeight="200dp"
+                android:minWidth="100dp">
                 <ImageView
                     android:id="@+id/movie_poster"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
-                <TextView
+                <LinearLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center_horizontal"
-                    android:id="@+id/favorite"
-                    android:layout_weight="1"/>
-            </LinearLayout>
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:id="@+id/favorite"
+                        android:text="Favorite?"/>
 
+                    <ImageButton
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:contentDescription="@string/movie_item_btn_fav_descr"
+                        android:id="@+id/toggleFavorite"
+                        android:layout_gravity="center_horizontal"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/selector"
+                        android:background="@android:color/transparent"
+                        android:focusable="true"
+                        android:clickable="true" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/synopsisLabel"

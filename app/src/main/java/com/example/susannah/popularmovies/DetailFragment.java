@@ -12,8 +12,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
@@ -130,10 +132,12 @@ public class DetailFragment extends Fragment {
                             null);
            if (c != null) {
                if (c.moveToFirst()) {
-                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
+//                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
                    Log.d(LOG_TAG, "This movie is a fav");
+                   ((ImageButton) root.findViewById(id.toggleFavorite)).setSelected(Boolean.TRUE);
                } else {
                    Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
+                   ((ImageButton) root.findViewById(id.toggleFavorite)).setSelected(Boolean.FALSE);
                }
                c.close();
            }
