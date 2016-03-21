@@ -92,15 +92,43 @@
         </LinearLayout>
     </ScrollView>
 
-    <ImageView
-        android:id="@+id/movie_poster"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/linearLayout"
-        android:layout_toEndOf="@+id/linearLayout"
-        android:layout_marginLeft="37dp"
-        android:layout_marginStart="37dp" />
+        android:orientation="vertical"
+        android:minHeight="200dp"
+        android:minWidth="100dp">
+        <ImageView
+            android:id="@+id/movie_poster"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="Movie poster" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:id="@+id/favorite"
+                android:text="@string/favorite_"/>
+
+            <ImageButton
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:contentDescription="@string/movie_item_btn_fav_descr"
+                android:id="@+id/toggleFavorite"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:src="@drawable/selector"
+                android:background="@android:color/transparent"
+                android:focusable="true"
+                android:clickable="true" />
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>
 

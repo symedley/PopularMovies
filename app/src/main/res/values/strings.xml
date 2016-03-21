@@ -34,5 +34,7 @@
     <string name="movie_title">Movie title</string>
     <string name="FAVORITE">FAVORITE</string>
     <string name="movie_item_btn_fav_descr">This movie is a favorite</string>
+    <string name="favorite">Favorite?</string>
+    <string name="favorite_">Favorite?</string>
 
 </resources>
