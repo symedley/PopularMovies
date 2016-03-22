@@ -134,19 +134,17 @@ public class DetailFragment extends Fragment {
             Log.v(LOG_TAG, uri.toString());
             final ImageButton favButton= (ImageButton) root.findViewById(id.toggleFavoriteBtn);
 
-            Boolean markAsFavorite;
            if (c != null) {
                if (c.moveToFirst()) {
 //                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
                    Log.d(LOG_TAG, "This movie is a fav");
                    favButton.setSelected(Boolean.TRUE);
-                   markAsFavorite = Boolean.TRUE;
                } else {
                    Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
                    favButton.setSelected(Boolean.FALSE);
                }
                c.close();
-               //TODO set click listener for favButton
+               // User can toggle favorite status of this movie by clicking the button
                favButton.setOnClickListener(
                        new View.OnClickListener() {
                            @Override

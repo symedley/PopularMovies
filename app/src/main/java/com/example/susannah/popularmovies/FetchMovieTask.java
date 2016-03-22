@@ -91,8 +91,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         // Estimate an average of 3 genres per movie.
         Vector<ContentValues> genresVector = new Vector<>(3 * movieArray.length());
 
-        Vector<ContentValues> favoritesVector = new Vector<>(movieArray.length());
-
         Log.v(LOG_TAG, movieArray.length() + " movies were returned");
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject oneMovieJson = movieArray.getJSONObject(i);
@@ -141,7 +139,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, (adult ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW, overview);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE, releaseDate);
-            // movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_GENREIDS, genreIds);
+            // Genres are done differently
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_TMDID, id);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE, origTitle);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGLANG, origLang);
@@ -158,11 +156,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
                 genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_ID, id);
                 genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_GENRE_ID, genreIds[j]);
                 genresVector.add(genreValues);
-                if (genreIds[j] == 35) { //comedy
-                    ContentValues favValues = new ContentValues();
-                    favValues.put(PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID, id);
-                    favoritesVector.add(favValues);
-                }
             }
 
             cVVector.add(movieValues);
@@ -171,7 +164,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         try {
             // Delete the old content in the database right before inserting the newly retrieved data
             mContext.getContentResolver().delete(PopMoviesContract.PopMovieEntry.CONTENT_URI, null, null);
-            mContext.getContentResolver().delete(PopMoviesContract.MovieFavorites.CONTENT_URI, null, null);
             // add to database
             if (cVVector.size() > 0) {
                 mContext.getContentResolver().bulkInsert(PopMoviesContract.PopMovieEntry.CONTENT_URI,
@@ -180,10 +172,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             if (genresVector.size() > 0) {
                 mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieToGenresEntry.CONTENT_URI,
                         genresVector.toArray(new ContentValues[genresVector.size()]));
-            }
-            if (favoritesVector.size() > 0) {
-                mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieFavorites.CONTENT_URI,
-                        favoritesVector.toArray(new ContentValues[favoritesVector.size()]));
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "exception " + e.getMessage() + " " + e.toString());
