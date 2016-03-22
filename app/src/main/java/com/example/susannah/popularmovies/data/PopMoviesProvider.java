@@ -250,6 +250,30 @@ public class PopMoviesProvider extends ContentProvider {
                 }
                 break;
             }
+            case MOVIE_FAVORITES: {
+                long _id = mOpenHelper.getReadableDatabase().insert(
+                        PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
+                        null,
+                        contentValues);
+                if (_id > 0) {
+                    returnUri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into: " + uri);
+                }
+                break;
+            }
+            case MOVIE_FAVORITES_WITH_MOVIE_ID: {
+                long _id = mOpenHelper.getReadableDatabase().insert(
+                        PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
+                        null,
+                        contentValues);
+                if (_id > 0) {
+                    returnUri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into: " + uri);
+                }
+                break;
+            }
             default: {
                 throw new UnsupportedOperationException("Unknown uri " + uri);
             }

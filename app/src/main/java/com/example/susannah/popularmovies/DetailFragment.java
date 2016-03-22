@@ -4,6 +4,7 @@
 package com.example.susannah.popularmovies;
 
 import android.app.Fragment;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -130,18 +131,43 @@ public class DetailFragment extends Fragment {
                             null,
                             null,
                             null);
-            ImageButton favButton= (ImageButton) root.findViewById(id.toggleFavoriteBtn);
-            //TODO set click listener fopr favButton
+            Log.v(LOG_TAG, uri.toString());
+            final ImageButton favButton= (ImageButton) root.findViewById(id.toggleFavoriteBtn);
+
+            Boolean markAsFavorite;
            if (c != null) {
                if (c.moveToFirst()) {
 //                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
                    Log.d(LOG_TAG, "This movie is a fav");
                    favButton.setSelected(Boolean.TRUE);
+                   markAsFavorite = Boolean.TRUE;
                } else {
                    Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
                    favButton.setSelected(Boolean.FALSE);
                }
                c.close();
+               //TODO set click listener for favButton
+               favButton.setOnClickListener(
+                       new View.OnClickListener() {
+                           @Override
+                           public void onClick(View v) {
+                               Boolean clicked = favButton.isSelected();
+                               Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(mTmdId);
+                               Log.v(LOG_TAG, uri.toString());
+                               if (clicked) {
+                                   Log.d(LOG_TAG, "This movie is no longer a fav: " + mTmdId);
+                                   getActivity().getContentResolver().delete(uri, null, null);
+                                   // The user wants to un-set the favorites status
+                                   favButton.setSelected(Boolean.FALSE);
+                               } else {
+                                   // User wants to make this a favorite.
+                                   ContentValues cv = new ContentValues();
+                                   cv.put(PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID, mTmdId);
+                                   Uri insert = getActivity().getContentResolver().insert(uri, cv);
+                                   favButton.setSelected(Boolean.TRUE);
+                               }
+                           }
+                       });
            }
         }
 
