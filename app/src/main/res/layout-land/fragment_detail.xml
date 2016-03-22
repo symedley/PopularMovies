@@ -5,7 +5,8 @@
     android:layout_height="match_parent">
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="320dp"
+        android:layout_weight="1"
+        android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -93,7 +94,8 @@
     </ScrollView>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:minHeight="200dp"
@@ -102,6 +104,7 @@
             android:id="@+id/movie_poster"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:layout_weight="1"
             android:contentDescription="Movie poster" />
         <LinearLayout
@@ -120,7 +123,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:contentDescription="@string/movie_item_btn_fav_descr"
-                android:id="@+id/toggleFavorite"
+                android:id="@+id/toggleFavoriteBtn"
                 android:layout_gravity="center_horizontal"
                 android:scaleType="fitCenter"
                 android:src="@drawable/selector"

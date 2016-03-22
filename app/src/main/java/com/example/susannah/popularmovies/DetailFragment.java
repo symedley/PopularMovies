@@ -130,14 +130,16 @@ public class DetailFragment extends Fragment {
                             null,
                             null,
                             null);
+            ImageButton favButton= (ImageButton) root.findViewById(id.toggleFavoriteBtn);
+            //TODO set click listener fopr favButton
            if (c != null) {
                if (c.moveToFirst()) {
 //                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
                    Log.d(LOG_TAG, "This movie is a fav");
-                   ((ImageButton) root.findViewById(id.toggleFavorite)).setSelected(Boolean.TRUE);
+                   favButton.setSelected(Boolean.TRUE);
                } else {
                    Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
-                   ((ImageButton) root.findViewById(id.toggleFavorite)).setSelected(Boolean.FALSE);
+                   favButton.setSelected(Boolean.FALSE);
                }
                c.close();
            }

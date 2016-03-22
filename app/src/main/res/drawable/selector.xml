@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- NOTE: order is important (the first matching state(s) is what is rendered) -->
-    <item android:drawable="@drawable/smooth_star_focused" android:state_focused="true" />
-    <item android:drawable="@drawable/smooth_star" android:state_selected="true" />
+    <item android:state_pressed="true" android:drawable="@drawable/smooth_star_pressed" />
+    <item android:state_focused="true" android:drawable="@drawable/smooth_star_focused" />
+    <item android:state_selected="true" android:drawable="@drawable/smooth_star"  />
     <item android:drawable="@drawable/smooth_star_blank" />
 </selector>

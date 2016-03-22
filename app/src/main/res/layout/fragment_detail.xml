@@ -63,7 +63,7 @@
                         android:layout_width="80dp"
                         android:layout_height="80dp"
                         android:contentDescription="@string/movie_item_btn_fav_descr"
-                        android:id="@+id/toggleFavorite"
+                        android:id="@+id/toggleFavoriteBtn"
                         android:layout_gravity="center_horizontal"
                         android:scaleType="fitCenter"
                         android:src="@drawable/selector"
