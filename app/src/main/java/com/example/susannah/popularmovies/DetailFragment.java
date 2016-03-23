@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
@@ -31,14 +30,13 @@ import static com.example.susannah.popularmovies.R.*;
 public class DetailFragment extends Fragment {
 
     View root;
-    String mTitle;
-    String mOriginalTitle;
-    String mSynopsis;
-    String mOverview;
-    String mReleaseDate;
-    int mTmdId;
-    String mPosterPathUriString;
-
+    private String mTitle;
+    private String mOriginalTitle;
+    private String mSynopsis;
+    private String mVoteAverage; // voteAverage is rating. The other sort criterion is Popularity
+    private String mReleaseDate;
+    private int mTmdId;
+    private String mPosterPathUriString;
 
     static final String KEY_POSITION = "POSITION";
 
@@ -94,8 +92,8 @@ public class DetailFragment extends Fragment {
                     mPosterPathUriString = c.getString(idx);
                     idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
                     mSynopsis = c.getString(idx);
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE);
-                    mOverview = c.getString(idx);
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE); // voteAverage == rating
+                    mVoteAverage = c.getString(idx);
                     idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
                     mReleaseDate = c.getString(idx);
                     idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
@@ -113,8 +111,8 @@ public class DetailFragment extends Fragment {
             }
 
             ((TextView) root.findViewById(id.synopsis)).setText(mSynopsis);
-            ((TextView) root.findViewById(id.rating)).setText(
-                    String.format("%s: %s", context.getString(string.rating), mOverview));
+            ((TextView) root.findViewById(id.rating)).setText( // voteAverage == rating
+                    String.format("%s: %s", context.getString(string.rating), mVoteAverage));
             ((TextView) root.findViewById(id.release_date)).setText(
                     String.format("%s: %s", context.getString(string.release_date), mReleaseDate));
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);

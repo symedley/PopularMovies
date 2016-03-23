@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 
@@ -42,6 +41,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private static final String KEY_DONT_UPDATE_MOVIES = "KEY_DONT_UPDATE_MOVIES";
 
     private boolean mSortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
+    private String mSortOrder;
 
     // Changing to using SQLite and Content Provider
     // mPopMovieAdapter is the Cursor Adapter.
@@ -103,22 +103,24 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private String initializeSortOrder() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        String sortOrd;
         String sort = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
         if (sort.equals(getString(R.string.pref_sort_popular))) {
             mSortPopular = true;
-            sortOrd = PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " DESC";
+            mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " DESC";
         }else if (sort.equals(getString(R.string.pref_sort_rated))) {
             mSortPopular = false;
-            sortOrd = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+            mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+        } else if (sort.equals("Favorites")) {
+            Log.v(LOG_TAG, "sort preference is favorites");
+            // Now show only the favorites.
         } else {
             // this should not happen
             mSortPopular = false;
-            sortOrd = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+            mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
             Log.e(LOG_TAG, "The sort order was not retrieved correctly from preferences");
         }
-        return sortOrd;
+        return mSortOrder;
     }
 
     @Override
@@ -173,9 +175,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         null,
                         sortOrder
                 );
-        if (cursor != null)
+        if (cursor != null) {
             mPopMovieAdapter.swapCursor(cursor);
-        if (cursor.getCount() == 0){
+            if (cursor.getCount() == 0){
+                updateMovies();
+            }
+        } else {
             updateMovies();
         }
         super.onActivityCreated(savedInstanceState);
