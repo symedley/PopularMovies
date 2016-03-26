@@ -40,6 +40,7 @@ public class PopMoviesContract {
         public static final String COLUMN_POPULARITY = "Popularity";
         public static final String COLUMN_VOTECOUNT = "VoteCount";
         public static final String COLUMN_VIDEO = "Video";
+        public static final String COLUMN_IS_FAVORITE = "IsFavorite";
         public static final String COLUMN_VOTEAVERAGE = "VoteAverage";
         // create content uri
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
@@ -129,12 +130,13 @@ public class PopMoviesContract {
         }
     }
 
-
     /**
-     * MovieFavorites - if the TMD Movie ID is in here, it is a user favorite
+     * MovieFavorites - if the TMD Movie ID is in here, it is a user favorite. This allows
+     * persistence when changing the sort order between most popular and highest rated.
+     * Because the latter changes the contents of the database, if the favorites information
+     * were only in the PopMovies table, it would be lost with each refresh.
      * <p/>
-     * Does not need to implement BaseColumns because it's a mapping of one
-     * integer ID to another integer ID
+     * Does not need to implement BaseColumns because it's just an integer.
      */
     public static final class MovieFavorites {
         public static final String TABLE_MOVIE_FAVORITES = "movieFavorites";
@@ -152,8 +154,17 @@ public class PopMoviesContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_FAVORITES;
 
         // for building URIs by Movie ID (the ID returned by theMovieDB)
-        public static Uri buildMovieFavoritesUri(long id) {
+        public static Uri buildMovieFavoritesIdUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        // This is for finding all PopMovie entries that have their tmdID in the favorites table.
+        public static Uri buildMovieFavoritesAll() {
+            return CONTENT_URI;
+        }
+
+        public static String getMovieIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
     }
 }

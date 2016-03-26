@@ -121,8 +121,8 @@ public class DetailFragment extends Fragment {
             if (mPosterPathUriString != null) {
                 Picasso.with(context).load(mPosterPathUriString).into(thumbView);
             }
-            Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(mTmdId);
-            Cursor c =
+            Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(mTmdId);
+            Cursor movieCursor =
                     getActivity().getContentResolver().query(
                             uri,
                             null,
@@ -132,8 +132,8 @@ public class DetailFragment extends Fragment {
             Log.v(LOG_TAG, uri.toString());
             final ImageButton favButton= (ImageButton) root.findViewById(id.toggleFavoriteBtn);
 
-           if (c != null) {
-               if (c.moveToFirst()) {
+           if (movieCursor != null) {
+               if (movieCursor.moveToFirst()) {
 //                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
                    Log.d(LOG_TAG, "This movie is a fav");
                    favButton.setSelected(Boolean.TRUE);
@@ -141,26 +141,40 @@ public class DetailFragment extends Fragment {
                    Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
                    favButton.setSelected(Boolean.FALSE);
                }
-               c.close();
+               movieCursor.close();
                // User can toggle favorite status of this movie by clicking the button
                favButton.setOnClickListener(
                        new View.OnClickListener() {
                            @Override
                            public void onClick(View v) {
                                Boolean clicked = favButton.isSelected();
-                               Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(mTmdId);
+                               Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(mTmdId);
                                Log.v(LOG_TAG, uri.toString());
                                if (clicked) {
                                    Log.d(LOG_TAG, "This movie is no longer a fav: " + mTmdId);
                                    getActivity().getContentResolver().delete(uri, null, null);
                                    // The user wants to un-set the favorites status
                                    favButton.setSelected(Boolean.FALSE);
+
+                                   // Set the boolean Favorite to false.
+                                   // To update just 1 column, add only that column to the content values
+                                   ContentValues cv = new ContentValues();
+                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mTmdId);
+                                   cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
+                                   int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
                                } else {
                                    // User wants to make this a favorite.
                                    ContentValues cv = new ContentValues();
                                    cv.put(PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID, mTmdId);
                                    Uri insert = getActivity().getContentResolver().insert(uri, cv);
                                    favButton.setSelected(Boolean.TRUE);
+
+                                   // Set the boolean Favorite to true.
+                                   // To update just 1 column, add only that column to the content values
+                                   cv = new ContentValues();
+                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mTmdId);
+                                   cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 1);
+                                   int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
                                }
                            }
                        });

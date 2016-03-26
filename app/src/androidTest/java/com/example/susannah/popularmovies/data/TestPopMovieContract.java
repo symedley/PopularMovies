@@ -32,7 +32,7 @@ public class TestPopMovieContract extends AndroidTestCase {
     }
 
     public void testBuildMovieFavorites() {
-        Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(1);
+        Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(1);
         Log.v(LOG_TAG, "uri with id = " + uri.toString());
         assertNotNull("a null Uri was returned from testBuildMovieFavorites.", uri);
     }

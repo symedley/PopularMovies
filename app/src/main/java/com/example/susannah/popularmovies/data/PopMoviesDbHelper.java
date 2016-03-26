@@ -14,7 +14,7 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     public static final String DATABASE_NAME = "popmovies.db";
-    private static final int  DATABASE_VERSION = 5;
+    private static final int  DATABASE_VERSION = 6;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version
@@ -42,7 +42,8 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " +
                 PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT + " INTEGER NOT NULL, " +
                 PopMoviesContract.PopMovieEntry.COLUMN_VIDEO + " INTEGER NOT NULL, " + // Boolean
-                PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " REAL NOT NULL);";
+                PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " REAL NOT NULL, " +
+                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + " INTEGER NOT NULL );";  // Boolean
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
 

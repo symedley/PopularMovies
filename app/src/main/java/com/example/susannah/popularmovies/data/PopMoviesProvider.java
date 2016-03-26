@@ -12,8 +12,9 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-/** Popular Movies Provider is the intermediary between the app functionality and the database.
- *
+/**
+ * Popular Movies Provider is the intermediary between the app functionality and the database.
+ * <p/>
  * It defines the query, insert, delete, update and bulkInsert methods.
  * It is registered with the provider manager and in the manifest.xml file.
  * Created by Susannah on 2/20/2016.
@@ -25,13 +26,14 @@ public class PopMoviesProvider extends ContentProvider {
 
     // Codes for the Uri matcher
     private static final int POPMOVIE = 100;
-    private static final int POPMOVIE_WITH_ID = 200;
+    private static final int POPMOVIE_WITH_TMDID = 200;
     private static final int GENRE = 300;
     private static final int GENRE_WITH_ID = 400;
     private static final int MOVIE_TO_GENRE = 500;
     private static final int MOVIE_TO_GENRE_WITH_MOVIE_ID = 600;
-    private static final int MOVIE_FAVORITES = 700;
+    private static final int MOVIE_FAVORITES_IDS = 700;
     private static final int MOVIE_FAVORITES_WITH_MOVIE_ID = 800;
+    private static final int ALL_MOVIE_FAVORITES = 900;
 
     //The Query builder might only be needed if you're defining a JOIN between tables
     //private static final SQLiteQueryBuilder sSQLiteQueryBuilder;
@@ -42,26 +44,41 @@ public class PopMoviesProvider extends ContentProvider {
         final String authority = PopMoviesContract.CONTENT_AUTHORITY;
 
         matcher.addURI(authority, PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES, POPMOVIE);
-        matcher.addURI(authority, PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "/#", POPMOVIE_WITH_ID);
+        matcher.addURI(authority, PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "/#", POPMOVIE_WITH_TMDID);
         matcher.addURI(authority, PopMoviesContract.GenreEntry.TABLE_GENRES, GENRE);
         matcher.addURI(authority, PopMoviesContract.GenreEntry.TABLE_GENRES + "/#", GENRE_WITH_ID);
         matcher.addURI(authority, PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES, MOVIE_TO_GENRE);
         matcher.addURI(authority, PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "/#", MOVIE_TO_GENRE_WITH_MOVIE_ID);
-        matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, MOVIE_FAVORITES);
+        matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, MOVIE_FAVORITES_IDS);
         matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES + "/#", MOVIE_FAVORITES_WITH_MOVIE_ID);
+        matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, ALL_MOVIE_FAVORITES);
 
         return matcher;
     }
 
 
-    private static final SQLiteQueryBuilder sGenresByMovieId;
+    private static final SQLiteQueryBuilder sGenresByMovieIdQueryBuilder;
+    private static final SQLiteQueryBuilder sPopMoviesByFavoritesQueryBuilder;
 
     static {
-        sGenresByMovieId = new SQLiteQueryBuilder();
+        sPopMoviesByFavoritesQueryBuilder = new SQLiteQueryBuilder();
+        // This is an inner join which looks like
+        // favorites INNER JOIN popMovies ON favorites.MovieId == popMovies.TmdID
+        sPopMoviesByFavoritesQueryBuilder.setTables(
+                PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES + " INNER JOIN " +
+                        PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES +
+                        " ON " + PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES +
+                        "." + PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID +
+                        " = " + PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES +
+                        "." + PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+    }
+
+    static {
+        sGenresByMovieIdQueryBuilder = new SQLiteQueryBuilder();
 
         // This is an inner join which looks like
         // popMovies INNER JOIN moviesToGenre ON popMovies.tmdID == moviesToGenre.movieId
-        sGenresByMovieId.setTables(
+        sGenresByMovieIdQueryBuilder.setTables(
                 PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + " INNER JOIN " +
                         PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES +
                         " ON " + PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES +
@@ -84,7 +101,7 @@ public class PopMoviesProvider extends ContentProvider {
             case POPMOVIE: {
                 return PopMoviesContract.PopMovieEntry.CONTENT_DIR_TYPE;
             }
-            case POPMOVIE_WITH_ID: {
+            case POPMOVIE_WITH_TMDID: {
                 return PopMoviesContract.PopMovieEntry.CONTENT_ITEM_TYPE;
             }
             case GENRE: {
@@ -99,7 +116,7 @@ public class PopMoviesProvider extends ContentProvider {
             case MOVIE_TO_GENRE_WITH_MOVIE_ID: {
                 return PopMoviesContract.MovieToGenresEntry.CONTENT_ITEM_TYPE;
             }
-            case MOVIE_FAVORITES: {
+            case MOVIE_FAVORITES_IDS: {
                 return PopMoviesContract.MovieFavorites.CONTENT_DIR_TYPE;
             }
             case MOVIE_FAVORITES_WITH_MOVIE_ID: {
@@ -125,7 +142,7 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
-            case POPMOVIE_WITH_ID: {
+            case POPMOVIE_WITH_TMDID: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES,
                         projection,
@@ -180,17 +197,17 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
-                case MOVIE_FAVORITES: {
-                    retCursor = mOpenHelper.getReadableDatabase().query(
-                            PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
-                            projection,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            sortOrder);
-                    break;
-                }
+            case MOVIE_FAVORITES_IDS: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
             case MOVIE_FAVORITES_WITH_MOVIE_ID: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
@@ -202,6 +219,18 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
+            case ALL_MOVIE_FAVORITES: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+
             default: {
                 throw new UnsupportedOperationException("Unknown uri " + uri);
             }
@@ -212,7 +241,7 @@ public class PopMoviesProvider extends ContentProvider {
 
     public Uri insert(@NonNull Uri uri, ContentValues contentValues) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        Uri returnUri ;
+        Uri returnUri;
         switch (sUriMatcher.match(uri)) {
             case POPMOVIE: {
                 long _id = mOpenHelper.getReadableDatabase().insert(
@@ -250,13 +279,13 @@ public class PopMoviesProvider extends ContentProvider {
                 }
                 break;
             }
-            case MOVIE_FAVORITES: {
+            case MOVIE_FAVORITES_IDS: {
                 long _id = mOpenHelper.getReadableDatabase().insert(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
                         null,
                         contentValues);
                 if (_id > 0) {
-                    returnUri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(_id);
+                    returnUri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into: " + uri);
                 }
@@ -268,7 +297,7 @@ public class PopMoviesProvider extends ContentProvider {
                         null,
                         contentValues);
                 if (_id > 0) {
-                    returnUri = PopMoviesContract.MovieFavorites.buildMovieFavoritesUri(_id);
+                    returnUri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into: " + uri);
                 }
@@ -294,7 +323,7 @@ public class PopMoviesProvider extends ContentProvider {
                 db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "'");
                 break;
-            case POPMOVIE_WITH_ID:
+            case POPMOVIE_WITH_TMDID:
                 count = db.delete(
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES,
                         PopMoviesContract.PopMovieEntry._ID + " = ?",
@@ -336,7 +365,7 @@ public class PopMoviesProvider extends ContentProvider {
                 db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                         PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "'");
                 break;
-            case MOVIE_FAVORITES:
+            case MOVIE_FAVORITES_IDS:
                 count = db.delete(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
                         selection, selectionArgs);
@@ -373,11 +402,11 @@ public class PopMoviesProvider extends ContentProvider {
                         selectionArgs);
                 break;
             }
-            case POPMOVIE_WITH_ID: {
+            case POPMOVIE_WITH_TMDID: {
                 count = mOpenHelper.getReadableDatabase().update(
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES,
                         contentValues,
-                        PopMoviesContract.PopMovieEntry._ID + " = ?",
+                        PopMoviesContract.PopMovieEntry.COLUMN_TMDID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
             }
@@ -413,7 +442,7 @@ public class PopMoviesProvider extends ContentProvider {
                         new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
             }
-            case MOVIE_FAVORITES: {
+            case MOVIE_FAVORITES_IDS: {
                 count = mOpenHelper.getReadableDatabase().update(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
                         contentValues,
@@ -537,7 +566,7 @@ public class PopMoviesProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 break;
-            case MOVIE_FAVORITES:
+            case MOVIE_FAVORITES_IDS:
                 db.beginTransaction();
 
                 try {
@@ -573,7 +602,7 @@ public class PopMoviesProvider extends ContentProvider {
         }
         if (count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
-            }
+        }
         return count;
     }
 }

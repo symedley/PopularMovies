@@ -2,6 +2,7 @@ package com.example.susannah.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -19,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Vector;
 
 /** FetchMovieTask is an Async (background) task for retrieving data via internet from themoviedb.
@@ -91,6 +93,24 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         // Estimate an average of 3 genres per movie.
         Vector<ContentValues> genresVector = new Vector<>(3 * movieArray.length());
 
+        // Retrieve the list of user favorites. It is a list of tmdIDs.
+        // As each movie comes in from the JSON data, check to see if it's in the favorites list
+        // and set the boolean flag FAVORITE to true.
+        Cursor favs =
+                mContext.getContentResolver().query(PopMoviesContract.MovieFavorites.buildMovieFavoritesAll(),
+                        null,
+                        null,
+                        null,
+                        null
+                );
+        ArrayList favorites = new ArrayList<>(6);
+        if (favs != null) {
+            while (favs.moveToNext()) {
+                int tmdId = favs.getInt(0);
+                favorites.add(tmdId);
+            }
+        }
+
         Log.v(LOG_TAG, movieArray.length() + " movies were returned");
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject oneMovieJson = movieArray.getJSONObject(i);
@@ -149,6 +169,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT, voteCount);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO,  (video ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE, voteAverage);
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, favorites.contains(id) ? 1 : 0);
 
             // Genres are a special case
             for (int j=0; j<genreIdArray.length(); j++) {

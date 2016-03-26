@@ -103,24 +103,27 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private String initializeSortOrder() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        String sort = prefs.getString(getString(R.string.pref_sort_key),
+        String retValue = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
-        if (sort.equals(getString(R.string.pref_sort_popular))) {
+        if (retValue.equals(getString(R.string.pref_sort_popular))) {
             mSortPopular = true;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " DESC";
-        }else if (sort.equals(getString(R.string.pref_sort_rated))) {
+            retValue = mSortOrder;
+        }else if (retValue.equals(getString(R.string.pref_sort_rated))) {
             mSortPopular = false;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
-        } else if (sort.equals("Favorites")) {
-            Log.v(LOG_TAG, "sort preference is favorites");
+            retValue = mSortOrder;
+        } else if (retValue.equals(getString(R.string.pref_sort_favorites))) {
+            Log.v(LOG_TAG, "retValue preference is favorites");
             // Now show only the favorites.
+
         } else {
             // this should not happen
             mSortPopular = false;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
-            Log.e(LOG_TAG, "The sort order was not retrieved correctly from preferences");
+            Log.e(LOG_TAG, "The retValue order was not retrieved correctly from preferences");
         }
-        return mSortOrder;
+        return retValue;
     }
 
     @Override
@@ -165,16 +168,30 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
                 " "+Thread.currentThread().getStackTrace()[2].getMethodName());
-        // initialize loader
+
+        // Check the preferences for sort order, then query the content provider.
         String sortOrder = initializeSortOrder();
-        cursor =
-                getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
+        if (sortOrder.equals(getString(R.string.pref_sort_favorites))) {
+            // This is the special case of displaying only favorites
+            cursor =
+                    getActivity().getContentResolver().query(
+                            PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                            null,
+                            PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE+"=?",
+                            new String[]{String.valueOf(1)},
+                            mSortOrder
+                    );
+            mPopMovieAdapter.swapCursor(cursor);
+        } else {
+            cursor =
+                    getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
 //                        new String[]{PopMoviesContract.PopMovieEntry._ID},
-                        null,
-                        null,
-                        null,
-                        sortOrder
-                );
+                            null,
+                            null,
+                            null,
+                            mSortOrder
+                    );
+        }
         if (cursor != null) {
             mPopMovieAdapter.swapCursor(cursor);
             if (cursor.getCount() == 0){
@@ -191,17 +208,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     */
     private void updateMovies() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sort = prefs.getString(getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_default));
-        if (sort.equals(getString(R.string.pref_sort_popular)))
-            mSortPopular = true;
-        else if (sort.equals(getString(R.string.pref_sort_rated)))
-            mSortPopular = false;
-        else {
-            // this should not happen
-            Log.e(LOG_TAG, "Error retrieving sort order from preferences");
-            mSortPopular = false;
-        }
+        // initializeSortOrder sets the boolean mSortPopular before starting the FetchMovieTask
+        initializeSortOrder();
+
         FetchMovieTask fetchMovieTask = new FetchMovieTask(mSortPopular, getContext());
         fetchMovieTask.execute();
 
@@ -220,7 +229,22 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onActivityResult(int requestCode, int resultsCode, Intent data) {
         super.onActivityResult(requestCode, resultsCode, data);
         if (requestCode == RESULT_KEY) {
-            updateMovies();
+            String sortOrder = initializeSortOrder();
+            if (sortOrder.equals(getString(R.string.pref_sort_favorites))) {
+                // get a new set of data from the Provider to display, but don't initiate
+                // a network call to tmdb
+                cursor =
+                        getActivity().getContentResolver().query(
+                                PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                                null,
+                                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE+"=?",
+                                new String[]{String.valueOf(1)},
+                                mSortOrder
+                        );
+                mPopMovieAdapter.swapCursor(cursor);
+            } else {
+                updateMovies();
+            }
         }
     }
 
@@ -252,13 +276,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        String sortOrder = initializeSortOrder();
+        initializeSortOrder();
         return new CursorLoader(getActivity(),
                 PopMoviesContract.PopMovieEntry.CONTENT_URI,
                 null,
                 null,
                 null,
-                sortOrder);
+                mSortOrder);
     }
 
     /** The data retrieval is finished, so let the client (this class) know
