@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 
@@ -184,15 +183,19 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
         try {
             // Delete the old content in the database right before inserting the newly retrieved data
-            mContext.getContentResolver().delete(PopMoviesContract.PopMovieEntry.CONTENT_URI, null, null);
+            int count = mContext.getContentResolver().delete(PopMoviesContract.PopMovieEntry.CONTENT_URI, null, null);
             // add to database
             if (cVVector.size() > 0) {
                 mContext.getContentResolver().bulkInsert(PopMoviesContract.PopMovieEntry.CONTENT_URI,
                         cVVector.toArray(new ContentValues[cVVector.size()]));
+                if (count != cVVector.size())
+                    Log.d(LOG_TAG, "the number of movies added doesn't match the number we TRIED to add");
             }
             if (genresVector.size() > 0) {
-                mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieToGenresEntry.CONTENT_URI,
+                 count = mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieToGenresEntry.CONTENT_URI,
                         genresVector.toArray(new ContentValues[genresVector.size()]));
+                if (count != genresVector.size())
+                    Log.d(LOG_TAG, "the number of genres added doesn't match the number we TRIED to add");
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "exception " + e.getMessage() + " " + e.toString());

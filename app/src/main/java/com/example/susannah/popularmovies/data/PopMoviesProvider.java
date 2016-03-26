@@ -26,13 +26,13 @@ public class PopMoviesProvider extends ContentProvider {
 
     // Codes for the Uri matcher
     private static final int POPMOVIE = 100;
-    private static final int POPMOVIE_WITH_TMDID = 200;
+    private static final int POPMOVIE_WITH_ID = 200;
     private static final int GENRE = 300;
     private static final int GENRE_WITH_ID = 400;
     private static final int MOVIE_TO_GENRE = 500;
-    private static final int MOVIE_TO_GENRE_WITH_MOVIE_ID = 600;
+    private static final int MOVIE_TO_GENRE_WITH_TMDID = 600;
     private static final int MOVIE_FAVORITES_IDS = 700;
-    private static final int MOVIE_FAVORITES_WITH_MOVIE_ID = 800;
+    private static final int MOVIE_FAVORITES_WITH_TMDID = 800;
     private static final int ALL_MOVIE_FAVORITES = 900;
 
     //The Query builder might only be needed if you're defining a JOIN between tables
@@ -44,13 +44,13 @@ public class PopMoviesProvider extends ContentProvider {
         final String authority = PopMoviesContract.CONTENT_AUTHORITY;
 
         matcher.addURI(authority, PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES, POPMOVIE);
-        matcher.addURI(authority, PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "/#", POPMOVIE_WITH_TMDID);
+        matcher.addURI(authority, PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "/#", POPMOVIE_WITH_ID);
         matcher.addURI(authority, PopMoviesContract.GenreEntry.TABLE_GENRES, GENRE);
         matcher.addURI(authority, PopMoviesContract.GenreEntry.TABLE_GENRES + "/#", GENRE_WITH_ID);
         matcher.addURI(authority, PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES, MOVIE_TO_GENRE);
-        matcher.addURI(authority, PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "/#", MOVIE_TO_GENRE_WITH_MOVIE_ID);
+        matcher.addURI(authority, PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "/#", MOVIE_TO_GENRE_WITH_TMDID);
         matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, MOVIE_FAVORITES_IDS);
-        matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES + "/#", MOVIE_FAVORITES_WITH_MOVIE_ID);
+        matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES + "/#", MOVIE_FAVORITES_WITH_TMDID);
         matcher.addURI(authority, PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, ALL_MOVIE_FAVORITES);
 
         return matcher;
@@ -101,9 +101,12 @@ public class PopMoviesProvider extends ContentProvider {
             case POPMOVIE: {
                 return PopMoviesContract.PopMovieEntry.CONTENT_DIR_TYPE;
             }
-            case POPMOVIE_WITH_TMDID: {
+            case POPMOVIE_WITH_ID: {
                 return PopMoviesContract.PopMovieEntry.CONTENT_ITEM_TYPE;
             }
+//            case POPMOVIE_WITH_TMDID: {
+//                return PopMoviesContract.PopMovieEntry.CONTENT_ITEM_TYPE;
+//            }
             case GENRE: {
                 return PopMoviesContract.GenreEntry.CONTENT_DIR_TYPE;
             }
@@ -113,13 +116,13 @@ public class PopMoviesProvider extends ContentProvider {
             case MOVIE_TO_GENRE: {
                 return PopMoviesContract.MovieToGenresEntry.CONTENT_DIR_TYPE;
             }
-            case MOVIE_TO_GENRE_WITH_MOVIE_ID: {
+            case MOVIE_TO_GENRE_WITH_TMDID: {
                 return PopMoviesContract.MovieToGenresEntry.CONTENT_ITEM_TYPE;
             }
             case MOVIE_FAVORITES_IDS: {
                 return PopMoviesContract.MovieFavorites.CONTENT_DIR_TYPE;
             }
-            case MOVIE_FAVORITES_WITH_MOVIE_ID: {
+            case MOVIE_FAVORITES_WITH_TMDID: {
                 return PopMoviesContract.MovieFavorites.CONTENT_ITEM_TYPE;
             }
             default: {
@@ -142,7 +145,7 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
-            case POPMOVIE_WITH_TMDID: {
+            case POPMOVIE_WITH_ID: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES,
                         projection,
@@ -186,7 +189,7 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
-            case MOVIE_TO_GENRE_WITH_MOVIE_ID: {
+            case MOVIE_TO_GENRE_WITH_TMDID: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES,
                         projection,
@@ -208,7 +211,7 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
-            case MOVIE_FAVORITES_WITH_MOVIE_ID: {
+            case MOVIE_FAVORITES_WITH_TMDID: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
                         projection,
@@ -291,7 +294,7 @@ public class PopMoviesProvider extends ContentProvider {
                 }
                 break;
             }
-            case MOVIE_FAVORITES_WITH_MOVIE_ID: {
+            case MOVIE_FAVORITES_WITH_TMDID: {
                 long _id = mOpenHelper.getReadableDatabase().insert(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
                         null,
@@ -323,7 +326,7 @@ public class PopMoviesProvider extends ContentProvider {
                 db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "'");
                 break;
-            case POPMOVIE_WITH_TMDID:
+            case POPMOVIE_WITH_ID:
                 count = db.delete(
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES,
                         PopMoviesContract.PopMovieEntry._ID + " = ?",
@@ -356,7 +359,7 @@ public class PopMoviesProvider extends ContentProvider {
                 db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                         PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "'");
                 break;
-            case MOVIE_TO_GENRE_WITH_MOVIE_ID:
+            case MOVIE_TO_GENRE_WITH_TMDID:
                 count = db.delete(
                         PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES,
                         PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_ID + " = ?",
@@ -373,7 +376,7 @@ public class PopMoviesProvider extends ContentProvider {
                 db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES + "'");
                 break;
-            case MOVIE_FAVORITES_WITH_MOVIE_ID:
+            case MOVIE_FAVORITES_WITH_TMDID:
                 count = db.delete(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
                         PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID + " = ?",
@@ -402,11 +405,11 @@ public class PopMoviesProvider extends ContentProvider {
                         selectionArgs);
                 break;
             }
-            case POPMOVIE_WITH_TMDID: {
+            case POPMOVIE_WITH_ID: {
                 count = mOpenHelper.getReadableDatabase().update(
                         PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES,
                         contentValues,
-                        PopMoviesContract.PopMovieEntry.COLUMN_TMDID + " = ?",
+                        PopMoviesContract.PopMovieEntry._ID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
             }
@@ -434,7 +437,7 @@ public class PopMoviesProvider extends ContentProvider {
                         selectionArgs);
                 break;
             }
-            case MOVIE_TO_GENRE_WITH_MOVIE_ID: {
+            case MOVIE_TO_GENRE_WITH_TMDID: {
                 count = mOpenHelper.getReadableDatabase().update(
                         PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES,
                         contentValues,
@@ -450,7 +453,7 @@ public class PopMoviesProvider extends ContentProvider {
                         selectionArgs);
                 break;
             }
-            case MOVIE_FAVORITES_WITH_MOVIE_ID: {
+            case MOVIE_FAVORITES_WITH_TMDID: {
                 count = mOpenHelper.getReadableDatabase().update(
                         PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES,
                         contentValues,

@@ -37,6 +37,7 @@ public class DetailFragment extends Fragment {
     private String mReleaseDate;
     private int mTmdId;
     private String mPosterPathUriString;
+    private int mPosition;
 
     static final String KEY_POSITION = "POSITION";
 
@@ -68,8 +69,8 @@ public class DetailFragment extends Fragment {
             if (extras == null) {
                 mTitle = "No data";
             } else {
-                int position = extras.getInt(KEY_POSITION);
-                Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(position);
+                mPosition = extras.getInt(KEY_POSITION);
+                Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mPosition);
                 Cursor c =
                         getActivity().getContentResolver().query(
                                 uri,
@@ -159,7 +160,7 @@ public class DetailFragment extends Fragment {
                                    // Set the boolean Favorite to false.
                                    // To update just 1 column, add only that column to the content values
                                    ContentValues cv = new ContentValues();
-                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mTmdId);
+                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mPosition);
                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
                                } else {
@@ -172,7 +173,7 @@ public class DetailFragment extends Fragment {
                                    // Set the boolean Favorite to true.
                                    // To update just 1 column, add only that column to the content values
                                    cv = new ContentValues();
-                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mTmdId);
+                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mPosition);
                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 1);
                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
                                }
