@@ -252,7 +252,7 @@ public class PopMoviesProvider extends ContentProvider {
                         null,
                         contentValues);
                 if (_id > 0) {
-                    returnUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(_id);
+                    returnUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(_id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into: " + uri);
                 }

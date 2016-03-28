@@ -21,14 +21,15 @@ import android.widget.GridView;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 
-/** MainActivityFragment is where most of the action happens. Holds the array of data and the grid adapter.
- *
+/**
+ * MainActivityFragment is where most of the action happens. Holds the array of data and the grid adapter.
+ * <p/>
  * Defines the data to display. Defines the adapter to hold the data to display
  * and sets the adapter to the GridView named in the .xml file.
- *
+ * <p/>
  * This class will have to create the call to the movie database and initialize a background
  * task to fetch and parse data.
- *
+ * <p/>
  * See MIN_VOTES in FetchMovieTask.doInBackground to adjust how many votes a movie must have to be included in the results.
  */
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -51,7 +52,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     View rootView;
 
-    private Cursor cursor;
+    private Cursor mCursor;
 
     public MainActivityFragment() {
         // popMovies = new ArrayList(Arrays.asList(popMovieArray));
@@ -59,14 +60,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
-                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
+                " " + Thread.currentThread().getStackTrace()[2].getMethodName());
         super.onCreate(savedInstanceState);
         int dontUpdate = 0;
         if (savedInstanceState != null) {
-             dontUpdate = savedInstanceState.getInt(KEY_DONT_UPDATE_MOVIES, 0);
+            dontUpdate = savedInstanceState.getInt(KEY_DONT_UPDATE_MOVIES, 0);
         }
-        if ((savedInstanceState==null) || dontUpdate==0)
+        if ((savedInstanceState == null) || dontUpdate == 0)
             updateMovies();
         setHasOptionsMenu(true);
     }
@@ -77,11 +78,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         inflater.inflate(R.menu.mainactivityfragment, menu);
     }
 
-    /** Options Menu: The user has selected something from the menu.
+    /**
+     * Options Menu: The user has selected something from the menu.
      * Refresh
      * Sort: The sort order can be by most popular, or by highest-rated
      */
     public static final int RESULT_KEY = 7;
+
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         int itemId;
@@ -109,7 +112,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             mSortPopular = true;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " DESC";
             retValue = mSortOrder;
-        }else if (retValue.equals(getString(R.string.pref_sort_rated))) {
+        } else if (retValue.equals(getString(R.string.pref_sort_rated))) {
             mSortPopular = false;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
             retValue = mSortOrder;
@@ -129,15 +132,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
-                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
+                " " + Thread.currentThread().getStackTrace()[2].getMethodName());
         initializeSortOrder();
 
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             // START new SQLite and Provider
-            // PopMovieAdapter created with activity, cursor, flags, loaderID
+            // PopMovieAdapter created with activity, mCursor, flags, loaderID
             mPopMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);
             // initialize to the GridView in fragment_main.xml
             mGridView = (GridView) rootView.findViewById(R.id.gridView);
@@ -151,11 +154,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 @Override
                 // get the item clicked on and display it's information
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                        detailIntent.putExtra(DetailFragment.KEY_POSITION, position + 1);
+                    Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                    mCursor.moveToPosition(position);
+                    int idx = mCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+                    int tmdId = mCursor.getInt(idx);
+                    detailIntent.putExtra(DetailFragment.KEY_TMDID, tmdId);
 
-                        startActivity(detailIntent);
-                    }
+                    startActivity(detailIntent);
+                }
 //                }
             });
             // if the rootView was null, then this is probably when the app was launched,
@@ -166,24 +172,24 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
-        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
-                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
+                " " + Thread.currentThread().getStackTrace()[2].getMethodName());
 
         // Check the preferences for sort order, then query the content provider.
         String sortOrder = initializeSortOrder();
         if (sortOrder.equals(getString(R.string.pref_sort_favorites))) {
             // This is the special case of displaying only favorites
-            cursor =
+            mCursor =
                     getActivity().getContentResolver().query(
                             PopMoviesContract.PopMovieEntry.CONTENT_URI,
                             null,
-                            PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE+"=?",
+                            PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + "=?",
                             new String[]{String.valueOf(1)},
                             mSortOrder
                     );
-            mPopMovieAdapter.swapCursor(cursor);
+            mPopMovieAdapter.swapCursor(mCursor);
         } else {
-            cursor =
+            mCursor =
                     getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
 //                        new String[]{PopMoviesContract.PopMovieEntry._ID},
                             null,
@@ -192,9 +198,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                             mSortOrder
                     );
         }
-        if (cursor != null) {
-            mPopMovieAdapter.swapCursor(cursor);
-            if (cursor.getCount() == 0){
+        if (mCursor != null) {
+            mPopMovieAdapter.swapCursor(mCursor);
+            if (mCursor.getCount() == 0) {
                 updateMovies();
             }
         } else {
@@ -203,9 +209,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onActivityCreated(savedInstanceState);
     }
 
-    /** updateMovies checks the sort order and then starts the fetchMovieTask
-    * Sort order: user can choose to sort by Most Popular or by Highest Rated
-    */
+    /**
+     * updateMovies checks the sort order and then starts the fetchMovieTask
+     * Sort order: user can choose to sort by Most Popular or by Highest Rated
+     */
     private void updateMovies() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         // initializeSortOrder sets the boolean mSortPopular before starting the FetchMovieTask
@@ -214,14 +221,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         FetchMovieTask fetchMovieTask = new FetchMovieTask(mSortPopular, getContext());
         fetchMovieTask.execute();
 
-        FetchGenresTask fetchGenresTask = new FetchGenresTask( getContext());
+        FetchGenresTask fetchGenresTask = new FetchGenresTask(getContext());
         fetchGenresTask.execute();
         // TODO revisit this vvv. The bulk insert should handle notification,
         // so why is this necessary?
         getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
     }
 
-    /** Make the data be refreshed after changing a setting.
+    /**
+     * Make the data be refreshed after changing a setting.
      * TODO revisit whether this is needed.
      * TODO should this be replaced by making an OnDataChanged method in this class
      * and calling it from onResume in MainActivity?
@@ -233,15 +241,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             if (sortOrder.equals(getString(R.string.pref_sort_favorites))) {
                 // get a new set of data from the Provider to display, but don't initiate
                 // a network call to tmdb
-                cursor =
+                mCursor =
                         getActivity().getContentResolver().query(
                                 PopMoviesContract.PopMovieEntry.CONTENT_URI,
                                 null,
-                                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE+"=?",
+                                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + "=?",
                                 new String[]{String.valueOf(1)},
                                 mSortOrder
                         );
-                mPopMovieAdapter.swapCursor(cursor);
+                mPopMovieAdapter.swapCursor(mCursor);
             } else {
                 updateMovies();
             }
@@ -255,23 +263,25 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onDestroy() {
-        cursor.close();
+        mCursor.close();
         super.onDestroy();
     }
 
-    /** Save the data for 1 movie so the view can be recreated (for eg. this is a screen rotation)
+    /**
+     * Save the data for 1 movie so the view can be recreated (for eg. this is a screen rotation)
      *
      * @param savedInstanceState the place to store the data
      */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName()+
-                " "+Thread.currentThread().getStackTrace()[2].getMethodName());
+        Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
+                " " + Thread.currentThread().getStackTrace()[2].getMethodName());
         savedInstanceState.putInt(KEY_DONT_UPDATE_MOVIES, 1);
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    /** onCreateLoader - attach the query to our DB Loader.
+    /**
+     * onCreateLoader - attach the query to our DB Loader.
      */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -285,7 +295,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 mSortOrder);
     }
 
-    /** The data retrieval is finished, so let the client (this class) know
+    /**
+     * The data retrieval is finished, so let the client (this class) know
      */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
@@ -295,10 +306,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-    /** Data needs to be refreshed, so dump the old data
+    /**
+     * Data needs to be refreshed, so dump the old data
      */
     @Override
-    public void onLoaderReset(Loader<Cursor> loader ) {
+    public void onLoaderReset(Loader<Cursor> loader) {
         mPopMovieAdapter.swapCursor(null);
     }
 

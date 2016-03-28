@@ -30,6 +30,7 @@ import static com.example.susannah.popularmovies.R.*;
 public class DetailFragment extends Fragment {
 
     View root;
+    private long m_id;
     private String mTitle;
     private String mOriginalTitle;
     private String mSynopsis;
@@ -37,9 +38,10 @@ public class DetailFragment extends Fragment {
     private String mReleaseDate;
     private int mTmdId;
     private String mPosterPathUriString;
-    private int mPosition;
+    //private int mPosition;
 
     static final String KEY_POSITION = "POSITION";
+    static final String KEY_TMDID = "TMDID";
 
     static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
@@ -69,14 +71,14 @@ public class DetailFragment extends Fragment {
             if (extras == null) {
                 mTitle = "No data";
             } else {
-                mPosition = extras.getInt(KEY_POSITION);
-                Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mPosition);
+                mTmdId = extras.getInt(KEY_TMDID);
+                Uri uri = PopMoviesContract.PopMovieEntry.CONTENT_URI;
                 Cursor c =
                         getActivity().getContentResolver().query(
                                 uri,
                                 null,
-                                null,
-                                null,
+                                PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
+                                new String[] { String.valueOf(mTmdId)},
                                 null);
 
                 if (c != null) {
@@ -99,17 +101,23 @@ public class DetailFragment extends Fragment {
                     mReleaseDate = c.getString(idx);
                     idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
                     mTmdId = c.getInt(idx);
+                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
+                    m_id = c.getInt(idx);
                     c.close();
                 }
             }
 
             TextView tvOrigTitle = (TextView) root.findViewById(id.original_title);
+            getActivity().setTitle(mOriginalTitle);
+            // ((TextView) root.findViewById(id.title)).setText(mTitle);
+
             tvOrigTitle.setText(mOriginalTitle);
             if ((mOriginalTitle.isEmpty()) && !(mOriginalTitle.equals(mTitle))) {
                 tvOrigTitle.setVisibility(View.VISIBLE);
             } else {
                 tvOrigTitle.setVisibility(View.GONE);
             }
+
 
             ((TextView) root.findViewById(id.synopsis)).setText(mSynopsis);
             ((TextView) root.findViewById(id.rating)).setText( // voteAverage == rating
@@ -160,7 +168,7 @@ public class DetailFragment extends Fragment {
                                    // Set the boolean Favorite to false.
                                    // To update just 1 column, add only that column to the content values
                                    ContentValues cv = new ContentValues();
-                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mPosition);
+                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
                                } else {
@@ -173,7 +181,7 @@ public class DetailFragment extends Fragment {
                                    // Set the boolean Favorite to true.
                                    // To update just 1 column, add only that column to the content values
                                    cv = new ContentValues();
-                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(mPosition);
+                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 1);
                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
                                }
@@ -181,8 +189,6 @@ public class DetailFragment extends Fragment {
                        });
            }
         }
-
-        ((TextView) root.findViewById(id.title)).setText(mTitle);
         return root;
     }
 }

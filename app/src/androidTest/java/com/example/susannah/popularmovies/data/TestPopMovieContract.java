@@ -14,11 +14,11 @@ public class TestPopMovieContract extends AndroidTestCase {
     private static final String LOG_TAG = TestPopMovieContract.class.getSimpleName();
 
     public void testBuildPopMovieTitle() {
-        Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUri(1);
+        Uri uri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(1);
         Log.v(LOG_TAG, "uri with id = " + uri.toString());
         Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesTitle(TEST_TITLE);
         Log.v(LOG_TAG, "movieUri = " + movieUri.toString());
-        assertNotNull("a null Uri was returned from buildPopMoviesUri.", movieUri);
+        assertNotNull("a null Uri was returned from buildPopMoviesUriBy_Id.", movieUri);
         assertEquals("Title not properly appended to end of URI", TEST_TITLE, movieUri.getLastPathSegment());
     }
 

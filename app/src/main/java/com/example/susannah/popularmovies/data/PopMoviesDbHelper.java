@@ -5,8 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-/** Popular Movies database helpder creates the tables using SQL Strings, handles database upgrades
- *
+/**
+ * Popular Movies database helpder creates the tables using SQL Strings, handles database upgrades
+ * <p/>
  * Created by Susannah on 2/20/2016.
  */
 public class PopMoviesDbHelper extends SQLiteOpenHelper {
@@ -14,7 +15,7 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     public static final String DATABASE_NAME = "popmovies.db";
-    private static final int  DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 6;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version
@@ -43,7 +44,8 @@ public class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT + " INTEGER NOT NULL, " +
                 PopMoviesContract.PopMovieEntry.COLUMN_VIDEO + " INTEGER NOT NULL, " + // Boolean
                 PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " REAL NOT NULL, " +
-                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + " INTEGER NOT NULL );";  // Boolean
+                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + " INTEGER NOT NULL, " +
+                "UNIQUE (" + PopMoviesContract.PopMovieEntry.COLUMN_TMDID + " );";  // Boolean
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
 

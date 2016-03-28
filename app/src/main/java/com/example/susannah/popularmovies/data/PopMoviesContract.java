@@ -53,7 +53,8 @@ public class PopMoviesContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_POPMOVIES;
 
         // for building URIs on insertion
-        public static Uri buildPopMoviesUri(long id) {
+        // this uses the _ID column from BaseColumns, not the TmdId
+        public static Uri buildPopMoviesUriBy_Id(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
