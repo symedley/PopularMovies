@@ -39,7 +39,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     // Related to Content Provider, Loader and SQLiteDatabase
     private static final int CURSOR_LOADER_ID = 0;
 
-    private static final String KEY_DONT_UPDATE_MOVIES = "KEY_DONT_UPDATE_MOVIES";
+        private static final String KEY_DONT_UPDATE_MOVIES = "KEY_DONT_UPDATE_MOVIES";
 
     private boolean mSortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
     private String mSortOrder;
@@ -66,6 +66,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         int dontUpdate = 0;
         if (savedInstanceState != null) {
             dontUpdate = savedInstanceState.getInt(KEY_DONT_UPDATE_MOVIES, 0);
+            Log.v(LOG_TAG, "dontUpdate is " + dontUpdate);
         }
         if ((savedInstanceState == null) || dontUpdate == 0)
             updateMovies();
@@ -108,6 +109,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         String retValue = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_default));
+        if (mSortOrder == null) {
+            mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+        }
         if (retValue.equals(getString(R.string.pref_sort_popular))) {
             mSortPopular = true;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " DESC";
@@ -123,7 +127,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         } else {
             // this should not happen
             mSortPopular = false;
-            mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
             Log.e(LOG_TAG, "The retValue order was not retrieved correctly from preferences");
         }
         return retValue;
@@ -162,11 +165,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
                     startActivity(detailIntent);
                 }
-//                }
             });
-            // if the rootView was null, then this is probably when the app was launched,
-            // so kick off a task to go get fresh data from the database
-//            updateMovies();
         }
         return rootView;
     }
@@ -174,24 +173,24 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
                 " " + Thread.currentThread().getStackTrace()[2].getMethodName());
-
+        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
         // Check the preferences for sort order, then query the content provider.
         String sortOrder = initializeSortOrder();
+       // if (mCursor != null) mCursor.close();
         if (sortOrder.equals(getString(R.string.pref_sort_favorites))) {
             // This is the special case of displaying only favorites
             mCursor =
                     getActivity().getContentResolver().query(
-                            PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                            PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
                             null,
-                            PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + "=?",
-                            new String[]{String.valueOf(1)},
+                            null,
+                            null,
                             mSortOrder
                     );
-            mPopMovieAdapter.swapCursor(mCursor);
         } else {
             mCursor =
-                    getActivity().getContentResolver().query(PopMoviesContract.PopMovieEntry.CONTENT_URI,
-//                        new String[]{PopMoviesContract.PopMovieEntry._ID},
+                    getActivity().getContentResolver().query(
+                            PopMoviesContract.PopMovieEntry.CONTENT_URI,
                             null,
                             null,
                             null,
@@ -223,9 +222,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         FetchGenresTask fetchGenresTask = new FetchGenresTask(getContext());
         fetchGenresTask.execute();
-        // TODO revisit this vvv. The bulk insert should handle notification,
-        // so why is this necessary?
-        getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
     }
 
     /**
@@ -243,15 +239,26 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 // a network call to tmdb
                 mCursor =
                         getActivity().getContentResolver().query(
-                                PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                                PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
                                 null,
-                                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + "=?",
-                                new String[]{String.valueOf(1)},
+                                null,
+                                null,
                                 mSortOrder
                         );
                 mPopMovieAdapter.swapCursor(mCursor);
             } else {
                 updateMovies();
+                // DO initiate a network call to tmdb. And reset the cursor so
+                // that when the data comes in, it will all display
+                mCursor =
+                        getActivity().getContentResolver().query(
+                                PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                                null,
+                                null,
+                                null,
+                                mSortOrder
+                        );
+                mPopMovieAdapter.swapCursor(mCursor);
             }
         }
     }
@@ -263,7 +270,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onDestroy() {
-        mCursor.close();
+//        mCursor.close();
         super.onDestroy();
     }
 
@@ -285,22 +292,35 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        initializeSortOrder();
-        return new CursorLoader(getActivity(),
-                PopMoviesContract.PopMovieEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                mSortOrder);
+        Log.v(LOG_TAG, ".....onCreateLoader");
+        String sortOrder = initializeSortOrder();
+        if (sortOrder.equals(getString(R.string.pref_sort_favorites))) {
+            return new CursorLoader(getActivity(),
+                    PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
+                    null,
+                    null,
+                    null,
+                    mSortOrder);
+        } else {
+            return new CursorLoader(getActivity(),
+                    PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                    null,
+                    null,
+                    null,
+                    mSortOrder);
+        }
     }
 
     /**
      * The data retrieval is finished, so let the client (this class) know
      */
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mPopMovieAdapter.swapCursor(data);
+        Log.v(LOG_TAG, ".....onLoadFinished");
+        //mCursor.close();
+        mCursor = data;
+        mPopMovieAdapter.swapCursor(mCursor);
         if (data.getCount() == 0) {
             Log.e(LOG_TAG, "TODO: create a pop up to tell the user there was a network problem.");
         }
@@ -313,5 +333,4 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onLoaderReset(Loader<Cursor> loader) {
         mPopMovieAdapter.swapCursor(null);
     }
-
 }

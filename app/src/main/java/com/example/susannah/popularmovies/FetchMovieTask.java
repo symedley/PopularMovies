@@ -64,7 +64,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         final String TMD_GENRE_IDS = "genre_ids";       // An array of int. Usually between 1 and 5 entries
 
         final String TMD_ID = "id";                            // int
-        int id;
+        int tmdId;
         final String TMD_ORIGINAL_TITLE = "original_title";        // string
         String origTitle;
         final String TMD_ORIGINAL_LANGUAGE = "original_language";// 2 character string eg "en"
@@ -82,21 +82,21 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         final String TMD_VOTE_AVERAGE = "vote_average";        // float
         float voteAverage;
 
-//        ArrayList popMovies = new ArrayList();
-
-
-        JSONObject forecastJson = new JSONObject(movieJsonStr);
-        JSONArray movieArray = forecastJson.getJSONArray(TMD_RESULTS);
+        JSONObject movieJson = new JSONObject(movieJsonStr);
+        JSONArray movieArray = movieJson.getJSONArray(TMD_RESULTS);
 
         Vector<ContentValues> cVVector = new Vector<>(movieArray.length());
+
+        Vector<ContentValues> cVFavsVector = new Vector<>(movieArray.length());
+
         // Estimate an average of 3 genres per movie.
-        Vector<ContentValues> genresVector = new Vector<>(3 * movieArray.length());
+        Vector<ContentValues> movieToGenres = new Vector<>(3 * movieArray.length());
 
         // Retrieve the list of user favorites. It is a list of tmdIDs.
         // As each movie comes in from the JSON data, check to see if it's in the favorites list
         // and set the boolean flag FAVORITE to true.
         Cursor favs =
-                mContext.getContentResolver().query(PopMoviesContract.MovieFavorites.buildMovieFavoritesAll(),
+                mContext.getContentResolver().query(PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesAll(),
                         null,
                         null,
                         null,
@@ -105,10 +105,11 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         ArrayList favorites = new ArrayList<>(6);
         if (favs != null) {
             while (favs.moveToNext()) {
-                int tmdId = favs.getInt(0);
-                favorites.add(tmdId);
+                int ti = favs.getInt(0);
+                favorites.add(ti);
             }
         }
+        favs.close();
 
         Log.v(LOG_TAG, movieArray.length() + " movies were returned");
         for (int i = 0; i < movieArray.length(); i++) {
@@ -123,7 +124,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             for (int j = 0; j < genreIdArray.length(); j++) {
                 genreIds[j] = genreIdArray.getInt(j);
             }
-            id = oneMovieJson.getInt(TMD_ID);
+            tmdId = oneMovieJson.getInt(TMD_ID);
             origTitle = oneMovieJson.getString(TMD_ORIGINAL_TITLE);
             origLang = oneMovieJson.getString(TMD_ORIGINAL_LANGUAGE);
             title = oneMovieJson.getString(TMD_TITLE);
@@ -134,6 +135,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             voteAverage = Float.parseFloat(oneMovieJson.getString(TMD_VOTE_AVERAGE));
 
             ContentValues movieValues = new ContentValues();
+            ContentValues favoritesValues;
 
             String fullPosterPath = posterPath.replaceFirst("/", "");
 
@@ -159,7 +161,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW, overview);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE, releaseDate);
             // Genres are done differently
-            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_TMDID, id);
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_TMDID, tmdId);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE, origTitle);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGLANG, origLang);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_TITLE, title);
@@ -168,17 +170,20 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT, voteCount);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO,  (video ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE, voteAverage);
-            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, favorites.contains(id) ? 1 : 0);
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, favorites.contains(tmdId) ? 1 : 0);
 
             // Genres are a special case
             for (int j=0; j<genreIdArray.length(); j++) {
                 ContentValues genreValues = new ContentValues();
-                genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_ID, id);
+                genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_TMDID, tmdId);
                 genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_GENRE_ID, genreIds[j]);
-                genresVector.add(genreValues);
+                movieToGenres.add(genreValues);
             }
 
             cVVector.add(movieValues);
+            if (favorites.contains(tmdId)) {
+                cVFavsVector.add(movieValues);
+            }
         }
 
         try {
@@ -191,10 +196,17 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
                 if (count != cVVector.size())
                     Log.d(LOG_TAG, "the number of movies added doesn't match the number we TRIED to add");
             }
-            if (genresVector.size() > 0) {
+            if (cVFavsVector.size() > 0) {
+                mContext.getContentResolver().bulkInsert(PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
+                        cVFavsVector.toArray(new ContentValues[cVFavsVector.size()]));
+                if (count != cVFavsVector.size())
+                    Log.d(LOG_TAG, "the number of favorites added doesn't match the number we TRIED to add");
+            }
+            count = mContext.getContentResolver().delete(PopMoviesContract.MovieToGenresEntry.CONTENT_URI, null, null);
+            if (movieToGenres.size() > 0) {
                  count = mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieToGenresEntry.CONTENT_URI,
-                        genresVector.toArray(new ContentValues[genresVector.size()]));
-                if (count != genresVector.size())
+                        movieToGenres.toArray(new ContentValues[movieToGenres.size()]));
+                if (count != movieToGenres.size())
                     Log.d(LOG_TAG, "the number of genres added doesn't match the number we TRIED to add");
             }
         } catch (Exception e) {

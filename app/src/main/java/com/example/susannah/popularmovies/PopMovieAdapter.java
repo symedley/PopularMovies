@@ -68,7 +68,7 @@ public class PopMovieAdapter extends CursorAdapter {
         String posterPathUri = cursor.getString(idx);
 
         if (posterPathUri != null) {
-            Picasso.with(context).load(posterPathUri).into(viewHolder.imageView);
+            Picasso.with(context).load(posterPathUri).placeholder(R.drawable.thumb).into(viewHolder.imageView);
         } else {
             viewHolder.imageView.setImageResource( R.drawable.thumb );
         }

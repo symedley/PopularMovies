@@ -37,6 +37,9 @@ public class TestDb extends AndroidTestCase {
         locationRowId = db.insert(PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES, null, testValues);
         assertTrue("Failure to insert Pop Movie values", locationRowId != -1);
 
+        locationRowId = db.insert(PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES, null, testValues);
+        assertTrue("Failure to insert Favorite Movie values", locationRowId != -1);
+
         // Genre table
         testValues = TestUtilities.createGenreValues();
         locationRowId = db.insert(PopMoviesContract.GenreEntry.TABLE_GENRES, null, testValues);
@@ -44,7 +47,7 @@ public class TestDb extends AndroidTestCase {
 
         // Favorites table
         testValues = TestUtilities.createMovieFavoriteValues();
-        locationRowId = db.insert(PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, null, testValues);
+        locationRowId = db.insert(PopMoviesContract.MovieFavoriteTmdId.TABLE_MOVIE_FAVORITE_TMDIDS, null, testValues);
         assertTrue("Failure to insert Fav values", locationRowId != -1);
         db.close();
     }

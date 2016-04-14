@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 /**
  * Created by Susannah on 2/23/2016.
@@ -53,15 +52,32 @@ public class TestProvider extends AndroidTestCase {
         assertEquals("Error: Records not deleted from Genre table during delete", 0, cursor.getCount());
         cursor.close();
 
-        // Favorites table
+        // Favorites TmdIds table
         mContext.getContentResolver().delete(
-                PopMoviesContract.MovieFavorites.CONTENT_URI,
+                PopMoviesContract.MovieFavoriteTmdId.CONTENT_URI,
                 null,
                 null
         );
 
         cursor = mContext.getContentResolver().query(
-                PopMoviesContract.MovieFavorites.CONTENT_URI,
+                PopMoviesContract.MovieFavoriteTmdId.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals("Error: Records not deleted from Favorites table during delete", 0, cursor.getCount());
+        cursor.close();
+
+        // Favorite movies table
+        mContext.getContentResolver().delete(
+                PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
+                null,
+                null
+        );
+
+        cursor = mContext.getContentResolver().query(
+                PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
                 null,
                 null,
                 null,

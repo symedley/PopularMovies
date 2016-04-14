@@ -23,7 +23,7 @@ public class TestPopMovieContract extends AndroidTestCase {
     }
 
     public void testBuildGenreTitle() {
-        Uri uri = PopMoviesContract.GenreEntry.buildGenresUri(1);
+        Uri uri = PopMoviesContract.GenreEntry.buildGenresUriWithId(1);
         Log.v(LOG_TAG, "uri with id = " + uri.toString());
         Uri genreUri = PopMoviesContract.GenreEntry.buildGenresTitle(TEST_GENRE_NAME);
         Log.v(LOG_TAG, "movieUri = " + genreUri.toString());
@@ -32,7 +32,7 @@ public class TestPopMovieContract extends AndroidTestCase {
     }
 
     public void testBuildMovieFavorites() {
-        Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(1);
+        Uri uri = PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesIdUri(1);
         Log.v(LOG_TAG, "uri with id = " + uri.toString());
         assertNotNull("a null Uri was returned from testBuildMovieFavorites.", uri);
     }

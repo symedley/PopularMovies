@@ -57,7 +57,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
 
                 ContentValues genreValues = new ContentValues();
 
-                genreValues.put(PopMoviesContract.GenreEntry.COLUMN_ID, genreId);
+                genreValues.put(PopMoviesContract.GenreEntry.COLUMN_GENRE_ID, genreId);
                 genreValues.put(PopMoviesContract.GenreEntry.COLUMN_NAME, genreName);
 
                 cVVector.add(genreValues);

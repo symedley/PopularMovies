@@ -49,13 +49,14 @@ public class TestUtilities extends AndroidTestCase {
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT, 5000); // int
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO, 0); // boolean as int
         movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE, 9.99); // float
+        movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0); // boolean as int
 
         return movieValues;
     }
 
     static ContentValues createGenreValues() {
         ContentValues genreValues = new ContentValues();
-        genreValues.put(PopMoviesContract.GenreEntry.COLUMN_ID,
+        genreValues.put(PopMoviesContract.GenreEntry.COLUMN_GENRE_ID,
                 TEST_GENRE_ID); //(2)
         genreValues.put(PopMoviesContract.GenreEntry.COLUMN_NAME,
                 TEST_GENRE_NAME); //(comedy)
@@ -64,7 +65,7 @@ public class TestUtilities extends AndroidTestCase {
 
     static ContentValues createMovieFavoriteValues() {
         ContentValues favValues = new ContentValues();
-        favValues.put(PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID,
+        favValues.put(PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID,
                 TEST_GENRE_ID); //(2)
         return favValues;
     }
@@ -108,7 +109,7 @@ public class TestUtilities extends AndroidTestCase {
         SQLiteDatabase db = popMoviesDbHelper.getWritableDatabase();
         ContentValues testValues = TestUtilities.createMovieFavoriteValues();
 
-        long locRowId = db.insert(PopMoviesContract.MovieFavorites.TABLE_MOVIE_FAVORITES, null, testValues);
+        long locRowId = db.insert(PopMoviesContract.MovieFavoriteTmdId.TABLE_MOVIE_FAVORITE_TMDIDS, null, testValues);
 
         assertTrue( " Failed to insert one favoriate movie", locRowId != -1);
         return locRowId;

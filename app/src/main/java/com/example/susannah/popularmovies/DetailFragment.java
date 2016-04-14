@@ -37,6 +37,7 @@ public class DetailFragment extends Fragment {
     private String mVoteAverage; // voteAverage is rating. The other sort criterion is Popularity
     private String mReleaseDate;
     private int mTmdId;
+    private Cursor movieCursor;
     private String mPosterPathUriString;
     //private int mPosition;
 
@@ -73,37 +74,37 @@ public class DetailFragment extends Fragment {
             } else {
                 mTmdId = extras.getInt(KEY_TMDID);
                 Uri uri = PopMoviesContract.PopMovieEntry.CONTENT_URI;
-                Cursor c =
+                movieCursor =
                         getActivity().getContentResolver().query(
                                 uri,
                                 null,
                                 PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
-                                new String[] { String.valueOf(mTmdId)},
+                                new String[]{String.valueOf(mTmdId)},
                                 null);
 
-                if (c != null) {
-                    c.moveToFirst();
+                if (movieCursor != null) {
+                    movieCursor.moveToFirst();
 
                     int idx;
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
-                    mTitle = c.getString(idx);
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
-                    mOriginalTitle = c.getString(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
+                    mTitle = movieCursor.getString(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
+                    mOriginalTitle = movieCursor.getString(idx);
                     if (mOriginalTitle == null)
                         mOriginalTitle = "";
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
-                    mPosterPathUriString = c.getString(idx);
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
-                    mSynopsis = c.getString(idx);
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE); // voteAverage == rating
-                    mVoteAverage = c.getString(idx);
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
-                    mReleaseDate = c.getString(idx);
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
-                    mTmdId = c.getInt(idx);
-                    idx = c.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
-                    m_id = c.getInt(idx);
-                    c.close();
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
+                    mPosterPathUriString = movieCursor.getString(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
+                    mSynopsis = movieCursor.getString(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE); // voteAverage == rating
+                    mVoteAverage = movieCursor.getString(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
+                    mReleaseDate = movieCursor.getString(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+                    mTmdId = movieCursor.getInt(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
+                    m_id = movieCursor.getInt(idx);
+                    movieCursor.close();
                 }
             }
 
@@ -130,8 +131,8 @@ public class DetailFragment extends Fragment {
             if (mPosterPathUriString != null) {
                 Picasso.with(context).load(mPosterPathUriString).into(thumbView);
             }
-            Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(mTmdId);
-            Cursor movieCursor =
+            Uri uri = PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesIdUri(mTmdId);
+            final Cursor tmdIdCursor =
                     getActivity().getContentResolver().query(
                             uri,
                             null,
@@ -139,56 +140,145 @@ public class DetailFragment extends Fragment {
                             null,
                             null);
             Log.v(LOG_TAG, uri.toString());
-            final ImageButton favButton= (ImageButton) root.findViewById(id.toggleFavoriteBtn);
+            final ImageButton favButton = (ImageButton) root.findViewById(id.toggleFavoriteBtn);
 
-           if (movieCursor != null) {
-               if (movieCursor.moveToFirst()) {
+            if (tmdIdCursor != null) {
+                if (tmdIdCursor.moveToFirst()) {
 //                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
-                   Log.d(LOG_TAG, "This movie is a fav");
-                   favButton.setSelected(Boolean.TRUE);
-               } else {
-                   Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
-                   favButton.setSelected(Boolean.FALSE);
-               }
-               movieCursor.close();
-               // User can toggle favorite status of this movie by clicking the button
-               favButton.setOnClickListener(
-                       new View.OnClickListener() {
-                           @Override
-                           public void onClick(View v) {
-                               Boolean clicked = favButton.isSelected();
-                               Uri uri = PopMoviesContract.MovieFavorites.buildMovieFavoritesIdUri(mTmdId);
-                               Log.v(LOG_TAG, uri.toString());
-                               if (clicked) {
-                                   Log.d(LOG_TAG, "This movie is no longer a fav: " + mTmdId);
-                                   getActivity().getContentResolver().delete(uri, null, null);
-                                   // The user wants to un-set the favorites status
-                                   favButton.setSelected(Boolean.FALSE);
+                    Log.d(LOG_TAG, "This movie is a fav");
+                    favButton.setSelected(Boolean.TRUE);
+                } else {
+                    Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
+                    favButton.setSelected(Boolean.FALSE);
+                }
+                tmdIdCursor.close();
+                // User can toggle favorite status of this movie by clicking the button
+                favButton.setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Boolean clicked = favButton.isSelected();
+                                Uri uri = PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesIdUri(mTmdId);
+                                Log.v(LOG_TAG, uri.toString());
+                                if (clicked) {
+                                    // The user wants to un-set the favorites status
+                                    Log.d(LOG_TAG, "This movie is no longer a fav: " + mTmdId);
+                                    // delete from the list of favs table.
+                                    getActivity().getContentResolver().delete(uri, null, null);
 
-                                   // Set the boolean Favorite to false.
-                                   // To update just 1 column, add only that column to the content values
-                                   ContentValues cv = new ContentValues();
-                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
-                                   cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
-                                   int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
-                               } else {
-                                   // User wants to make this a favorite.
-                                   ContentValues cv = new ContentValues();
-                                   cv.put(PopMoviesContract.MovieFavorites.COLUMN_MOVIE_ID, mTmdId);
-                                   Uri insert = getActivity().getContentResolver().insert(uri, cv);
-                                   favButton.setSelected(Boolean.TRUE);
+                                    // Set the boolean Favorite to false.
+                                    // To update just 1 column, add only that column to the content values
+                                    ContentValues cv = new ContentValues();
+                                    Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
+                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
+                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
 
-                                   // Set the boolean Favorite to true.
-                                   // To update just 1 column, add only that column to the content values
-                                   cv = new ContentValues();
-                                   Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
-                                   cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 1);
-                                   int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
-                               }
-                           }
-                       });
-           }
+
+                                    // delete from the favoriteMovies table.
+                                    uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
+                                    int count = getActivity().getContentResolver().delete(uri,
+                                            PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
+                                            new String[]{String.valueOf(mTmdId)});
+
+                                    favButton.setSelected(Boolean.FALSE);
+
+
+
+                                } else {
+                                    // User wants to make this a favorite.
+                                    // Set the boolean Favorite to true.
+                                    // To update just 1 column, add only that column to the content values
+                                    ContentValues cv = new ContentValues();
+                                    cv.put(PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID, mTmdId);
+                                    Uri insert = getActivity().getContentResolver().insert(uri, cv);
+
+                                    // set the isFavorite column in popMovies table to TRUE
+                                    cv = new ContentValues();
+                                    Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
+                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 1);
+                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
+
+                                    Cursor movieCursor = getActivity().getContentResolver().query(movieUri, null, null, null, null);
+                                    // Copy the movie to the favorites table where it will persist.
+                                    cv = cursorToContentValues(movieCursor);
+                                    movieUri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
+                                    int count = getActivity().getContentResolver().delete(
+                                            movieUri,
+                                            PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
+                                            new String[]{String.valueOf(mTmdId)});
+                                    uri = getActivity().getContentResolver().insert(movieUri, cv);
+
+                                    favButton.setSelected(Boolean.TRUE);
+                                }
+                            }
+                        });
+            }
         }
         return root;
+    }
+
+    ContentValues  cursorToContentValues(Cursor movieCursor) {
+        int idx;
+        ContentValues retval = new ContentValues();
+        String stringValue;
+        int intVal;
+        float floatVal;
+        if (movieCursor.moveToFirst() == true) {
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
+            intVal = movieCursor.getInt(idx);
+            retval.put(PopMoviesContract.PopMovieEntry._ID, intVal);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATH, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE); // voteAverage == rating
+            floatVal = movieCursor.getFloat(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE, floatVal); // voteAverage == rating
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+            intVal = movieCursor.getInt(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_TMDID, intVal);
+
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ADULT);
+            intVal = movieCursor.getInt(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_ADULT, intVal);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGLANG);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_ORIGLANG, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_TITLE, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_BACKDROPPATH);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_BACKDROPPATH, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY);
+            floatVal = movieCursor.getFloat(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY, floatVal);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT);
+            intVal = movieCursor.getInt(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT, intVal);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO);
+            stringValue = movieCursor.getString(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO, stringValue);
+            idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE);
+            intVal = movieCursor.getInt(idx);
+            retval.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, intVal);
+        } else {
+            retval = null;
+        }
+        return retval;
     }
 }

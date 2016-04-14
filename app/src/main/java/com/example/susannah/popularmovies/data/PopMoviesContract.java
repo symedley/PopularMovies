@@ -65,16 +65,53 @@ public class PopMoviesContract {
     }
 
     /**
+     * FavoriteMovieEntry - same data as in the PopMovieEntry. This will be a persistent table
+     * that holds the movies that the user has "favorited".
+     *
+     * The column name constants from PopMovieEntry are reused.
+     *
+     * Note that the column _ID here will be the database generated ID of
+     * the popMovies table entry. TODO check this
+     */
+    public static final class FavoriteMovieEntry implements BaseColumns {
+        // Table name
+        public static final String TABLE_FAVORITE_MOVIES = "favoriteMovies";
+        // Columns are the same as PopMovieEntry, so just reuse those.
+        // create content uri
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(TABLE_FAVORITE_MOVIES).build();
+
+        // Create cursor of base type directory for multiple entries
+        public static final String CONTENT_DIR_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_FAVORITE_MOVIES;
+        // create cursor of base type item for single entry
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_FAVORITE_MOVIES;
+
+        // this is the _ID that was assigned when the movie was put into the popMovies table
+        // This should ONLY BE USED in the Provider. Elsewhere, use TMD ID
+        public static Uri buildFavoriteMoviesUriBy_Id(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+        public static Uri buildFavoriteMoviesUriByTitle(String title) {
+            return CONTENT_URI.buildUpon().appendPath(title).build();
+        }
+        public static Uri buildAllFavoriteMoviesUri() {
+            return CONTENT_URI.buildUpon().build();
+        }
+    }
+
+        /**
      * GenreEntry - one entry in the Genres table of the database.
      * <p/>
      * Does not need to implement BaseColumns because each genre comes with its own
      * id integer.
      */
-    public static final class GenreEntry {
+    public static final class GenreEntry implements  BaseColumns {
         public static final String TABLE_GENRES = "genres";
 
         // Columns
-        public static final String COLUMN_ID = "Id";
+        public static final String COLUMN_GENRE_ID = "Genre_Id";
         public static final String COLUMN_NAME = "Name";
 
         // create content uri
@@ -88,9 +125,12 @@ public class PopMoviesContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_GENRES;
 
         // for building URIs on insertion
-        public static Uri buildGenresUri(long id) {
+            // Use this ONLY in the content provider. Elsewhere, use TMD ID
+        public static Uri buildGenresUriWithId(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
+        // for TMD ID searches, use selection arguments
 
         // for building URIs by genre name
         public static Uri buildGenresTitle(String name) {
@@ -104,11 +144,11 @@ public class PopMoviesContract {
      * Does not need to implement BaseColumns because it's a mapping of one
      * integer ID to another integer ID
      */
-    public static final class MovieToGenresEntry {
+    public static final class MovieToGenresEntry implements BaseColumns {
         public static final String TABLE_MOVIE_TO_GENRES = "movieToGenres";
 
         // Columns
-        public static final String COLUMN_MOVIE_ID = "MovieID";
+        public static final String COLUMN_MOVIE_TMDID = "MovieID";
         public static final String COLUMN_GENRE_ID = "GenreID";
         // create content uri
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
@@ -132,31 +172,33 @@ public class PopMoviesContract {
     }
 
     /**
-     * MovieFavorites - if the TMD Movie ID is in here, it is a user favorite. This allows
+     * MovieFavoriteTmdId - if the TMD Movie ID is in here, it is a user favorite. This allows
      * persistence when changing the sort order between most popular and highest rated.
      * Because the latter changes the contents of the database, if the favorites information
      * were only in the PopMovies table, it would be lost with each refresh.
      * <p/>
      * Does not need to implement BaseColumns because it's just an integer.
      */
-    public static final class MovieFavorites {
-        public static final String TABLE_MOVIE_FAVORITES = "movieFavorites";
+    public static final class MovieFavoriteTmdId implements BaseColumns {
+        public static final String TABLE_MOVIE_FAVORITE_TMDIDS = "movieFavoriteTmdIds";
+
+        public static final String OLD_TABLE_MOVIE_FAVORITES = "movieFavorites";
 
         // Columns
-        public static final String COLUMN_MOVIE_ID = "MovieID";
+        public static final String COLUMN_MOVIE_TMDID = "MovieID";
         // create content uri
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
-                .appendPath(TABLE_MOVIE_FAVORITES).build();
+                .appendPath(TABLE_MOVIE_FAVORITE_TMDIDS).build();
         // create cursor of base type directory for multiple entries
         public static final String CONTENT_DIR_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_FAVORITES;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_FAVORITE_TMDIDS;
         // create cursor of base type item for single entry
         public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_FAVORITES;
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_FAVORITE_TMDIDS;
 
-        // for building URIs by Movie ID (the ID returned by theMovieDB)
-        public static Uri buildMovieFavoritesIdUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
+        // for building URIs by Movie ID (the TmdID returned by theMovieDB)
+        public static Uri buildMovieFavoritesIdUri(long tmdId) {
+            return ContentUris.withAppendedId(CONTENT_URI, tmdId);
         }
 
         // This is for finding all PopMovie entries that have their tmdID in the favorites table.
