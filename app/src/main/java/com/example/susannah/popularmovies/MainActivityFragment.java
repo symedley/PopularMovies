@@ -43,6 +43,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     private boolean mSortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
     private String mSortOrder;
+    private String mSortOrderTitle;
 
     // Changing to using SQLite and Content Provider
     // mPopMovieAdapter is the Cursor Adapter.
@@ -111,17 +112,21 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 getString(R.string.pref_sort_default));
         if (mSortOrder == null) {
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+            mSortOrderTitle = getString(R.string.pref_sort_label_rated) + getString(R.string._movies);
         }
         if (retValue.equals(getString(R.string.pref_sort_popular))) {
             mSortPopular = true;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY + " DESC";
+            mSortOrderTitle = getString(R.string.pref_sort_label_popular) + getString(R.string._movies);
             retValue = mSortOrder;
         } else if (retValue.equals(getString(R.string.pref_sort_rated))) {
             mSortPopular = false;
             mSortOrder = PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " DESC";
+            mSortOrderTitle = getString(R.string.pref_sort_label_rated) + getString(R.string._movies);
             retValue = mSortOrder;
         } else if (retValue.equals(getString(R.string.pref_sort_favorites))) {
             Log.v(LOG_TAG, "retValue preference is favorites");
+            mSortOrderTitle = getString(R.string.favorite) + getString(R.string._movies);
             // Now show only the favorites.
 
         } else {
@@ -205,6 +210,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         } else {
             updateMovies();
         }
+        getActivity().setTitle(mSortOrderTitle);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -245,7 +251,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                                 null,
                                 mSortOrder
                         );
-                mPopMovieAdapter.swapCursor(mCursor);
             } else {
                 updateMovies();
                 // DO initiate a network call to tmdb. And reset the cursor so
@@ -258,8 +263,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                                 null,
                                 mSortOrder
                         );
-                mPopMovieAdapter.swapCursor(mCursor);
             }
+            mPopMovieAdapter.swapCursor(mCursor);
+            getActivity().setTitle(mSortOrderTitle);
         }
     }
 
@@ -319,7 +325,28 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.v(LOG_TAG, ".....onLoadFinished");
         //mCursor.close();
-        mCursor = data;
+        String sortOrder = initializeSortOrder();
+        if (sortOrder.equals(getString(R.string.pref_sort_favorites))) {
+            // get a new set of data from the Provider to display, but don't initiate
+            // a network call to tmdb
+            mCursor =
+                    getActivity().getContentResolver().query(
+                            PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
+                            null,
+                            null,
+                            null,
+                            mSortOrder
+                    );
+        } else {
+            mCursor =
+                    getActivity().getContentResolver().query(
+                            PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                            null,
+                            null,
+                            null,
+                            mSortOrder
+                    );
+        }
         mPopMovieAdapter.swapCursor(mCursor);
         if (data.getCount() == 0) {
             Log.e(LOG_TAG, "TODO: create a pop up to tell the user there was a network problem.");

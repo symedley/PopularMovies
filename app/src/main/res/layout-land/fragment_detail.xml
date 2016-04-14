@@ -117,7 +117,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:id="@+id/favorite"
-                android:text="@string/favorite_"/>
+                android:text="@string/favorite_questionMark"/>
 
             <ImageButton
                 android:layout_width="80dp"

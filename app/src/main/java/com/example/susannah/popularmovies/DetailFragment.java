@@ -82,7 +82,19 @@ public class DetailFragment extends Fragment {
                                 new String[]{String.valueOf(mTmdId)},
                                 null);
 
-                if (movieCursor != null) {
+                if ((movieCursor == null) || (movieCursor.getCount() ==0)) {
+                    // Not found in the popMovies table, so check the favorites table.
+                    uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
+                    movieCursor =
+                            getActivity().getContentResolver().query(
+                                    uri,
+                                    null,
+                                    PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
+                                    new String[]{String.valueOf(mTmdId)},
+                                    null);
+                    // TODO if the cursor was not null but count was 0, do i need to close it before trying a new query?
+                }
+                if ((movieCursor != null) && (movieCursor.getCount()!= 0)) {
                     movieCursor.moveToFirst();
 
                     int idx;
@@ -105,6 +117,8 @@ public class DetailFragment extends Fragment {
                     idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
                     m_id = movieCursor.getInt(idx);
                     movieCursor.close();
+                } else {
+                    Log.d(LOG_TAG, "The movie with TmdId of " + mTmdId + " was not found in either table.");
                 }
             }
 

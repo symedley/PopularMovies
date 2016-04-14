@@ -92,12 +92,12 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         // Estimate an average of 3 genres per movie.
         Vector<ContentValues> movieToGenres = new Vector<>(3 * movieArray.length());
 
-        // Retrieve the list of user favorites. It is a list of tmdIDs.
+        // Retrieve the list of user favorites. Just get the TMD IDs out of the table of movie favorites.
         // As each movie comes in from the JSON data, check to see if it's in the favorites list
         // and set the boolean flag FAVORITE to true.
         Cursor favs =
-                mContext.getContentResolver().query(PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesAll(),
-                        null,
+                mContext.getContentResolver().query(PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri(),
+                        new String[] { PopMoviesContract.PopMovieEntry.COLUMN_TMDID }, // projection of just TmdId
                         null,
                         null,
                         null
@@ -109,7 +109,25 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
                 favorites.add(ti);
             }
         }
-        favs.close();
+//        favs.close();
+//        // Retrieve the list of user favorites. It is a list of tmdIDs.
+//        // As each movie comes in from the JSON data, check to see if it's in the favorites list
+//        // and set the boolean flag FAVORITE to true.
+//        Cursor favs =
+//                mContext.getContentResolver().query(PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesAll(),
+//                        null,
+//                        null,
+//                        null,
+//                        null
+//                );
+//        ArrayList favorites = new ArrayList<>(6);
+//        if (favs != null) {
+//            while (favs.moveToNext()) {
+//                int ti = favs.getInt(0);
+//                favorites.add(ti);
+//            }
+//        }
+//        favs.close();
 
         Log.v(LOG_TAG, movieArray.length() + " movies were returned");
         for (int i = 0; i < movieArray.length(); i++) {
