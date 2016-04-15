@@ -51,7 +51,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private PopMovieAdapter mPopMovieAdapter;
     private GridView mGridView;
 
-    View rootView;
+    private View rootView;
 
     private Cursor mCursor;
 
@@ -85,7 +85,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * Refresh
      * Sort: The sort order can be by most popular, or by highest-rated
      */
-    public static final int RESULT_KEY = 7;
+    private static final int RESULT_KEY = 7;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {

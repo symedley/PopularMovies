@@ -39,5 +39,6 @@
     <string name="favorite_questionMark">Favorite?</string>
     <string name="_movies">" movies"</string>
     <string name="favorite">Favorite</string>
+    <string name="movie_poster">Movie poster</string>
 
 </resources>

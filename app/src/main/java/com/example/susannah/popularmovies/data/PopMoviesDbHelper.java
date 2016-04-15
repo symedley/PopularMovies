@@ -10,11 +10,11 @@ import android.util.Log;
  * <p/>
  * Created by Susannah on 2/20/2016.
  */
-public class PopMoviesDbHelper extends SQLiteOpenHelper {
-    public static final String LOG_TAG = PopMoviesDbHelper.class.getSimpleName();
+class PopMoviesDbHelper extends SQLiteOpenHelper {
+    private static final String LOG_TAG = PopMoviesDbHelper.class.getSimpleName();
 
     // DB name and version
-    public static final String DATABASE_NAME = "popmovies.db";
+    private static final String DATABASE_NAME = "popmovies.db";
     private static final int DATABASE_VERSION = 7;
 
     public PopMoviesDbHelper(Context context) {

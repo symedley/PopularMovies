@@ -12,13 +12,14 @@ import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
 
 /**
+ * Display the movie data in the cursor as a grid.
+ *
  * Created by Susannah on 2/23/2016.
  */
-public class PopMovieAdapter extends CursorAdapter {
+class PopMovieAdapter extends CursorAdapter {
 
     private static final String LOG_TAG = PopMovieAdapter.class.getSimpleName();
     private Context mContext;
-    private static int sLoaderID;
 
     public static class ViewHolder {
         public final ImageView imageView;
@@ -34,7 +35,6 @@ public class PopMovieAdapter extends CursorAdapter {
     public PopMovieAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
         mContext = context;
-//        sLoaderID = loaderID;
     }
 
     /*
@@ -54,8 +54,8 @@ public class PopMovieAdapter extends CursorAdapter {
     /**
      * Binds an image to one "cell" of the grid adapter
      *
-     * @param view
-     * @param context
+     * @param view      the part of the screen in which to bind
+     * @param context   the context
      * @param cursor      The data that was returned from the database and must now be displayed.
      */
     @Override

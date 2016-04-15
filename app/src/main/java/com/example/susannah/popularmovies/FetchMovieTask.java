@@ -26,10 +26,10 @@ import java.util.Vector;
  *
  * Created by Susannah on 2/24/2016.
  */
-public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
+class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
     // A size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
-    public static final String IMAGE_SIZE = "w342";
+    private static final String IMAGE_SIZE = "w342";
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     private final Context mContext;
@@ -106,28 +106,10 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         if (favs != null) {
             while (favs.moveToNext()) {
                 int ti = favs.getInt(0);
-                favorites.add(ti);
+                boolean add = favorites.add(ti);
             }
+            favs.close();
         }
-//        favs.close();
-//        // Retrieve the list of user favorites. It is a list of tmdIDs.
-//        // As each movie comes in from the JSON data, check to see if it's in the favorites list
-//        // and set the boolean flag FAVORITE to true.
-//        Cursor favs =
-//                mContext.getContentResolver().query(PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesAll(),
-//                        null,
-//                        null,
-//                        null,
-//                        null
-//                );
-//        ArrayList favorites = new ArrayList<>(6);
-//        if (favs != null) {
-//            while (favs.moveToNext()) {
-//                int ti = favs.getInt(0);
-//                favorites.add(ti);
-//            }
-//        }
-//        favs.close();
 
         Log.v(LOG_TAG, movieArray.length() + " movies were returned");
         for (int i = 0; i < movieArray.length(); i++) {
@@ -297,7 +279,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
+                buffer.append(line).append("\n");
             }
 
             if (buffer.length() == 0) {

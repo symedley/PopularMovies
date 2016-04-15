@@ -1,14 +1,10 @@
 package com.example.susannah.popularmovies;
 
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-
-import java.util.List;
 
 /** SettingsActivity is a PreferenceActivity with a single setting: sort order
  *
@@ -17,7 +13,7 @@ import java.util.List;
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
 
-    public static final int RESULT_KEY = 7;
+    private static final int RESULT_KEY = 7;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

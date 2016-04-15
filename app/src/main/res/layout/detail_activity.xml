@@ -4,7 +4,7 @@
     android:id="@+id/detail_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.popmovies.app.DetailActivity"
+    tools:context="com.example.susannah.popularmovies.DetailActivity"
     tools:ignore="MergeRootFrame"
     android:name="com.example.susannah.popularmovies.DetailFragment"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"

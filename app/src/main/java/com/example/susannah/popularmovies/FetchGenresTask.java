@@ -25,7 +25,7 @@ import java.util.Vector;
  * When first launched, if there is no data in the table of movie genres,
  * fetch the list from themoviedb.org, parse it and put it in a DB table.
  */
-public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
+class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
 
         private final String LOG_TAG = FetchGenresTask.class.getSimpleName();
         private final Context mContext;
@@ -119,7 +119,7 @@ public class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
+                    buffer.append(line).append("\n");
                 }
 
                 if (buffer.length() == 0) {

@@ -12,41 +12,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingLeft="16dp">
+            android:paddingLeft="@dimen/popmovie_detail_left_padding">
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginTop="12sp"
+                android:layout_gravity="start"
+                android:layout_marginTop="@dimen/popmovie_detail_text"
                 android:elegantTextHeight="true"
-                android:password="false"
                 android:text="@string/movie_title"
-                android:textSize="22sp"
+                android:textSize="@dimen/popmovie_detail_title_text"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/original_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:layout_marginBottom="12sp"
-                android:text="Original title"
+                android:text="@string/original_title"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:textSize="@dimen/design_tab_text_size_2line" />
+                android:textSize="@dimen/popmovie_detail_text" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:minHeight="200dp"
-                android:minWidth="100dp">
+                android:minHeight="@dimen/popmovie_detail_min_height"
+                android:minWidth="@dimen/popmovie_detail_min_width">
                 <ImageView
                     android:id="@+id/movie_poster"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:contentDescription="@string/movie_poster"/>
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="match_parent"
@@ -77,39 +77,39 @@
                 android:id="@+id/synopsisLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
-                android:text="Synopsis:"
+                android:layout_marginTop="@dimen/popmovie_detail_syn_margin"
+                android:text="@string/synopsis_colon"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textSize="@dimen/abc_text_size_small_material"
+                android:textSize="@dimen/popmovie_detail_syn_size"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/synopsis"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_marginBottom="@dimen/abc_text_size_small_material"
-                android:layout_marginRight="@dimen/abc_text_size_small_material"
-                android:text="Synopsis"
+                android:layout_marginBottom="@dimen/popmovie_detail_bottom_margin"
+                android:layout_marginRight="@dimen/popmovie_detail_bottom_margin"
+                android:text="@string/synopsis"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:textSize="@dimen/design_tab_text_size_2line" />
+                android:textSize="@dimen/popmovie_detail_text" />
 
             <TextView
                 android:id="@+id/rating"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_marginBottom="@dimen/abc_text_size_small_material"
-                android:text="Rating"
+                android:layout_marginBottom="@dimen/popmovie_detail_syn_size"
+                android:text="@string/rating"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:textSize="@dimen/design_tab_text_size_2line" />
+                android:textSize="@dimen/popmovie_detail_syn_size" />
 
             <TextView
                 android:id="@+id/release_date"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_marginBottom="@dimen/abc_text_size_small_material"
-                android:text="Release date"
+                android:layout_marginBottom="@dimen/popmovie_detail_bottom_margin"
+                android:text="@string/release_date"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:textSize="@dimen/design_tab_text_size_2line" />
+                android:textSize="@dimen/popmovie_detail_text" />
 
         </LinearLayout>
     </ScrollView>

@@ -2,5 +2,19 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="popmovie_detail_margin">16dp</dimen>
+    <dimen name="popmovie_detail_bottom_margin">14dp</dimen>
+    <dimen name="popmovie_detail_syn_margin">16dp</dimen>
+    <dimen name="popmovie_detail_left_padding">16dp</dimen>
+    <dimen name="popmovie_detail_image_margin">10dp</dimen>
+
+    <dimen name="popmovie_fav_btn_width">80dp</dimen>
+    <dimen name="popmovie_detail_fav_btn_height">80dp</dimen>
+    <dimen name="popmovie_detail_min_height">200dp</dimen>
+    <dimen name="popmovie_detail_min_width">100dp</dimen>
+    <dimen name="popmovie_detail_orig_title_size">12sp</dimen>
+    <dimen name="popmovie_detail_text">12sp</dimen>
+    <dimen name="popmovie_detail_syn_size">14sp</dimen>
+    <dimen name="popmovie_detail_title_text">22sp</dimen>
 </resources>

@@ -29,7 +29,7 @@ import static com.example.susannah.popularmovies.R.*;
  */
 public class DetailFragment extends Fragment {
 
-    View root;
+    private View root;
     private long m_id;
     private String mTitle;
     private String mOriginalTitle;
@@ -37,14 +37,12 @@ public class DetailFragment extends Fragment {
     private String mVoteAverage; // voteAverage is rating. The other sort criterion is Popularity
     private String mReleaseDate;
     private int mTmdId;
-    private Cursor movieCursor;
     private String mPosterPathUriString;
     //private int mPosition;
 
-    static final String KEY_POSITION = "POSITION";
     static final String KEY_TMDID = "TMDID";
 
-    static final String LOG_TAG = DetailFragment.class.getSimpleName();
+    private static final String LOG_TAG = DetailFragment.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,6 +61,8 @@ public class DetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Cursor movieCursor;
+
         if (root == null) {
             root = inflater.inflate(layout.fragment_detail, container, false);
 
@@ -231,13 +231,13 @@ public class DetailFragment extends Fragment {
         return root;
     }
 
-    ContentValues  cursorToContentValues(Cursor movieCursor) {
+    private ContentValues  cursorToContentValues(Cursor movieCursor) {
         int idx;
         ContentValues retval = new ContentValues();
         String stringValue;
         int intVal;
         float floatVal;
-        if (movieCursor.moveToFirst() == true) {
+        if (movieCursor.moveToFirst()) {
             idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
             intVal = movieCursor.getInt(idx);
             retval.put(PopMoviesContract.PopMovieEntry._ID, intVal);

@@ -2,17 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:baselineAligned="false">
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_weight="1"
         android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentEnd="false">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="300dp"
@@ -22,13 +18,7 @@
             android:paddingEnd="16dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:id="@+id/linearLayout"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="false"
-            android:layout_alignParentEnd="false">
+            android:id="@+id/linearLayout">
 
             <TextView
                 android:id="@+id/title"
@@ -39,9 +29,9 @@
                 android:layout_gravity="start"
                 android:elegantTextHeight="true"
                 android:textStyle="bold"
-                android:textSize="@dimen/design_tab_text_size"
-                android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
-                android:layout_marginBottom="@dimen/abc_text_size_small_material" />
+                android:textSize="@dimen/popmovie_detail_syn_size"
+                android:layout_marginTop="@dimen/popmovie_detail_margin"
+                android:layout_marginBottom="@dimen/popmovie_detail_bottom_margin" />
 
             <TextView
                 android:id="@+id/original_title"
@@ -49,7 +39,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/original_title"
-                android:textSize="@dimen/design_tab_text_size_2line" />
+                android:textSize="@dimen/popmovie_detail_text" />
 
             <TextView
                 android:layout_width="fill_parent"
@@ -57,9 +47,9 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/synopsis_colon"
                 android:id="@+id/synopsisLabel"
-                android:layout_marginTop="@dimen/abc_action_bar_content_inset_material"
+                android:layout_marginTop="@dimen/popmovie_detail_syn_margin"
                 android:textStyle="bold"
-                android:textSize="@dimen/abc_text_size_small_material" />
+                android:textSize="@dimen/popmovie_detail_syn_size" />
 
             <TextView
                 android:id="@+id/synopsis"
@@ -67,28 +57,26 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/synopsis"
-                android:textSize="@dimen/design_tab_text_size_2line"
-                android:layout_marginBottom="@dimen/abc_text_size_small_material"
-                android:layout_marginRight="@dimen/abc_text_size_small_material" />
+                android:textSize="@dimen/popmovie_detail_text"
+                android:layout_marginBottom="@dimen/popmovie_detail_bottom_margin"
+                android:layout_marginRight="@dimen/popmovie_detail_bottom_margin" />
 
             <TextView
                 android:id="@+id/rating"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Rating"
-                android:textSize="@dimen/design_tab_text_size_2line"
-                android:layout_marginBottom="@dimen/abc_text_size_small_material" />
+                android:text="@string/rating"
+                android:textSize="@dimen/popmovie_detail_text"
+                android:layout_marginBottom="@dimen/popmovie_detail_bottom_margin" />
 
             <TextView
                 android:id="@+id/release_date"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Release date"
-                android:textSize="@dimen/design_tab_text_size_2line"
-                android:layout_below="@+id/movie_poster" />
-
+                android:text="@string/release_date"
+                android:textSize="@dimen/popmovie_detail_text" />
 
         </LinearLayout>
     </ScrollView>
@@ -98,18 +86,17 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:minHeight="200dp"
-        android:minWidth="100dp">
+        android:minHeight="@dimen/popmovie_detail_min_height"
+        android:minWidth="@dimen/popmovie_detail_min_width">
         <ImageView
             android:id="@+id/movie_poster"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:contentDescription="Movie poster" />
+            android:layout_margin="@dimen/popmovie_detail_image_margin"
+            android:contentDescription="@string/movie_poster" />
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical">
             <TextView
@@ -120,8 +107,8 @@
                 android:text="@string/favorite_questionMark"/>
 
             <ImageButton
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="@dimen/popmovie_fav_btn_width"
+                android:layout_height="@dimen/popmovie_detail_fav_btn_height"
                 android:contentDescription="@string/movie_item_btn_fav_descr"
                 android:id="@+id/toggleFavoriteBtn"
                 android:layout_gravity="center_horizontal"
