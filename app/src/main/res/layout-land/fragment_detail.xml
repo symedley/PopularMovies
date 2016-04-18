@@ -14,24 +14,9 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:id="@+id/linearLayout">
+            android:id="@+id/linearLayout"
+            android:padding="@dimen/popmovie_detail_left_padding">
 
-            <TextView
-                android:id="@+id/title"
-                android:textAppearance="?android:attr/textAppearanceListItem"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/movie_title"
-                android:layout_gravity="start"
-                android:elegantTextHeight="true"
-                android:textStyle="bold"
-                android:textSize="@dimen/popmovie_detail_syn_size"
-                android:layout_marginTop="@dimen/popmovie_detail_margin"
-                android:layout_marginBottom="@dimen/popmovie_detail_bottom_margin" />
 
             <TextView
                 android:id="@+id/original_title"
@@ -40,7 +25,29 @@
                 android:layout_height="wrap_content"
                 android:text="@string/original_title"
                 android:textSize="@dimen/popmovie_detail_text" />
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:id="@+id/favorite"
+                    android:text="@string/favorite_questionMark"/>
 
+                <ImageButton
+                    android:layout_width="@dimen/popmovie_fav_btn_width"
+                    android:layout_height="@dimen/popmovie_detail_fav_btn_height"
+                    android:contentDescription="@string/movie_item_btn_fav_descr"
+                    android:id="@+id/toggleFavoriteBtn"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/selector"
+                    android:background="@android:color/transparent"
+                    android:focusable="true"
+                    android:clickable="true" />
+            </LinearLayout>
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -85,39 +92,18 @@
         android:layout_weight="1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:minHeight="@dimen/popmovie_detail_min_height"
-        android:minWidth="@dimen/popmovie_detail_min_width">
+        android:orientation="vertical">
+
         <ImageView
             android:id="@+id/movie_poster"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/thumb_w342"
             android:layout_margin="@dimen/popmovie_detail_image_margin"
-            android:contentDescription="@string/movie_poster" />
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:id="@+id/favorite"
-                android:text="@string/favorite_questionMark"/>
+            android:contentDescription="@string/movie_poster"
+            android:padding="@dimen/popmovie_detail_left_padding" />
 
-            <ImageButton
-                android:layout_width="@dimen/popmovie_fav_btn_width"
-                android:layout_height="@dimen/popmovie_detail_fav_btn_height"
-                android:contentDescription="@string/movie_item_btn_fav_descr"
-                android:id="@+id/toggleFavoriteBtn"
-                android:layout_gravity="center_horizontal"
-                android:scaleType="fitCenter"
-                android:src="@drawable/selector"
-                android:background="@android:color/transparent"
-                android:focusable="true"
-                android:clickable="true" />
-        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

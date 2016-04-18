@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,7 @@ public class DetailFragment extends Fragment {
     private String mReleaseDate;
     private int mTmdId;
     private String mPosterPathUriString;
+    private Boolean mIsFavorite;
     //private int mPosition;
 
     static final String KEY_TMDID = "TMDID";
@@ -82,7 +84,7 @@ public class DetailFragment extends Fragment {
                                 new String[]{String.valueOf(mTmdId)},
                                 null);
 
-                if ((movieCursor == null) || (movieCursor.getCount() ==0)) {
+                if ((movieCursor == null) || (movieCursor.getCount() == 0)) {
                     // Not found in the popMovies table, so check the favorites table.
                     uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
                     movieCursor =
@@ -94,7 +96,7 @@ public class DetailFragment extends Fragment {
                                     null);
                     // TODO if the cursor was not null but count was 0, do i need to close it before trying a new query?
                 }
-                if ((movieCursor != null) && (movieCursor.getCount()!= 0)) {
+                if ((movieCursor != null) && (movieCursor.getCount() != 0)) {
                     movieCursor.moveToFirst();
 
                     int idx;
@@ -116,6 +118,8 @@ public class DetailFragment extends Fragment {
                     mTmdId = movieCursor.getInt(idx);
                     idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
                     m_id = movieCursor.getInt(idx);
+                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE);
+                    mIsFavorite = (movieCursor.getInt(idx) == 1);
                     movieCursor.close();
                 } else {
                     Log.d(LOG_TAG, "The movie with TmdId of " + mTmdId + " was not found in either table.");
@@ -140,98 +144,87 @@ public class DetailFragment extends Fragment {
             ((TextView) root.findViewById(id.release_date)).setText(
                     String.format("%s: %s", context.getString(string.release_date), mReleaseDate));
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
+            // thumbView.setImageResource(R.drawable.thumb);
 
             // Use the movie database URI of the image and picasso to get the movie poster image to display.
             if (mPosterPathUriString != null) {
-                Picasso.with(context).load(mPosterPathUriString).into(thumbView);
+                Picasso.with(context).load(mPosterPathUriString).placeholder(R.drawable.thumb_w342).error(drawable.thumb_w342).into(thumbView);
             }
-            Uri uri = PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesIdUri(mTmdId);
-            final Cursor tmdIdCursor =
-                    getActivity().getContentResolver().query(
-                            uri,
-                            null,
-                            null,
-                            null,
-                            null);
-            Log.v(LOG_TAG, uri.toString());
+
             final ImageButton favButton = (ImageButton) root.findViewById(id.toggleFavoriteBtn);
 
-            if (tmdIdCursor != null) {
-                if (tmdIdCursor.moveToFirst()) {
-//                   ((TextView) root.findViewById(id.favorite)).setText(string.FAVORITE);
-                    Log.d(LOG_TAG, "This movie is a fav");
-                    favButton.setSelected(Boolean.TRUE);
-                } else {
-                    Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
-                    favButton.setSelected(Boolean.FALSE);
-                }
-                tmdIdCursor.close();
-                // User can toggle favorite status of this movie by clicking the button
-                favButton.setOnClickListener(
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Boolean clicked = favButton.isSelected();
-                                Uri uri = PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesIdUri(mTmdId);
-                                Log.v(LOG_TAG, uri.toString());
-                                if (clicked) {
-                                    // The user wants to un-set the favorites status
-                                    Log.d(LOG_TAG, "This movie is no longer a fav: " + mTmdId);
-                                    // delete from the list of favs table.
-                                    getActivity().getContentResolver().delete(uri, null, null);
-
-                                    // Set the boolean Favorite to false.
-                                    // To update just 1 column, add only that column to the content values
-                                    ContentValues cv = new ContentValues();
-                                    Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
-                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
-                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
-
-
-                                    // delete from the favoriteMovies table.
-                                    uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
-                                    int count = getActivity().getContentResolver().delete(uri,
-                                            PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
-                                            new String[]{String.valueOf(mTmdId)});
-
-                                    favButton.setSelected(Boolean.FALSE);
-
-
-
-                                } else {
-                                    // User wants to make this a favorite.
-                                    // Set the boolean Favorite to true.
-                                    // To update just 1 column, add only that column to the content values
-                                    ContentValues cv = new ContentValues();
-                                    cv.put(PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID, mTmdId);
-                                    Uri insert = getActivity().getContentResolver().insert(uri, cv);
-
-                                    // set the isFavorite column in popMovies table to TRUE
-                                    cv = new ContentValues();
-                                    Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
-                                    cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 1);
-                                    int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
-
-                                    Cursor movieCursor = getActivity().getContentResolver().query(movieUri, null, null, null, null);
-                                    // Copy the movie to the favorites table where it will persist.
-                                    cv = cursorToContentValues(movieCursor);
-                                    movieUri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
-                                    int count = getActivity().getContentResolver().delete(
-                                            movieUri,
-                                            PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
-                                            new String[]{String.valueOf(mTmdId)});
-                                    uri = getActivity().getContentResolver().insert(movieUri, cv);
-
-                                    favButton.setSelected(Boolean.TRUE);
-                                }
-                            }
-                        });
+            if (mIsFavorite) {
+                Log.d(LOG_TAG, "This movie is a fav");
+                favButton.setSelected(Boolean.TRUE);
+            } else {
+                Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
+                favButton.setSelected(Boolean.FALSE);
             }
+            // User can toggle favorite status of this movie by clicking the button
+            favButton.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Boolean clicked = favButton.isSelected();
+                            Uri uri = PopMoviesContract.MovieFavoriteTmdId.buildMovieFavoritesIdUri(mTmdId);
+                            Log.v(LOG_TAG, uri.toString());
+                            if (clicked) {
+                                // The user wants to un-set the favorites status
+                                Log.d(LOG_TAG, "This movie is no longer a fav: " + mTmdId);
+                                // delete from the list of favs table.
+                                getActivity().getContentResolver().delete(uri, null, null);
+
+                                // Set the boolean Favorite to false.
+                                // To update just 1 column, add only that column to the content values
+                                ContentValues cv = new ContentValues();
+                                Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
+                                cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
+                                int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
+
+
+                                // delete from the favoriteMovies table.
+                                uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
+                                int count = getActivity().getContentResolver().delete(uri,
+                                        PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
+                                        new String[]{String.valueOf(mTmdId)});
+
+                                favButton.setSelected(Boolean.FALSE);
+
+
+                            } else {
+                                // User wants to make this a favorite.
+                                // Set the boolean Favorite to true.
+                                // To update just 1 column, add only that column to the content values
+                                ContentValues cv = new ContentValues();
+                                cv.put(PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID, mTmdId);
+                                Uri insert = getActivity().getContentResolver().insert(uri, cv);
+
+                                // set the isFavorite column in popMovies table to TRUE
+                                cv = new ContentValues();
+                                Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
+                                cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 1);
+                                int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
+
+                                Cursor movieCursor = getActivity().getContentResolver().query(movieUri, null, null, null, null);
+                                // Copy the movie to the favorites table where it will persist.
+                                cv = cursorToContentValues(movieCursor);
+                                movieUri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
+                                int count = getActivity().getContentResolver().delete(
+                                        movieUri,
+                                        PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
+                                        new String[]{String.valueOf(mTmdId)});
+                                uri = getActivity().getContentResolver().insert(movieUri, cv);
+
+                                favButton.setSelected(Boolean.TRUE);
+                            }
+                        }
+                    });
+
         }
         return root;
     }
 
-    private ContentValues  cursorToContentValues(Cursor movieCursor) {
+    private ContentValues cursorToContentValues(Cursor movieCursor) {
         int idx;
         ContentValues retval = new ContentValues();
         String stringValue;

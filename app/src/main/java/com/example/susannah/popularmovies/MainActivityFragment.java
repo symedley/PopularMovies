@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
+import com.squareup.picasso.Picasso;
 
 /**
  * MainActivityFragment is where most of the action happens. Holds the array of data and the grid adapter.
@@ -72,6 +73,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if ((savedInstanceState == null) || dontUpdate == 0)
             updateMovies();
         setHasOptionsMenu(true);
+
+        Picasso.with(getContext()).setIndicatorsEnabled(true);
     }
 
     @Override
