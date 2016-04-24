@@ -91,7 +91,7 @@
     <LinearLayout
         android:layout_weight="1"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:orientation="vertical">
 
         <ImageView
@@ -102,7 +102,8 @@
             android:src="@drawable/thumb_w342"
             android:layout_margin="@dimen/popmovie_detail_image_margin"
             android:contentDescription="@string/movie_poster"
-            android:padding="@dimen/popmovie_detail_left_padding" />
+            android:padding="@dimen/popmovie_detail_left_padding"
+            android:adjustViewBounds="true" />
 
     </LinearLayout>
 

@@ -37,9 +37,10 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/movie_poster"
                     android:padding="@dimen/popmovie_detail_left_padding"
-                    android:src="@drawable/thumb_w342"
+                    android:src="@drawable/thumb_w200"
                     android:layout_gravity="top"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
