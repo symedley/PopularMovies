@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/movie_poster"
                     android:padding="@dimen/popmovie_detail_left_padding"
-                    android:src="@drawable/thumb_w100"
+                    android:src="@drawable/thumb_w342"
                     android:layout_gravity="top"
                     android:layout_weight="1" />
                 <LinearLayout

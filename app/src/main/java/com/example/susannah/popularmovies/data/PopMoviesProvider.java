@@ -36,6 +36,9 @@ public class PopMoviesProvider extends ContentProvider {
     private static final int ALL_MOVIE_FAVORITE_TMD_IDS = 900;
     private static final int ALL_FAVORITE_MOVIES = 1000;
     private static final int FAVORITE_MOVIE_WITH_ID = 1100;
+    // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
+    private static final int ALL_MOVIE_IMAGES = 1200;
+//    private static final int MOVIE_IMAGE_WITH_TMDID = 1300;
 
     //The Query builder might only be needed if you're defining a JOIN between tables
     //private static final SQLiteQueryBuilder sSQLiteQueryBuilder;
@@ -57,6 +60,9 @@ public class PopMoviesProvider extends ContentProvider {
 
         matcher.addURI(authority, PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES, ALL_FAVORITE_MOVIES);
         matcher.addURI(authority, PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES + "/#", FAVORITE_MOVIE_WITH_ID);
+        matcher.addURI(authority, PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES, ALL_MOVIE_IMAGES);
+        // Don't use the URI format where TMD ID is where the ID usually is because it's just too confusing.
+       // matcher.addURI(authority, PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES + "/#", MOVIE_IMAGE_WITH_TMDID);
 
         return matcher;
     }
@@ -132,6 +138,11 @@ public class PopMoviesProvider extends ContentProvider {
             case MOVIE_FAVORITES_WITH_TMDID: {
                 return PopMoviesContract.MovieFavoriteTmdId.CONTENT_ITEM_TYPE;
             }
+            case ALL_MOVIE_IMAGES: {
+                return PopMoviesContract.MovieImages.CONTENT_DIR_TYPE;
+            }
+//            case MOVIE_IMAGE_WITH_TMDID:
+//                return PopMoviesContract.MovieImages.CONTENT_ITEM_TYPE;
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri.toString());
             }
@@ -262,6 +273,29 @@ public class PopMoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
             }
+            // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
+            case ALL_MOVIE_IMAGES: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+//            case MOVIE_IMAGE_WITH_TMDID: {
+//                retCursor = mOpenHelper.getReadableDatabase().query(
+//                        PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
+//                        projection,
+//                        PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " = ?",
+//                        new String[]{String.valueOf(ContentUris.parseId(uri))},
+//                        null,
+//                        null,
+//                        sortOrder);
+//                break;
+//            }
 
             default: {
                 throw new UnsupportedOperationException("Unknown uri " + uri);
@@ -348,6 +382,18 @@ public class PopMoviesProvider extends ContentProvider {
                 }
                 break;
             }
+            case ALL_MOVIE_IMAGES: {
+                long _id = mOpenHelper.getReadableDatabase().insert(
+                        PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
+                        null,
+                        contentValues);
+                if (_id > 0) {
+                    returnUri = PopMoviesContract.MovieImages.buildMovieImagesUriWith_Id(_id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into: " + uri);
+                }
+                break;
+            }
             default: {
                 throw new UnsupportedOperationException("Unknown uri " + uri);
             }
@@ -417,6 +463,15 @@ public class PopMoviesProvider extends ContentProvider {
                         PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))});
                 break;
+            // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
+            // to specify the TMDID.
+            case ALL_MOVIE_IMAGES: {
+                count = db.delete(
+                        PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
+                        selection,
+                        selectionArgs);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri in delete: " + uri);
         }
@@ -492,6 +547,16 @@ public class PopMoviesProvider extends ContentProvider {
                         contentValues,
                         PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID + " = ?",
                         new String[]{String.valueOf(ContentUris.parseId(uri))});
+                break;
+            }
+            // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
+            // to specify the TMDID.
+            case ALL_MOVIE_IMAGES: {
+                count = mOpenHelper.getReadableDatabase().update(
+                        PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
+                        contentValues,
+                        selection,
+                       selectionArgs);
                 break;
             }
             default: {
@@ -665,6 +730,39 @@ public class PopMoviesProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 break;
+            // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
+            // to specify the TMDID.            case MOVIE_FAVORITES_IDS:
+            case ALL_MOVIE_IMAGES:
+            db.beginTransaction();
+
+            try {
+                for (ContentValues value : contentValues) {
+                    if (value == null) {
+                        throw new IllegalArgumentException("Cannot have null content values");
+                    }
+                    long _id = -1;
+                    try {
+                        _id = db.insertOrThrow(
+                                PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
+                                null,
+                                value);
+                    } catch (SQLiteConstraintException e) {
+                        Log.w(LOG_TAG, "Attempting to insert " +
+                                value.getAsString(
+                                        PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID)
+                                + " but perhaps the value is already in the database.");
+                    }
+                    if (_id != -1) {
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    db.setTransactionSuccessful();
+                }
+            } finally {
+                db.endTransaction();
+            }
+            break;
             default:
                 return super.bulkInsert(uri, contentValues);
         }

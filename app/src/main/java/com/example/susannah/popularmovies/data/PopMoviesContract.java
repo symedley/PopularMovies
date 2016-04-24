@@ -210,4 +210,40 @@ public class PopMoviesContract {
             return uri.getPathSegments().get(1);
         }
     }
+
+    /**
+     * MovieFavoriteTmdId - if the TMD Movie ID is in here, it is a user favorite. This allows
+     * persistence when changing the sort order between most popular and highest rated.
+     * Because the latter changes the contents of the database, if the favorites information
+     * were only in the PopMovies table, it would be lost with each refresh.
+     * <p/>
+     * Does not need to implement BaseColumns because it's just an integer.
+     */
+    public static final class MovieImages implements BaseColumns {
+        public static final String TABLE_MOVIE_IMAGES = "movieImages";
+
+        // Columns
+        public static final String COLUMN_MOVIE_TMDID = "MovieID";
+        public static final String COLUMN_IMAGE_DATA = "ImageData";
+        // create content uri
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(TABLE_MOVIE_IMAGES).build();
+        // create cursor of base type directory for multiple entries
+        public static final String CONTENT_DIR_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_IMAGES;
+        // create cursor of base type item for single entry
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_IMAGES;
+
+        // for building URIs by Movie ID (the TmdID returned by theMovieDB)
+        public static Uri buildMovieImagesUriWith_Id(long _id) {
+            return ContentUris.withAppendedId(CONTENT_URI, _id);
+        }
+
+        // This is for finding all images in the table
+        public static Uri buildMovieFavoritesAll() {
+            return CONTENT_URI;
+        }
+
+    }
 }

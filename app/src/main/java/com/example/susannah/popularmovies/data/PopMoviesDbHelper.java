@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Popular Movies database helpder creates the tables using SQL Strings, handles database upgrades
+ * Popular Movies database helper creates the tables using SQL Strings, handles database upgrades
  * <p/>
  * Created by Susannah on 2/20/2016.
  */
@@ -15,7 +15,7 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     private static final String DATABASE_NAME = "popmovies.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version
@@ -95,6 +95,13 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID + " INTEGER NOT NULL); ";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_FAVORITES);
+
+        final String SQL_CREATE_MOVIE_IMAGES = "CREATE TABLE " +
+                PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES + "(" +
+                PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " INTEGER NOT NULL, " +
+                PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA + " BLOB); ";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_IMAGES);
     }
 
     // Upgrade the database when the version is changed. Just drop the table and recreate it.
@@ -120,7 +127,8 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieFavoriteTmdId.OLD_TABLE_MOVIE_FAVORITES);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.MovieFavoriteTmdId.OLD_TABLE_MOVIE_FAVORITES + "'");
-
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
+                PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES + "'");
         onCreate(sqLiteDatabase);
     }
 }
