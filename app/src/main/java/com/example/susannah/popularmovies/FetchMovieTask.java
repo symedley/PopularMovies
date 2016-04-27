@@ -3,11 +3,15 @@ package com.example.susannah.popularmovies;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -135,7 +139,7 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             voteAverage = Float.parseFloat(oneMovieJson.getString(TMD_VOTE_AVERAGE));
 
             ContentValues movieValues = new ContentValues();
-            ContentValues favoritesValues;
+//            ContentValues favoritesValues;
 
             String fullPosterPath = posterPath.replaceFirst("/", "");
 
@@ -201,6 +205,27 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
                         cVFavsVector.toArray(new ContentValues[cVFavsVector.size()]));
                 if (count != cVFavsVector.size())
                     Log.d(LOG_TAG, "the number of favorites added doesn't match the number we TRIED to add");
+//                // Now make sure the favorites movie poster bitmaps are saved locally.
+//                for ( ContentValues cvs : cVFavsVector) {
+//                    String uri = Uri.encode( cvs.getAsString(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI));
+//                    Target target =  new Target() {
+//                        @Override
+//                        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+//                            Log.v(LOG_TAG, bitmap.toString());
+//                        }
+//                        @Override
+//                        public void onPrepareLoad(Drawable drawable) {
+//
+//                        }
+//                        @Override
+//                        public void onBitmapFailed(Drawable drawable) {
+//
+//                        }
+//                    };
+//                    Picasso.with( mContext)
+//                            .load(uri)
+//                            .into(target);
+//                }
             }
             count = mContext.getContentResolver().delete(PopMoviesContract.MovieToGenresEntry.CONTENT_URI, null, null);
             if (movieToGenres.size() > 0) {

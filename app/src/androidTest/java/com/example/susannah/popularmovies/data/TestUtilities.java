@@ -4,7 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.test.AndroidTestCase;
+
+import com.example.susannah.popularmovies.R;
+import com.example.susannah.popularmovies.R.drawable;
 
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +75,16 @@ public class TestUtilities extends AndroidTestCase {
         favValues.put(PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID,
                 TEST_GENRE_ID); //(2)
         return favValues;
+    }
+
+    static ContentValues createMovieImageValues(Context context) {
+        ContentValues imageValues = new ContentValues();
+        imageValues.put(PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID,
+                TEST_GENRE_ID); //(2)
+        Bitmap b = BitmapFactory.decodeResource(context.getResources(), drawable.thumb_w200);
+        byte[] imageBytes = DbBitmapUtility.getBytes( b );
+        imageValues.put(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA, imageBytes );
+        return imageValues;
     }
 
     static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {

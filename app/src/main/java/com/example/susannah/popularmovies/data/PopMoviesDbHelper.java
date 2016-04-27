@@ -14,7 +14,7 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = PopMoviesDbHelper.class.getSimpleName();
 
     // DB name and version
-    private static final String DATABASE_NAME = "popmovies.db";
+    protected static final String DATABASE_NAME = "popmovies.db";
     private static final int DATABASE_VERSION = 8;
 
     public PopMoviesDbHelper(Context context) {

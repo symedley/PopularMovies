@@ -1,8 +1,12 @@
 package com.example.susannah.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -19,8 +23,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.example.susannah.popularmovies.data.DbBitmapUtility;
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 /**
  * MainActivityFragment is where most of the action happens. Holds the array of data and the grid adapter.
@@ -254,6 +260,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                                 null,
                                 mSortOrder
                         );
+                verifyThatFavoriteBitmapsAreSaved();
             } else {
                 updateMovies();
                 // DO initiate a network call to tmdb. And reset the cursor so
@@ -270,6 +277,58 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             mPopMovieAdapter.swapCursor(mCursor);
             getActivity().setTitle(mSortOrderTitle);
         }
+    }
+
+    private void verifyThatFavoriteBitmapsAreSaved() {
+        if (mCursor==null) return;
+        try {
+            mCursor.moveToFirst();
+            do {
+                int idx = mCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+                final int tmdId = mCursor.getInt(idx);
+                idx = mCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
+                String posterPath = mCursor.getString(idx);
+
+                Cursor imageEntry = getActivity().getContentResolver().query(PopMoviesContract.MovieImages.CONTENT_URI,
+                        null,
+                        PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " =? ",
+                        new String[] {String.valueOf(tmdId)},
+                        null);
+                if ((imageEntry == null ) || (imageEntry.getCount()==0)) {
+                    // The image entry for this TmdId is missing, so try to get it and insert it in the database
+                    Target target =  new Target() {
+                        @Override
+                        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                            Log.v(LOG_TAG, bitmap.toString());
+                            // Now save an entry to the MovieImages table.
+                            // gawd, this is convoluted.
+                            ContentValues imageCvs = new ContentValues();
+                            imageCvs.put(PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID, tmdId);
+                            byte[] byteBitmap = DbBitmapUtility.getBytes(bitmap);
+                            imageCvs.put(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA, byteBitmap);
+                            Uri uri =  getActivity().getContentResolver().insert(
+                                    PopMoviesContract.MovieImages.CONTENT_URI,
+                                    imageCvs);
+                        }
+                        @Override
+                        public void onPrepareLoad(Drawable drawable) {
+
+                        }
+                        @Override
+                        public void onBitmapFailed(Drawable drawable) {
+
+                        }
+                    };
+                    Picasso.with( getContext())
+                            .load(posterPath)
+                            .into(target);
+                    imageEntry.close();
+                }
+            } while (mCursor.moveToNext());
+        } finally {
+            Log.v(LOG_TAG, "Finished checking for images in the database of the favorite movies.");
+        }
+
     }
 
     @Override

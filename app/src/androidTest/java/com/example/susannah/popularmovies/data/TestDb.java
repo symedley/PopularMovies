@@ -49,6 +49,11 @@ public class TestDb extends AndroidTestCase {
         testValues = TestUtilities.createMovieFavoriteValues();
         locationRowId = db.insert(PopMoviesContract.MovieFavoriteTmdId.TABLE_MOVIE_FAVORITE_TMDIDS, null, testValues);
         assertTrue("Failure to insert Fav values", locationRowId != -1);
+
+        // Image table
+        testValues = TestUtilities.createMovieImageValues(getContext());
+        locationRowId = db.insert(PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES, null, testValues);
+        assertTrue("Failure to insert Image values", locationRowId != -1);
         db.close();
     }
 }

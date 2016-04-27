@@ -2,18 +2,27 @@ package com.example.susannah.popularmovies;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
+import android.database.SQLException;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
+import com.example.susannah.popularmovies.data.DbBitmapUtility;
 import com.example.susannah.popularmovies.data.PopMoviesContract;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 /**
  * Display the movie data in the cursor as a grid.
- *
+ * <p/>
  * Created by Susannah on 2/23/2016.
  */
 class PopMovieAdapter extends CursorAdapter {
@@ -54,23 +63,66 @@ class PopMovieAdapter extends CursorAdapter {
     /**
      * Binds an image to one "cell" of the grid adapter
      *
-     * @param view      the part of the screen in which to bind
-     * @param context   the context
-     * @param cursor      The data that was returned from the database and must now be displayed.
+     * @param view    the part of the screen in which to bind
+     * @param context the context
+     * @param cursor  The data that was returned from the database and must now be displayed.
      */
     @Override
-        public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, final Cursor cursor) {
 
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        final ViewHolder viewHolder = (ViewHolder) view.getTag();
         // pull the data we need to display out of the cursor
         // the idx thing could be replaced by a "projection" into the database
         int idx = cursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
         String posterPathUri = cursor.getString(idx);
 
+
+        // look in the images table that holds posters of the favorites
+        // and retrieve the bitmap in case Picasso fails because the network is not available.
+        idx = cursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+        int tmdId = cursor.getInt(idx);
+        Bitmap bm;
+        Drawable errorImage = null;
+        Cursor imageCursor = null;
+        try {
+            imageCursor = mContext.getContentResolver().query(
+                    PopMoviesContract.MovieImages.CONTENT_URI,
+                    null,
+                    PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " =? ",
+                    new String[]{String.valueOf(tmdId)},
+                    null);
+            // TODO catch null errors and not-found errors here.  I want to do a try...catch, but I don't know which exceptions to handle!
+            idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
+            imageCursor.moveToFirst();
+            byte[] bytes = imageCursor.getBlob(idx);
+            bm = DbBitmapUtility.getImage(bytes);
+            errorImage = new BitmapDrawable(mContext.getResources(), bm);
+        } catch (CursorIndexOutOfBoundsException e) {
+            // It's not in the database table. That's okay.
+        } catch (NullPointerException e) {
+            // The Bitmap could not be created because something along the chain went wrong.
+        } catch (SQLException e) {
+            // The Cursor doesn't have the format we expect. Probably image not found in table. That's okay.
+        } finally {
+            if (imageCursor != null) imageCursor.close();
+        }
+
+        if (errorImage == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                errorImage = mContext.getResources().getDrawable(R.drawable.thumb_w342, mContext.getTheme());
+            } else {
+                errorImage = mContext.getResources().getDrawable(R.drawable.thumb_w342);
+            }
+        }
+
         if (posterPathUri != null) {
-            Picasso.with(context).load(posterPathUri).fit().centerCrop().placeholder(R.drawable.thumb_w342).error(R.drawable.thumb_w342).into(viewHolder.imageView);
+            Picasso.with(context).load(posterPathUri)
+                    .fit().centerCrop()
+                    .placeholder(errorImage)
+                    .error(errorImage)
+                    .into(viewHolder.imageView);
         } else {
-            viewHolder.imageView.setImageResource( R.drawable.thumb );
+            viewHolder.imageView.setImageResource(R.drawable.thumb);
         }
     }
 }

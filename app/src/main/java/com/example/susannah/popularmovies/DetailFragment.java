@@ -7,7 +7,13 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
+import android.database.SQLException;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -18,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.susannah.popularmovies.data.DbBitmapUtility;
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
 
@@ -146,9 +153,42 @@ public class DetailFragment extends Fragment {
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
             // thumbView.setImageResource(R.drawable.thumb);
 
+            // look in the images table that holds posters of the favorites
+            Bitmap bm;
+            Drawable errorImage = null;
+            Cursor imageCursor = null;
+            try {
+                imageCursor = getActivity().getContentResolver().query(
+                        PopMoviesContract.MovieImages.CONTENT_URI,
+                        null,
+                        PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " =? ",
+                        new String[]{String.valueOf(mTmdId)},
+                        null);
+                int idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
+                imageCursor.moveToFirst();
+                byte[] bytes = imageCursor.getBlob(idx);
+                bm = DbBitmapUtility.getImage(bytes);
+                errorImage = new BitmapDrawable(getResources(), bm);
+            } catch (CursorIndexOutOfBoundsException e) {
+                // It's not in the database table. That's okay.
+            } catch (NullPointerException e) {
+                // The Bitmap could not be created because something along the chain went wrong.
+            } catch (SQLException e) {
+                // The Cursor doesn't have the format we expect. Probably image not found in table. That's okay.
+            } finally {
+                if (imageCursor != null) imageCursor.close();
+            }
+
+            if (errorImage == null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    errorImage = getActivity().getResources().getDrawable(R.drawable.thumb_w342, getActivity().getTheme());
+                } else {
+                    errorImage = getActivity().getResources().getDrawable(R.drawable.thumb_w342);
+                }
+            }
             // Use the movie database URI of the image and picasso to get the movie poster image to display.
             if (mPosterPathUriString != null) {
-                Picasso.with(context).load(mPosterPathUriString).placeholder(R.drawable.thumb_w342).error(drawable.thumb_w342).into(thumbView);
+                Picasso.with(context).load(mPosterPathUriString).placeholder(errorImage).error(errorImage).into(thumbView);
             }
 
             final ImageButton favButton = (ImageButton) root.findViewById(id.toggleFavoriteBtn);
