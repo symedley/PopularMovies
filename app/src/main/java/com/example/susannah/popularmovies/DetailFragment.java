@@ -15,7 +15,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -127,9 +126,11 @@ public class DetailFragment extends Fragment {
                     m_id = movieCursor.getInt(idx);
                     idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE);
                     mIsFavorite = (movieCursor.getInt(idx) == 1);
-                    movieCursor.close();
                 } else {
                     Log.d(LOG_TAG, "The movie with TmdId of " + mTmdId + " was not found in either table.");
+                }
+                if (movieCursor != null) {
+                    movieCursor.close();
                 }
             }
 
@@ -154,29 +155,11 @@ public class DetailFragment extends Fragment {
             // thumbView.setImageResource(R.drawable.thumb);
 
             // look in the images table that holds posters of the favorites
-            Bitmap bm;
+            final Bitmap posterBitmap;
+            posterBitmap = getImageFromDatabaseTable(mTmdId);
             Drawable errorImage = null;
-            Cursor imageCursor = null;
-            try {
-                imageCursor = getActivity().getContentResolver().query(
-                        PopMoviesContract.MovieImages.CONTENT_URI,
-                        null,
-                        PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " =? ",
-                        new String[]{String.valueOf(mTmdId)},
-                        null);
-                int idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
-                imageCursor.moveToFirst();
-                byte[] bytes = imageCursor.getBlob(idx);
-                bm = DbBitmapUtility.getImage(bytes);
-                errorImage = new BitmapDrawable(getResources(), bm);
-            } catch (CursorIndexOutOfBoundsException e) {
-                // It's not in the database table. That's okay.
-            } catch (NullPointerException e) {
-                // The Bitmap could not be created because something along the chain went wrong.
-            } catch (SQLException e) {
-                // The Cursor doesn't have the format we expect. Probably image not found in table. That's okay.
-            } finally {
-                if (imageCursor != null) imageCursor.close();
+            if (posterBitmap != null) {
+                errorImage = new BitmapDrawable(getResources(), posterBitmap);
             }
 
             if (errorImage == null) {
@@ -223,13 +206,19 @@ public class DetailFragment extends Fragment {
 
 
                                 // delete from the favoriteMovies table.
+                                String sTmdId = String.valueOf(mTmdId);
                                 uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
-                                int count = getActivity().getContentResolver().delete(uri,
+                                int count = getActivity().getContentResolver().delete(
+                                        uri,
                                         PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
-                                        new String[]{String.valueOf(mTmdId)});
+                                        new String[]{sTmdId});
+                                // Delete the bitmap from the table of movie posters of favorites.
+                                count = getActivity().getContentResolver().delete(
+                                        PopMoviesContract.MovieImages.CONTENT_URI,
+                                        PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + "=?",
+                                        new String[]{sTmdId});
 
                                 favButton.setSelected(Boolean.FALSE);
-
 
                             } else {
                                 // User wants to make this a favorite.
@@ -254,6 +243,10 @@ public class DetailFragment extends Fragment {
                                         PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
                                         new String[]{String.valueOf(mTmdId)});
                                 uri = getActivity().getContentResolver().insert(movieUri, cv);
+
+                                // In a background task, store this movie's poster.
+                                StoreFavoritesPosters storeFavoritesPostersTask = new StoreFavoritesPosters(getActivity());
+                                storeFavoritesPostersTask.execute(Integer.valueOf(mTmdId));
 
                                 favButton.setSelected(Boolean.TRUE);
                             }
@@ -325,6 +318,49 @@ public class DetailFragment extends Fragment {
             retval.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, intVal);
         } else {
             retval = null;
+        }
+        return retval;
+    }
+
+    private Bitmap getImageFromDatabaseTable(int tmdId) {
+        Cursor imageCursor = null;
+        Bitmap retval = null;
+        try
+        {
+            imageCursor = getActivity().getContentResolver().query(
+                    PopMoviesContract.MovieImages.CONTENT_URI,
+                    null,
+                    PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " =? ",
+                    new String[]{String.valueOf(tmdId)},
+                    null);
+            int idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
+            imageCursor.moveToFirst();
+            byte[] bytes = imageCursor.getBlob(idx);
+            retval = DbBitmapUtility.getImage(bytes);
+        } catch (
+                CursorIndexOutOfBoundsException e
+                )
+
+        {
+            // It's not in the database table. That's okay.
+        }
+//        catch (
+//                NullPointerException e
+//                )
+//
+//        {
+//            // The Bitmap could not be created because something along the chain went wrong.
+//        }
+        catch (
+                SQLException e
+                )
+
+        {
+            // The Cursor doesn't have the format we expect. Probably image not found in table. That's okay.
+        } finally
+
+        {
+            if (imageCursor != null) imageCursor.close();
         }
         return retval;
     }

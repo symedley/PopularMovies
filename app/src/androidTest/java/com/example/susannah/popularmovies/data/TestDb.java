@@ -13,7 +13,7 @@ import android.util.Log;
 public class TestDb extends AndroidTestCase {
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
-    void deleteTheDatabase() {
+    private void deleteTheDatabase() {
         mContext.deleteDatabase(PopMoviesDbHelper.DATABASE_NAME);
     }
 
@@ -29,6 +29,7 @@ public class TestDb extends AndroidTestCase {
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
         assertTrue("Error: This means that the database has not been created correctly",
                 c.moveToFirst());
+        c.close();
 
         Log.v(LOG_TAG," c.getCount() " + c.getCount() );
 

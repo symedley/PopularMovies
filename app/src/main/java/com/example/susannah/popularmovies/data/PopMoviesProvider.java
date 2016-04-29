@@ -61,8 +61,7 @@ public class PopMoviesProvider extends ContentProvider {
         matcher.addURI(authority, PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES, ALL_FAVORITE_MOVIES);
         matcher.addURI(authority, PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES + "/#", FAVORITE_MOVIE_WITH_ID);
         matcher.addURI(authority, PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES, ALL_MOVIE_IMAGES);
-        // Don't use the URI format where TMD ID is where the ID usually is because it's just too confusing.
-       // matcher.addURI(authority, PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES + "/#", MOVIE_IMAGE_WITH_TMDID);
+        // Don't use the URI format where TMD ID is where the ID usually is because it's just too confusing. TMDID vs _ID
 
         return matcher;
     }
@@ -425,6 +424,7 @@ public class PopMoviesProvider extends ContentProvider {
                 // reset _ID ?
                 break;
             case FAVORITE_MOVIE_WITH_ID:
+                // Note that this is the _ID,  not the TMDID
                 count = db.delete(
                         PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES,
                         PopMoviesContract.FavoriteMovieEntry._ID + " = ?",

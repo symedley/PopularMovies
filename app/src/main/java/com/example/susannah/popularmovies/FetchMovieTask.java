@@ -3,15 +3,11 @@ package com.example.susannah.popularmovies;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +33,7 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     private final Context mContext;
-    private Boolean mSortPopular;
+    private final Boolean mSortPopular;
 
     public FetchMovieTask(Boolean sortPop, Context context) {
         mSortPopular = sortPop;
@@ -110,7 +106,7 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         if (favs != null) {
             while (favs.moveToNext()) {
                 int ti = favs.getInt(0);
-                boolean add = favorites.add(ti);
+                favorites.add(ti);
             }
             favs.close();
         }
@@ -203,29 +199,7 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             if (cVFavsVector.size() > 0) {
                 mContext.getContentResolver().bulkInsert(PopMoviesContract.FavoriteMovieEntry.CONTENT_URI,
                         cVFavsVector.toArray(new ContentValues[cVFavsVector.size()]));
-                if (count != cVFavsVector.size())
-                    Log.d(LOG_TAG, "the number of favorites added doesn't match the number we TRIED to add");
-//                // Now make sure the favorites movie poster bitmaps are saved locally.
-//                for ( ContentValues cvs : cVFavsVector) {
-//                    String uri = Uri.encode( cvs.getAsString(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI));
-//                    Target target =  new Target() {
-//                        @Override
-//                        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-//                            Log.v(LOG_TAG, bitmap.toString());
-//                        }
-//                        @Override
-//                        public void onPrepareLoad(Drawable drawable) {
-//
-//                        }
-//                        @Override
-//                        public void onBitmapFailed(Drawable drawable) {
-//
-//                        }
-//                    };
-//                    Picasso.with( mContext)
-//                            .load(uri)
-//                            .into(target);
-//                }
+
             }
             count = mContext.getContentResolver().delete(PopMoviesContract.MovieToGenresEntry.CONTENT_URI, null, null);
             if (movieToGenres.size() > 0) {
@@ -239,8 +213,11 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             return Boolean.FALSE;
         }
 
+        // Now that the movie entries have been downloaded, start a new ASync task
+        // to check that the bitmaps for posters of favorite movies are stored.
+        StoreFavoritesPosters storeFavoritesPostersTask = new StoreFavoritesPosters(mContext);
+        storeFavoritesPostersTask.execute();
         return Boolean.TRUE;
-        //return resultStrs;
     }
 
     /*

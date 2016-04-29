@@ -6,11 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.test.AndroidTestCase;
 
-import com.example.susannah.popularmovies.R;
 import com.example.susannah.popularmovies.R.drawable;
 
 import java.util.Map;

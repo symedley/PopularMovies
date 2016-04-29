@@ -44,8 +44,8 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT + " INTEGER NOT NULL, " +
                 PopMoviesContract.PopMovieEntry.COLUMN_VIDEO + " INTEGER NOT NULL, " + // Boolean
                 PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE + " REAL NOT NULL, " +
-                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + " INTEGER NOT NULL, " +
-                "UNIQUE (" + PopMoviesContract.PopMovieEntry.COLUMN_TMDID + " ));";  // Boolean
+                PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE + " INTEGER NOT NULL, " + // Boolean
+                "UNIQUE (" + PopMoviesContract.PopMovieEntry.COLUMN_TMDID + " ));";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
 
@@ -99,7 +99,8 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIE_IMAGES = "CREATE TABLE " +
                 PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES + "(" +
                 PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " INTEGER NOT NULL, " +
-                PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA + " BLOB); ";
+                PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA + " BLOB, "+
+                "UNIQUE (" + PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " ))); ";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_IMAGES);
     }

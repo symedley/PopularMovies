@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import android.widget.ImageView;
 
 import com.example.susannah.popularmovies.data.DbBitmapUtility;
 import com.example.susannah.popularmovies.data.PopMoviesContract;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -28,7 +26,7 @@ import com.squareup.picasso.Picasso;
 class PopMovieAdapter extends CursorAdapter {
 
     private static final String LOG_TAG = PopMovieAdapter.class.getSimpleName();
-    private Context mContext;
+    private final Context mContext;
 
     public static class ViewHolder {
         public final ImageView imageView;
@@ -97,10 +95,8 @@ class PopMovieAdapter extends CursorAdapter {
             byte[] bytes = imageCursor.getBlob(idx);
             bm = DbBitmapUtility.getImage(bytes);
             errorImage = new BitmapDrawable(mContext.getResources(), bm);
-        } catch (CursorIndexOutOfBoundsException e) {
+        } catch (CursorIndexOutOfBoundsException | NullPointerException e) {
             // It's not in the database table. That's okay.
-        } catch (NullPointerException e) {
-            // The Bitmap could not be created because something along the chain went wrong.
         } catch (SQLException e) {
             // The Cursor doesn't have the format we expect. Probably image not found in table. That's okay.
         } finally {

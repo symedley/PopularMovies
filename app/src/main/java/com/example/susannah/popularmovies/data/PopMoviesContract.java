@@ -71,7 +71,7 @@ public class PopMoviesContract {
      * The column name constants from PopMovieEntry are reused.
      *
      * Note that the column _ID here will be the database generated ID of
-     * the popMovies table entry. TODO check this
+     * the popMovies table entry.
      */
     public static final class FavoriteMovieEntry implements BaseColumns {
         // Table name
@@ -93,9 +93,7 @@ public class PopMoviesContract {
         public static Uri buildFavoriteMoviesUriBy_Id(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
-        public static Uri buildFavoriteMoviesUriByTitle(String title) {
-            return CONTENT_URI.buildUpon().appendPath(title).build();
-        }
+
         public static Uri buildAllFavoriteMoviesUri() {
             return CONTENT_URI.buildUpon().build();
         }
