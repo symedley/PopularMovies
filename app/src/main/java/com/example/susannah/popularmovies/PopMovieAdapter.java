@@ -113,7 +113,6 @@ class PopMovieAdapter extends CursorAdapter {
 
         if (posterPathUri != null) {
             Picasso.with(context).load(posterPathUri)
-                    .fit().centerCrop()
                     .placeholder(errorImage)
                     .error(errorImage)
                     .into(viewHolder.imageView);

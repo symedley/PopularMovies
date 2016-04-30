@@ -135,16 +135,16 @@ public class DetailFragment extends Fragment {
             }
 
             TextView tvOrigTitle = (TextView) root.findViewById(id.original_title);
-            getActivity().setTitle(mOriginalTitle);
+            getActivity().setTitle(mTitle);
             // ((TextView) root.findViewById(id.title)).setText(mTitle);
 
-            tvOrigTitle.setText(mOriginalTitle);
-            if ((mOriginalTitle.isEmpty()) && !(mOriginalTitle.equals(mTitle))) {
-                tvOrigTitle.setVisibility(View.VISIBLE);
-            } else {
-                tvOrigTitle.setVisibility(View.GONE);
-            }
 
+            if ((mOriginalTitle.isEmpty()) || (mOriginalTitle.equals(mTitle))) {
+                tvOrigTitle.setVisibility(View.GONE);
+            } else {
+                tvOrigTitle.setText("Original Title: " + mOriginalTitle);
+                tvOrigTitle.setVisibility(View.VISIBLE);
+            }
 
             ((TextView) root.findViewById(id.synopsis)).setText(mSynopsis);
             ((TextView) root.findViewById(id.rating)).setText( // voteAverage == rating
@@ -171,7 +171,11 @@ public class DetailFragment extends Fragment {
             }
             // Use the movie database URI of the image and picasso to get the movie poster image to display.
             if (mPosterPathUriString != null) {
-                Picasso.with(context).load(mPosterPathUriString).placeholder(errorImage).error(errorImage).into(thumbView);
+                Picasso.with(context)
+                        .load(mPosterPathUriString)
+                        .placeholder(errorImage)
+                        .error(errorImage)
+                        .into(thumbView);
             }
 
             final ImageButton favButton = (ImageButton) root.findViewById(id.toggleFavoriteBtn);
