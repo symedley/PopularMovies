@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -38,7 +39,9 @@ public class PopMoviesProvider extends ContentProvider {
     private static final int FAVORITE_MOVIE_WITH_ID = 1100;
     // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
     private static final int ALL_MOVIE_IMAGES = 1200;
-//    private static final int MOVIE_IMAGE_WITH_TMDID = 1300;
+    //    private static final int MOVIE_IMAGE_WITH_TMDID = 1300;
+    private static final int ALL_REVIEWS = 1300;
+    // Videos should be handled by the default case. I'm being lazy.
 
     //The Query builder might only be needed if you're defining a JOIN between tables
     //private static final SQLiteQueryBuilder sSQLiteQueryBuilder;
@@ -61,6 +64,7 @@ public class PopMoviesProvider extends ContentProvider {
         matcher.addURI(authority, PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES, ALL_FAVORITE_MOVIES);
         matcher.addURI(authority, PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES + "/#", FAVORITE_MOVIE_WITH_ID);
         matcher.addURI(authority, PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES, ALL_MOVIE_IMAGES);
+        matcher.addURI(authority, PopMoviesContract.ReviewEntry.TABLE_REVIEWS, ALL_REVIEWS);
         // Don't use the URI format where TMD ID is where the ID usually is because it's just too confusing. TMDID vs _ID
 
         return matcher;
@@ -140,6 +144,9 @@ public class PopMoviesProvider extends ContentProvider {
             case ALL_MOVIE_IMAGES: {
                 return PopMoviesContract.MovieImages.CONTENT_DIR_TYPE;
             }
+            case ALL_REVIEWS: {
+                return PopMoviesContract.MovieImages.CONTENT_DIR_TYPE;
+            }
 //            case MOVIE_IMAGE_WITH_TMDID:
 //                return PopMoviesContract.MovieImages.CONTENT_ITEM_TYPE;
             default: {
@@ -148,6 +155,16 @@ public class PopMoviesProvider extends ContentProvider {
         }
     }
 
+    /**
+     * It seems really silly that for each new table, i have to add a new URI type and add handling for the URI type inso many places
+     *
+     * @param uri - determines the type of thing we're looking for
+     * @param projection - which columns to get
+     * @param selection - WHERE (some conditional)
+     * @param selectionArgs the conditional
+     * @param sortOrder sorted by which column?
+     * @return Cursor of the found table rows
+     */
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
@@ -297,7 +314,19 @@ public class PopMoviesProvider extends ContentProvider {
 //            }
 
             default: {
-                throw new UnsupportedOperationException("Unknown uri " + uri);
+                try {
+                    retCursor = mOpenHelper.getReadableDatabase().query(
+                            uri.getLastPathSegment(),
+                            projection,
+                            selection,
+                            selectionArgs,
+                            null,
+                            null,
+                            sortOrder);
+                } catch (SQLiteException e) {
+                    Log.e(LOG_TAG, "SQL exception: " + e.toString());
+                    throw new UnsupportedOperationException("Unknown uri " + uri);
+                }
             }
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -369,7 +398,7 @@ public class PopMoviesProvider extends ContentProvider {
                 }
                 break;
             }
-            case MOVIE_FAVORITES_WITH_TMDID:{
+            case MOVIE_FAVORITES_WITH_TMDID: {
                 long _id = mOpenHelper.getReadableDatabase().insert(
                         PopMoviesContract.MovieFavoriteTmdId.TABLE_MOVIE_FAVORITE_TMDIDS,
                         null,
@@ -394,10 +423,23 @@ public class PopMoviesProvider extends ContentProvider {
                 break;
             }
             default: {
-                throw new UnsupportedOperationException("Unknown uri " + uri);
+                try {
+                    long _id = mOpenHelper.getReadableDatabase().insert(
+                            uri.getLastPathSegment(),
+                            null,
+                            contentValues);
+                    if (_id > 0) {
+                        returnUri = PopMoviesContract.MovieImages.buildMovieImagesUriWith_Id(_id);
+                    } else {
+                        throw new android.database.SQLException("Failed to insert row into: " + uri);
+                    }
+                } catch (SQLiteException e) {
+                    Log.e(LOG_TAG, "SQL exception: " + e.toString());
+                    throw e;
+                }
             }
+            getContext().getContentResolver().notifyChange(uri, null);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
     }
 
@@ -465,18 +507,26 @@ public class PopMoviesProvider extends ContentProvider {
                 break;
             // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
             // to specify the TMDID.
-            case ALL_MOVIE_IMAGES: {
+            case ALL_MOVIE_IMAGES:
                 count = db.delete(
                         PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
                         selection,
                         selectionArgs);
                 break;
+            default: {
+                try {
+                    count = db.delete(
+                            uri.getLastPathSegment(),
+                            selection,
+                            selectionArgs);
+                } catch (SQLiteException e) {
+                    Log.e(LOG_TAG, "SQL exception: " + e.toString());
+                    throw e;
+                }
             }
-            default:
-                throw new UnsupportedOperationException("Unknown uri in delete: " + uri);
-        }
-        if (count != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            if (count != 0) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
         return count;
     }
@@ -556,11 +606,16 @@ public class PopMoviesProvider extends ContentProvider {
                         PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
                         contentValues,
                         selection,
-                       selectionArgs);
+                        selectionArgs);
                 break;
             }
             default: {
-                throw new UnsupportedOperationException("Unknown uri in update: " + uri);
+                count = mOpenHelper.getReadableDatabase().update(
+                        uri.getLastPathSegment(),
+                        contentValues,
+                        selection,
+                        selectionArgs);
+              //  throw new UnsupportedOperationException("Unknown uri in update: " + uri);
             }
         }
         if (count > 0) {
@@ -733,38 +788,69 @@ public class PopMoviesProvider extends ContentProvider {
             // The URI format is for "all images" in the table, but it will be used with a selection and selection arg
             // to specify the TMDID.            case MOVIE_FAVORITES_IDS:
             case ALL_MOVIE_IMAGES:
-            db.beginTransaction();
+                db.beginTransaction();
 
-            try {
-                for (ContentValues value : contentValues) {
-                    if (value == null) {
-                        throw new IllegalArgumentException("Cannot have null content values");
+                try {
+                    for (ContentValues value : contentValues) {
+                        if (value == null) {
+                            throw new IllegalArgumentException("Cannot have null content values");
+                        }
+                        long _id = -1;
+                        try {
+                            _id = db.insertOrThrow(
+                                    PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
+                                    null,
+                                    value);
+                        } catch (SQLiteConstraintException e) {
+                            Log.w(LOG_TAG, "Attempting to insert " +
+                                    value.getAsString(
+                                            PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID)
+                                    + " but perhaps the value is already in the database.");
+                        }
+                        if (_id != -1) {
+                            count++;
+                        }
                     }
-                    long _id = -1;
-                    try {
-                        _id = db.insertOrThrow(
-                                PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES,
-                                null,
-                                value);
-                    } catch (SQLiteConstraintException e) {
-                        Log.w(LOG_TAG, "Attempting to insert " +
-                                value.getAsString(
-                                        PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID)
-                                + " but perhaps the value is already in the database.");
+                    if (count > 0) {
+                        db.setTransactionSuccessful();
                     }
-                    if (_id != -1) {
-                        count++;
-                    }
+                } finally {
+                    db.endTransaction();
                 }
-                if (count > 0) {
-                    db.setTransactionSuccessful();
+                break;
+            //
+            case ALL_REVIEWS:
+                db.beginTransaction();
+
+                try {
+                    for (ContentValues value : contentValues) {
+                        if (value == null) {
+                            throw new IllegalArgumentException("Cannot have null content values");
+                        }
+                        long _id = -1;
+                        try {
+                            _id = db.insertOrThrow(
+                                    PopMoviesContract.ReviewEntry.TABLE_REVIEWS,
+                                    null,
+                                    value);
+                        } catch (SQLiteConstraintException e) {
+                            Log.w(LOG_TAG, "Attempting to insert " +
+                                    value.getAsString( PopMoviesContract.ReviewEntry.COLUMN_TMDID)
+                                    + " but something went wrong." + e.getMessage() + " " + e.getCause());
+                        }
+                        if (_id != -1) {
+                            count++;
+                        }
+                    }
+                    if (count > 0) {
+                        db.setTransactionSuccessful();
+                    }
+                } finally {
+                    db.endTransaction();
                 }
-            } finally {
-                db.endTransaction();
-            }
-            break;
+                break;
             default:
-                return super.bulkInsert(uri, contentValues);
+                count = super.bulkInsert(uri, contentValues);
         }
         if (count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);

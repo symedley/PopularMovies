@@ -15,7 +15,8 @@
     <string name="pref_sort_key" translatable="false">Sort</string>
 
     <string name="pref_sort_popular" translatable="false">Popular</string>
-    <string name="pref_sort_rated" translatable="false">VoteAverage</string> // the database column is VoteAverage
+    <string name="pref_sort_rated" translatable="false">VoteAverage</string>
+    // the database column is VoteAverage
     <string name="pref_sort_favorites" translatable="false">Favorites</string>
     <string name="pref_sort_default" translatable="false">VoteAverage</string>
     <string name="pref_sort_label_popular" translatable="true">Most popular</string>
@@ -40,5 +41,45 @@
     <string name="_movies">" movies"</string>
     <string name="favorite">Favorite</string>
     <string name="movie_poster">Movie poster</string>
+    <string name="reviews">Reviews</string>
+    <string name="title_activity_reviews">ReviewsActivity</string>
+    <string name="large_text">
+        "Material is the metaphor.\n\n"
+
+        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
+        "The material is grounded in tactile reality, inspired by the study of paper and ink, yet "
+        "technologically advanced and open to imagination and magic.\n"
+        "Surfaces and edges of the material provide visual cues that are grounded in reality. The "
+        "use of familiar tactile attributes helps users quickly understand affordances. Yet the "
+        "flexibility of the material creates new affordances that supercede those in the physical "
+        "world, without breaking the rules of physics.\n"
+        "The fundamentals of light, surface, and movement are key to conveying how objects move, "
+        "interact, and exist in space and in relation to each other. Realistic lighting shows "
+        "seams, divides space, and indicates moving parts.\n\n"
+
+        "Bold, graphic, intentional.\n\n"
+
+        "...\n\n"
+
+        "Components with responsive elevations may encounter other components as they move between "
+        "their resting elevations and dynamic elevation offsets. Because material cannot pass "
+        "through other material, components avoid interfering with one another any number of ways, "
+        "whether on a per component basis or using the entire app layout.\n"
+        "On a component level, components can move or be removed before they cause interference. "
+        "For example, a floating action button (FAB) can disappear or move off screen before a "
+        "user picks up a card, or it can move if a snackbar appears.\n"
+        "On the layout level, design your app layout to minimize opportunities for interference. "
+        "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
+        "when a user tries to pick up one of cards.\n\n"
+    </string>
+    <string name="by">By</string>
+    <string name="paren_author_paren">(author)</string>
+    <string name="paren_review_text_paren">(review text)</string>
+    <string name="read_reviews">Read reviews</string>
+    <string name="videos">Videos</string>
+    <string name="original_title_colon">"Original Title: "</string>
+    <string name="found">"Found "</string>
+    <string name="found_n_reviews">Found %d reviews.</string>
+    <string name="found_n_videos">Found %d videos.</string>
 
 </resources>

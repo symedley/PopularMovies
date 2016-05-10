@@ -213,10 +213,6 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             return Boolean.FALSE;
         }
 
-        // Now that the movie entries have been downloaded, start a new ASync task
-        // to check that the bitmaps for posters of favorite movies are stored.
-        StoreFavoritesPosters storeFavoritesPostersTask = new StoreFavoritesPosters(mContext);
-        storeFavoritesPostersTask.execute();
         return Boolean.TRUE;
     }
 
@@ -237,6 +233,8 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
 
         // Will contain the raw JSON response as a string.
         String moviesJsonStr = null;
+
+        Boolean retval;
 
         final String API_KEY_PARAM = "api_key";
         final String TOP_RATED = "top_rated";
@@ -308,12 +306,14 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         }
 
         try {
-            return getMovieDataFromJson(moviesJsonStr);
+            retval = getMovieDataFromJson(moviesJsonStr);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
             return Boolean.FALSE;
         }
+
+        return retval;
     }
 
     @Override
@@ -327,6 +327,28 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
                       " " + Thread.currentThread().getStackTrace()[2].getMethodName() +
                         " Failed to retrieve movies!");
             }
+
+
+            int tmds[];
+            Cursor tmdIdsCursor = mContext.getContentResolver().query(
+                    PopMoviesContract.PopMovieEntry.CONTENT_URI,
+                    new String[] {PopMoviesContract.PopMovieEntry.COLUMN_TMDID}, // projection: only these two columns
+                    null,
+                    null,
+                    null);
+            tmds = new int[tmdIdsCursor.getCount()];
+            if (tmdIdsCursor != null) {
+                tmdIdsCursor.moveToFirst();
+                int columnIndex = tmdIdsCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+
+                for (int i=0; !tmdIdsCursor.isAfterLast(); i++ ){
+                    tmds[i] = tmdIdsCursor.getInt(columnIndex);
+                    tmdIdsCursor.moveToNext();
+                }
+            }
+            FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(tmds, mContext);
+            fetchReviewsTask.execute();
+            tmdIdsCursor.close();
         }
     }
 }

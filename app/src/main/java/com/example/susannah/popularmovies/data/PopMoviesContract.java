@@ -4,6 +4,8 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.provider.ContactsContract;
+import android.util.StringBuilderPrinter;
 
 /**
  * Created by Susannah on 2/20/2016.
@@ -210,12 +212,8 @@ public class PopMoviesContract {
     }
 
     /**
-     * MovieFavoriteTmdId - if the TMD Movie ID is in here, it is a user favorite. This allows
-     * persistence when changing the sort order between most popular and highest rated.
-     * Because the latter changes the contents of the database, if the favorites information
-     * were only in the PopMovies table, it would be lost with each refresh.
+     * MovieImages - the movie poster images for the favorites need to persist
      * <p/>
-     * Does not need to implement BaseColumns because it's just an integer.
      */
     public static final class MovieImages implements BaseColumns {
         public static final String TABLE_MOVIE_IMAGES = "movieImages";
@@ -233,7 +231,7 @@ public class PopMoviesContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_MOVIE_IMAGES;
 
-        // for building URIs by Movie ID (the TmdID returned by theMovieDB)
+        // for building URIs by ? Base Columns ID?
         public static Uri buildMovieImagesUriWith_Id(long _id) {
             return ContentUris.withAppendedId(CONTENT_URI, _id);
         }
@@ -243,5 +241,73 @@ public class PopMoviesContract {
             return CONTENT_URI;
         }
 
+    }
+
+    /**
+     * ReviewEntry - the movie poster images for the favorites need to persist
+     * <p/>
+     */
+    public static final class ReviewEntry implements BaseColumns {
+        public static final String TABLE_REVIEWS = "movieReviews";
+
+        // Columns
+        public static final String COLUMN_TMDID = "TmdID";
+        public static final String COLUMN_AUTHOR = "Author";
+        public static final String COLUMN_CONTENT = "Review";
+        public static final String COLUMN_URL = "ReviewURL";
+        // create content uri
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(TABLE_REVIEWS).build();
+        // create cursor of base type directory for multiple entries
+        public static final String CONTENT_DIR_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_REVIEWS;
+        // create cursor of base type item for single entry
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_REVIEWS;
+
+        // for building URIs by BaseColumn _ID
+        public static Uri buildReviewUriWith_Id(long _id) {
+            return ContentUris.withAppendedId(CONTENT_URI, _id);
+        }
+
+        // This is for finding all reviews in the table
+        public static Uri buildReviewsAll() {
+            return CONTENT_URI;
+        }
+    }
+
+    /**
+     * ReviewEntry - the movie poster images for the favorites need to persist
+     * <p/>
+     */
+    public static final class VideoEntry implements BaseColumns {
+        public static final String TABLE_VIDEOS = "movieVideos";
+
+        // Columns
+        public static final String COLUMN_TMDID = "TmdID";
+        public static final String COLUMN_KEY = "Key";
+        public static final String COLUMN_NAME = "Name";
+        public static final String COLUMN_SITE = "Site";
+        public static final String COLUMN_SIZE = "Size";
+        public static final String COLUMN_TYPE = "Type";
+        // create content uri
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
+                .appendPath(TABLE_VIDEOS).build();
+        // create cursor of base type directory for multiple entries
+        public static final String CONTENT_DIR_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_VIDEOS;
+        // create cursor of base type item for single entry
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + TABLE_VIDEOS;
+
+        // for building URIs by BaseColumn _ID
+        public static Uri buildVideoUriWith_Id(long _id) {
+            return ContentUris.withAppendedId(CONTENT_URI, _id);
+        }
+
+        // This is for finding all videos in the table
+        public static Uri buildVideosAll() {
+            return CONTENT_URI;
+        }
     }
 }

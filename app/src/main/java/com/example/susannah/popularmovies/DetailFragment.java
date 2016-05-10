@@ -4,10 +4,14 @@
 package com.example.susannah.popularmovies;
 
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,13 +23,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.susannah.popularmovies.data.DbBitmapUtility;
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.example.susannah.popularmovies.R.*;
 
@@ -142,7 +154,9 @@ public class DetailFragment extends Fragment {
             if ((mOriginalTitle.isEmpty()) || (mOriginalTitle.equals(mTitle))) {
                 tvOrigTitle.setVisibility(View.GONE);
             } else {
-                tvOrigTitle.setText("Original Title: " + mOriginalTitle);
+                String titleMsg =
+                        context.getString(string.original_title_colon) + mOriginalTitle;
+                tvOrigTitle.setText(titleMsg);
                 tvOrigTitle.setVisibility(View.VISIBLE);
             }
 
@@ -151,6 +165,79 @@ public class DetailFragment extends Fragment {
                     String.format("%s: %s", context.getString(string.rating), mVoteAverage));
             ((TextView) root.findViewById(id.release_date)).setText(
                     String.format("%s: %s", context.getString(string.release_date), mReleaseDate));
+
+            // Get a count of how many reviews
+            Cursor reviewsCursor =
+                    getActivity().getContentResolver().query(
+                            PopMoviesContract.ReviewEntry.buildReviewsAll(),
+                            new String[]{PopMoviesContract.ReviewEntry.COLUMN_TMDID},
+                            PopMoviesContract.ReviewEntry.COLUMN_TMDID + "=?",
+                            new String[]{String.valueOf(mTmdId)},
+                            null);
+            int reviewsCount = 0;
+            if (reviewsCursor != null) reviewsCount = reviewsCursor.getCount();
+            reviewsCursor.close();
+
+            TextView readReviews = (TextView) root.findViewById(id.reviews);
+            // TODO there's some string resource withj replaceable. use that.
+
+//            String reviewsMsg = getActivity().getString(string.found) + String.valueOf(reviewsCount)+ getActivity().getString(string.reviews));
+            String reviewsMsg = String.format(getActivity().getString(string.found_n_reviews) , reviewsCount);
+            readReviews.setText(reviewsMsg);
+            readReviews.setOnClickListener(new TextView.OnClickListener() {
+                @Override
+                // Start a new activity to display the reviews.
+                public void onClick(View view) {
+                    Intent reviewIntent = new Intent(getActivity(), ReviewsActivity.class);
+                    reviewIntent.putExtra(ReviewsFragment.KEY_TMDID, mTmdId);
+                    reviewIntent.putExtra(ReviewsFragment.KEY_TITLE, mTitle);
+                    startActivity(reviewIntent);
+                }
+            });
+
+            // Videos
+            Cursor videosCursor =
+                    getActivity().getContentResolver().query(
+                            PopMoviesContract.VideoEntry.buildVideosAll(),
+                            null,
+                            PopMoviesContract.VideoEntry.COLUMN_TMDID + "=?",
+                            new String[]{String.valueOf(mTmdId)},
+                            null);
+            int videosCount = 0;
+            if (videosCursor != null) {
+                videosCount = videosCursor.getCount();
+            }
+            videosCursor.close();
+
+            TextView videos = (TextView) root.findViewById(id.videos);
+            String vids = String.format(getActivity().getString(string.found_n_videos), videosCount);
+//            videos.setText("Found " + String.valueOf(videosCount) + " videos.");
+            videos.setText(vids);
+            if (videosCursor.moveToFirst() && (videosCount > 0)) {
+                int idx = videosCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_KEY);
+                final String videoKey = videosCursor.getString(idx);
+                videos.setOnClickListener(new TextView.OnClickListener() {
+                    @Override
+                    // Start a new activity to display the reviews.
+                    public void onClick(View view) {
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoKey));
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {
+                            final String BASE_URL = "https://www.youtube.com/watch";
+                            Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                                    .appendQueryParameter("v", videoKey)
+                                    .build();
+
+                            Intent intent = new Intent(Intent.ACTION_VIEW, builtUri);
+                            intent.setDataAndType(builtUri, "text/html");
+
+                            startActivity(intent);
+                        }
+                    }
+                });
+            }
+
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
             // thumbView.setImageResource(R.drawable.thumb);
 
@@ -217,7 +304,7 @@ public class DetailFragment extends Fragment {
                                         PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
                                         new String[]{sTmdId});
                                 // Delete the bitmap from the table of movie posters of favorites.
-                                count = getActivity().getContentResolver().delete(
+                                getActivity().getContentResolver().delete(
                                         PopMoviesContract.MovieImages.CONTENT_URI,
                                         PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + "=?",
                                         new String[]{sTmdId});
@@ -246,7 +333,7 @@ public class DetailFragment extends Fragment {
                                         movieUri,
                                         PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
                                         new String[]{String.valueOf(mTmdId)});
-                                uri = getActivity().getContentResolver().insert(movieUri, cv);
+                                getActivity().getContentResolver().insert(movieUri, cv);
 
                                 // In a background task, store this movie's poster.
                                 StoreFavoritesPosters storeFavoritesPostersTask = new StoreFavoritesPosters(getActivity());
@@ -329,8 +416,7 @@ public class DetailFragment extends Fragment {
     private Bitmap getImageFromDatabaseTable(int tmdId) {
         Cursor imageCursor = null;
         Bitmap retval = null;
-        try
-        {
+        try {
             imageCursor = getActivity().getContentResolver().query(
                     PopMoviesContract.MovieImages.CONTENT_URI,
                     null,
@@ -341,29 +427,12 @@ public class DetailFragment extends Fragment {
             imageCursor.moveToFirst();
             byte[] bytes = imageCursor.getBlob(idx);
             retval = DbBitmapUtility.getImage(bytes);
-        } catch (
-                CursorIndexOutOfBoundsException e
-                )
-
-        {
+        } catch (CursorIndexOutOfBoundsException e) {
             // It's not in the database table. That's okay.
         }
-//        catch (
-//                NullPointerException e
-//                )
-//
-//        {
-//            // The Bitmap could not be created because something along the chain went wrong.
-//        }
-        catch (
-                SQLException e
-                )
-
-        {
+        catch (SQLException e) {
             // The Cursor doesn't have the format we expect. Probably image not found in table. That's okay.
-        } finally
-
-        {
+        } finally {
             if (imageCursor != null) imageCursor.close();
         }
         return retval;

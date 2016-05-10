@@ -15,7 +15,7 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     protected static final String DATABASE_NAME = "popmovies.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 11;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version
@@ -100,9 +100,29 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
                 PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES + "(" +
                 PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " INTEGER NOT NULL, " +
                 PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA + " BLOB, "+
-                "UNIQUE (" + PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " ))); ";
+                "UNIQUE (" + PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " )); ";
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_IMAGES);
+
+        final String SQL_CREATE_REVIEWS = "CREATE TABLE " +
+                PopMoviesContract.ReviewEntry.TABLE_REVIEWS + "(" +
+                PopMoviesContract.ReviewEntry.COLUMN_TMDID + " INTEGER NOT NULL, " +
+                PopMoviesContract.ReviewEntry.COLUMN_AUTHOR + " TEXT, "+
+                PopMoviesContract.ReviewEntry.COLUMN_CONTENT + " TEXT, "+
+                PopMoviesContract.ReviewEntry.COLUMN_URL + " TEXT ); ";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_REVIEWS);
+
+        final String SQL_CREATE_VIDEOS = "CREATE TABLE " +
+                PopMoviesContract.VideoEntry.TABLE_VIDEOS + "(" +
+                PopMoviesContract.VideoEntry.COLUMN_TMDID + " INTEGER NOT NULL, " +
+                PopMoviesContract.VideoEntry.COLUMN_KEY + " TEXT, "+
+                PopMoviesContract.VideoEntry.COLUMN_NAME + " TEXT, "+
+                PopMoviesContract.VideoEntry.COLUMN_SITE + " TEXT, "+
+                PopMoviesContract.VideoEntry.COLUMN_SIZE + " TEXT, "+
+                PopMoviesContract.VideoEntry.COLUMN_TYPE + " TEXT ); ";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_VIDEOS);
     }
 
     // Upgrade the database when the version is changed. Just drop the table and recreate it.
@@ -110,26 +130,39 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         Log.v(LOG_TAG, "Upgrading databse from version " + oldVersion + " to " + newVersion +
                 ". OLD DATA WILL BE DESTROYED");
+        // Movies
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.PopMovieEntry.TABLE_POPMOVIES + "'");
+        // Favorite movies
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.FavoriteMovieEntry.TABLE_FAVORITE_MOVIES + "'");
+        //Genres
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.GenreEntry.TABLE_GENRES);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.GenreEntry.TABLE_GENRES + "'");
+        // Genres of movies
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.MovieToGenresEntry.TABLE_MOVIE_TO_GENRES + "'");
+        // the TMD IDs of favorites. This is no longer used. Replaced by a table of move favorites.
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieFavoriteTmdId.TABLE_MOVIE_FAVORITE_TMDIDS);
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.MovieFavoriteTmdId.TABLE_MOVIE_FAVORITE_TMDIDS + "'");
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieFavoriteTmdId.OLD_TABLE_MOVIE_FAVORITES);
-        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
-                PopMoviesContract.MovieFavoriteTmdId.OLD_TABLE_MOVIE_FAVORITES + "'");
+        // Poster images
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES );
         sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                 PopMoviesContract.MovieImages.TABLE_MOVIE_IMAGES + "'");
+        // Reviews
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.ReviewEntry.TABLE_REVIEWS);
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
+                PopMoviesContract.ReviewEntry.TABLE_REVIEWS + "'");
+        // Videos
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PopMoviesContract.VideoEntry.TABLE_VIDEOS);
+        sqLiteDatabase.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
+                PopMoviesContract.VideoEntry.TABLE_VIDEOS + "'");
         onCreate(sqLiteDatabase);
     }
 }

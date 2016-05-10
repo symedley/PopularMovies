@@ -85,6 +85,14 @@
                 android:text="@string/release_date"
                 android:textSize="@dimen/popmovie_detail_text" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/read_reviews"
+                android:id="@+id/reviews"
+                android:clickable="true"/>
+
         </LinearLayout>
     </ScrollView>
 
