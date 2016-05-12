@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal">
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -52,6 +53,28 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/release_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|left"
+                        android:layout_marginTop="@dimen/popmovie_detail_margin"
+                        android:gravity="center_horizontal"
+                        android:text="@string/year"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:textSize="30sp" />
+
+                    <TextView
+                        android:id="@+id/rating"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_gravity="top|left"
+                        android:layout_marginTop="@dimen/popmovie_detail_margin"
+                        android:layout_marginBottom="@dimen/popmovie_detail_syn_size"
+                        android:text="@string/rr_r_10"
+                        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                        android:textSize="15sp"/>
+
+                    <TextView
                         android:id="@+id/favorite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -94,32 +117,15 @@
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
                 android:textSize="@dimen/popmovie_detail_text" />
 
-            <TextView
-                android:id="@+id/rating"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_marginBottom="@dimen/popmovie_detail_syn_size"
-                android:text="@string/rating"
-                android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:textSize="@dimen/popmovie_detail_syn_size" />
 
-            <TextView
-                android:id="@+id/release_date"
+            <View
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_marginBottom="@dimen/popmovie_detail_bottom_margin"
-                android:text="@string/release_date"
-                android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:textSize="@dimen/popmovie_detail_text" />
-
-            <TextView
-                android:id="@+id/reviews"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="@string/read_reviews"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_height="1dip"
+                android:background="#000000"
+                android:paddingStart="@dimen/popmovie_detail_left_padding"
+                android:paddingLeft="@dimen/popmovie_detail_left_padding"
+                android:paddingTop="@dimen/popmovie_detail_left_padding"
+                android:paddingBottom="@dimen/popmovie_detail_left_padding" />
 
             <TextView
                 android:id="@+id/videos"
@@ -127,8 +133,25 @@
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="true"
-                android:text="@string/videos"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="@string/trailers"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:paddingTop="12dp"
+                android:paddingBottom="5dp" />
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="179dp"
+                android:id="@+id/trailerListView" />
+
+            <TextView
+                android:id="@+id/reviews"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/read_reviews"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
 
         </LinearLayout>
     </ScrollView>

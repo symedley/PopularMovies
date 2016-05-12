@@ -76,10 +76,12 @@
     <string name="paren_author_paren">(author)</string>
     <string name="paren_review_text_paren">(review text)</string>
     <string name="read_reviews">Read reviews</string>
-    <string name="videos">Videos</string>
     <string name="original_title_colon">"Original Title: "</string>
     <string name="found">"Found "</string>
     <string name="found_n_reviews">Found %d reviews.</string>
     <string name="found_n_videos">Found %d videos.</string>
+    <string name="rr_r_10">RR.r/10</string>
+    <string name="year">YEAR</string>
+    <string name="trailers">Trailers:</string>
 
 </resources>
