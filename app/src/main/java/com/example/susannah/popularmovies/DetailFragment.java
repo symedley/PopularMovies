@@ -18,6 +18,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -35,6 +38,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import static com.example.susannah.popularmovies.R.*;
+import static com.example.susannah.popularmovies.R.drawable.ic_play_arrow_black_24dp;
 
 /**
  * Displays the details of a single movie, getting the data from extras.
@@ -107,7 +111,7 @@ public class DetailFragment extends Fragment {
                                     PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
                                     new String[]{String.valueOf(mTmdId)},
                                     null);
-                    // TODO if the cursor was not null but count was 0, do i need to close it before trying a new query?
+
                 }
                 if ((movieCursor != null) && (movieCursor.getCount() != 0)) {
                     movieCursor.moveToFirst();
@@ -174,7 +178,6 @@ public class DetailFragment extends Fragment {
             reviewsCursor.close();
 
             TextView readReviews = (TextView) root.findViewById(id.reviews);
-            // TODO there's some string resource withj replaceable. use that.
 
 //            String reviewsMsg = getActivity().getString(string.found) + String.valueOf(reviewsCount)+ getActivity().getString(string.reviews));
             String reviewsMsg = String.format(getActivity().getString(string.found_n_reviews), reviewsCount);
@@ -205,52 +208,59 @@ public class DetailFragment extends Fragment {
 
             TextView videos = (TextView) root.findViewById(id.videos);
             String vids = String.format(getActivity().getString(string.found_n_videos), videosCount);
-//            videos.setText("Found " + String.valueOf(videosCount) + " videos.");
             videos.setText(vids);
 
-            ArrayList videoList = new ArrayList<TrailerForOneMovie>(videosCount);
+            LinearLayout trailerList = (LinearLayout) root.findViewById(id.trailerList);
             if (videosCursor.moveToFirst() && (videosCount > 0)) {
                 videosCursor.moveToPrevious();
                 int idxKey = videosCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_KEY);
                 int idxName = videosCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_NAME);
                 while (videosCursor.moveToNext()) {
-                    String key = videosCursor.getString(idxKey);
+                    final String key = videosCursor.getString(idxKey);
                     String name = videosCursor.getString(idxName);
-                    TrailerForOneMovie tfom = new TrailerForOneMovie(mTmdId, key, name, null, null, null);
-                    videoList.add(tfom);
+                    TextView trailerName = new TextView(getActivity());
+                    trailerName.setText(name);
+                    ImageButton playButton = new ImageButton(getActivity());
+                    playButton.setImageResource(ic_play_arrow_black_24dp);
 
+                    final LinearLayout linearLayout = new LinearLayout(getActivity());
+
+                    linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                    linearLayout.addView(playButton);
+                    linearLayout.addView(trailerName);
+                    trailerList.addView(linearLayout);
+                    // On the TextView that's already added to the layout, set its layout gravity so it's centered vertically
+                    ((LinearLayout.LayoutParams) trailerName.getLayoutParams()).gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+                    final View.OnClickListener onClickListener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                // If we're running on Honeycomb or newer, then we can use the Theme's
+                                // selectableItemBackground to ensure that the View has a pressed state
+                                TypedValue outValue = new TypedValue();
+                                getActivity().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+                                linearLayout.setBackgroundResource(outValue.resourceId);
+                            }
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
+                                startActivity(intent);
+                            } catch (ActivityNotFoundException e) {
+                                final String BASE_URL = "https://www.youtube.com/watch";
+                                Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                                        .appendQueryParameter("v", key)
+                                        .build();
+
+                                Intent intent = new Intent(Intent.ACTION_VIEW, builtUri);
+                                intent.setDataAndType(builtUri, "text/html");
+                                startActivity(intent);
+                            }
+                        }};
+                    linearLayout.setOnClickListener(onClickListener);
+                    playButton.setOnClickListener(onClickListener);
                 }
             }
-            TrailerArrayAdapter taa = new TrailerArrayAdapter(getActivity(), videoList);
-
-            ListView trailerListView = (ListView) root.findViewById(id.trailerListView);
-            trailerListView.setAdapter(taa);
-
-            trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                       @Override
-                                                       public void onItemClick(AdapterView parent, View view, int position, long id) {
-                                                           TrailerForOneMovie tfom = (TrailerForOneMovie) parent.getItemAtPosition(position);
-
-                                                           try {
-                                                               Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + tfom.key));
-                                                               startActivity(intent);
-                                                           } catch (ActivityNotFoundException e) {
-                                                               final String BASE_URL = "https://www.youtube.com/watch";
-                                                               Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                                                                       .appendQueryParameter("v", tfom.key)
-                                                                       .build();
-
-                                                               Intent intent = new Intent(Intent.ACTION_VIEW, builtUri);
-                                                               intent.setDataAndType(builtUri, "text/html");
-                                                               startActivity(intent);
-                                                           }
-                                                       }
-                                                   }
-            );
-
 
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
-            // thumbView.setImageResource(R.drawable.thumb);
 
             // look in the images table that holds posters of the favorites
             final Bitmap posterBitmap = getImageFromDatabaseTable(mTmdId);
@@ -356,6 +366,7 @@ public class DetailFragment extends Fragment {
                     }
             );
         }
+
         return root;
     }
 
