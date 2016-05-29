@@ -15,7 +15,7 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
 
     // DB name and version
     protected static final String DATABASE_NAME = "popmovies.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
 
     public PopMoviesDbHelper(Context context) {
         // Context, Name,  SQLiteDatabase.CursorFactory factory, version

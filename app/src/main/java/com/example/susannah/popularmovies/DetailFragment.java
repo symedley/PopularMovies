@@ -45,7 +45,7 @@ import static com.example.susannah.popularmovies.R.drawable.ic_play_arrow_black_
  * <p/>
  * Created by Susannah on 12/28/2015.
  */
-public class DetailFragment extends Fragment {
+public class DetailFragment extends android.support.v4.app.Fragment {
 
     private View root;
     private long m_id;
@@ -86,13 +86,27 @@ public class DetailFragment extends Fragment {
             root = inflater.inflate(layout.fragment_detail, container, false);
 
             Context context = getActivity().getApplicationContext();
-
-            Bundle extras = getActivity().getIntent().getExtras();
-            if (extras == null) {
-                mTitle = "No data";
+            if (savedInstanceState != null) {
+                mTmdId = savedInstanceState.getInt(KEY_TMDID);
             } else {
+                Bundle extras = getActivity().getIntent().getExtras();
+                if (extras == null) {
+                    extras = getArguments();
+                }
                 mTmdId = extras.getInt(KEY_TMDID);
-                Uri uri = PopMoviesContract.PopMovieEntry.CONTENT_URI;
+            }
+            Uri uri = PopMoviesContract.PopMovieEntry.CONTENT_URI;
+            movieCursor =
+                    getActivity().getContentResolver().query(
+                            uri,
+                            null,
+                            PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
+                            new String[]{String.valueOf(mTmdId)},
+                            null);
+
+            if ((movieCursor == null) || (movieCursor.getCount() == 0)) {
+                // Not found in the popMovies table, so check the favorites table.
+                uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
                 movieCursor =
                         getActivity().getContentResolver().query(
                                 uri,
@@ -100,56 +114,45 @@ public class DetailFragment extends Fragment {
                                 PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
                                 new String[]{String.valueOf(mTmdId)},
                                 null);
-
-                if ((movieCursor == null) || (movieCursor.getCount() == 0)) {
-                    // Not found in the popMovies table, so check the favorites table.
-                    uri = PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri();
-                    movieCursor =
-                            getActivity().getContentResolver().query(
-                                    uri,
-                                    null,
-                                    PopMoviesContract.PopMovieEntry.COLUMN_TMDID + "=?",
-                                    new String[]{String.valueOf(mTmdId)},
-                                    null);
-
-                }
-                if ((movieCursor != null) && (movieCursor.getCount() != 0)) {
-                    movieCursor.moveToFirst();
-
-                    int idx;
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
-                    mTitle = movieCursor.getString(idx);
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
-                    mOriginalTitle = movieCursor.getString(idx);
-                    if (mOriginalTitle == null)
-                        mOriginalTitle = "";
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
-                    mPosterPathUriString = movieCursor.getString(idx);
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
-                    mSynopsis = movieCursor.getString(idx);
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE); // voteAverage == rating
-                    mVoteAverage = movieCursor.getString(idx);
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
-                    mReleaseDate = movieCursor.getString(idx);
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
-                    mTmdId = movieCursor.getInt(idx);
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
-                    m_id = movieCursor.getInt(idx);
-                    idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE);
-                    mIsFavorite = (movieCursor.getInt(idx) == 1);
-                } else {
-                    Log.d(LOG_TAG, "The movie with TmdId of " + mTmdId + " was not found in either table.");
-                }
-                if (movieCursor != null) {
-                    movieCursor.close();
-                }
             }
+            if ((movieCursor != null) && (movieCursor.getCount() != 0)) {
+                movieCursor.moveToFirst();
 
+                int idx;
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TITLE);
+                mTitle = movieCursor.getString(idx);
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_ORIGTITLE);
+                mOriginalTitle = movieCursor.getString(idx);
+                if (mOriginalTitle == null)
+                    mOriginalTitle = "";
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_POSTERPATHURI);
+                mPosterPathUriString = movieCursor.getString(idx);
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_OVERVIEW);
+                mSynopsis = movieCursor.getString(idx);
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE); // voteAverage == rating
+                mVoteAverage = movieCursor.getString(idx);
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_RELEASEDATE);
+                mReleaseDate = movieCursor.getString(idx);
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+                mTmdId = movieCursor.getInt(idx);
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry._ID);
+                m_id = movieCursor.getInt(idx);
+                idx = movieCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE);
+                mIsFavorite = (movieCursor.getInt(idx) == 1);
+            } else {
+                Log.d(LOG_TAG, "The movie with TmdId of " + mTmdId + " was not found in either table.");
+            }
+            if (movieCursor != null) {
+                movieCursor.close();
+            }
             TextView tvOrigTitle = (TextView) root.findViewById(id.original_title);
-            getActivity().setTitle(mTitle);
+            TextView tvTitle = (TextView) root.findViewById(id.movie_title);
+            if (tvTitle != null) {
+                tvTitle.setText(mTitle);
+            } else {
+                getActivity().setTitle(mTitle);
+            }
             // ((TextView) root.findViewById(id.title)).setText(mTitle);
-
-
             if ((mOriginalTitle.isEmpty()) || (mOriginalTitle.equals(mTitle))) {
                 tvOrigTitle.setVisibility(View.GONE);
             } else {
@@ -254,7 +257,8 @@ public class DetailFragment extends Fragment {
                                 intent.setDataAndType(builtUri, "text/html");
                                 startActivity(intent);
                             }
-                        }};
+                        }
+                    };
                     linearLayout.setOnClickListener(onClickListener);
                     playButton.setOnClickListener(onClickListener);
                 }
@@ -370,6 +374,11 @@ public class DetailFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     private ContentValues cursorToContentValues(Cursor movieCursor) {
         int idx;
         ContentValues retval = new ContentValues();
@@ -471,5 +480,14 @@ public class DetailFragment extends Fragment {
         idx = trailerCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_TYPE);
         String type = trailerCursor.getString(idx);
         return new TrailerForOneMovie(tmdId, key, name, site, size, type);
+    }
+
+    /**
+     * Save the data displayed in case the screen was rotated
+     */
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+
+        savedInstanceState.putInt(KEY_TMDID, mTmdId);
     }
 }

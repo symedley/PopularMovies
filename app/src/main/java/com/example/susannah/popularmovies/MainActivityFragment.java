@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
@@ -45,12 +46,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private boolean mSortPopular; // sort the movies by Most Popular if true. Otherwise sort by Highest rated
     private String mSortOrder;
     private String mSortOrderTitle;
+    private boolean mIsTwoPane;
+    private DetailFragment detailFragmentOnRight;
 
     // Changing to using SQLite and Content Provider
     // mPopMovieAdapter is the Cursor Adapter.
     // The old adapter was a grid adapter derived from ArrayAdapter.
     private PopMovieAdapter mPopMovieAdapter;
     private GridView mGridView;
+
 
     private View rootView;
 
@@ -140,15 +144,37 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         return retValue;
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
                 " " + Thread.currentThread().getStackTrace()[2].getMethodName());
         initializeSortOrder();
+        mIsTwoPane = false;
+        Fragment rightSideFragment = getActivity().getSupportFragmentManager().findFragmentByTag(MainActivity.RIGHT_PANE_FRAGMENT);
+        if (rightSideFragment != null) {
+            mIsTwoPane = true;
+//            View rightPanelView = inflate(R.layout.content_main_detail_panel, container, false);
+        }
+
 
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
+//            RelativeLayout mRightDetailPane = (RelativeLayout) rootView.findViewById(R.id.right_panel);
+//            if (mRightDetailPane != null) {
+//                View rightPanelView = inflater.inflate(R.layout.content_main_detail_panel, container, false);
+//                rightPanelView.findViewById(R.id.right_panel);
+//                mIsTwoPane = true;
+//                DetailFragment df = new DetailFragment();
+//                getActivity().getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.right_panel,
+//                                df,
+//                                RIGHT_PANE_FRAGMENT).commit();
+//
+//                Log.v(LOG_TAG, "this is a tablet screen!");
+//
+//            }
 
             // PopMovieAdapter created with activity, mCursor, flags, loaderID
             mPopMovieAdapter = new PopMovieAdapter(getActivity(), mCursor, 0);
@@ -159,21 +185,45 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             // When user clicks on a movie, open an activity with detail about
             // that one movie.
-            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                // get the item clicked on and display it's information
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        }
+        return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mIsTwoPane = false;
+        Fragment rightSideFragment = getActivity().getSupportFragmentManager().findFragmentByTag(MainActivity.RIGHT_PANE_FRAGMENT);
+        if (rightSideFragment != null) {
+            mIsTwoPane = true;
+        }
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            // get the item clicked on and display it's information
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                detailFragmentOnRight = new DetailFragment();
+                mCursor.moveToPosition(position);
+
+                int idx = mCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
+                Integer tmdId = mCursor.getInt(idx);
+
+                Bundle args = new Bundle();
+                args.putInt(DetailFragment.KEY_TMDID, tmdId);
+                detailFragmentOnRight.setArguments(args);
+
+                if (mIsTwoPane) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.right_panel,
+                                    detailFragmentOnRight,
+                                    MainActivity.RIGHT_PANE_FRAGMENT).commit();
+                } else {
                     Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                    mCursor.moveToPosition(position);
-                    int idx = mCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
-                    int tmdId = mCursor.getInt(idx);
                     detailIntent.putExtra(DetailFragment.KEY_TMDID, tmdId);
 
                     startActivity(detailIntent);
                 }
-            });
-        }
-        return rootView;
+            }
+        });
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -220,7 +270,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
      * Sort order: user can choose to sort by Most Popular or by Highest Rated
      */
     private void updateMovies() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         // initializeSortOrder sets the boolean mSortPopular before starting the FetchMovieTask
         initializeSortOrder();
 
@@ -235,8 +284,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     /**
      * Make the data be refreshed after changing a setting.
-     * TODO revisit whether this is needed.
-     * TODO should this be replaced by making an OnDataChanged method in this class
+     * Could this also be done with an OnDataChanged method in this class
      * and calling it from onResume in MainActivity?
      */
     public void onActivityResult(int requestCode, int resultsCode, Intent data) {
@@ -274,13 +322,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public void onDestroy() {
-//        mCursor.close();
         super.onDestroy();
     }
 
@@ -294,6 +336,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
                 " " + Thread.currentThread().getStackTrace()[2].getMethodName());
         savedInstanceState.putInt(KEY_DONT_UPDATE_MOVIES, 1);
+
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -324,7 +367,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     /**
      * The data retrieval is finished, so let the client (this class) know
      */
-
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.v(LOG_TAG, ".....onLoadFinished");
@@ -341,7 +383,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                             null,
                             mSortOrder
                     );
-        } else {
+            if (data.getCount() == 0) {
+                CharSequence text = "No favorites were found. Please switch to a different sort order and choose some favorites.";
+                Toast toast = Toast.makeText(getContext(), text, Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }else
+       // if (!(sortOrder.equals(getString(R.string.pref_sort_favorites))))
+        {
             mCursor =
                     getActivity().getContentResolver().query(
                             PopMoviesContract.PopMovieEntry.CONTENT_URI,
@@ -350,11 +399,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                             null,
                             mSortOrder
                     );
+            if (data.getCount() == 0) {
+                // It's ok for there to be 0 movies if the sort preference is favorites.
+                // But otherwise, there should be some data retrieved.
+                CharSequence text = "No movies were retrieved. Network problem?";
+                Toast toast = Toast.makeText(getContext(), text, Toast.LENGTH_LONG);
+                toast.show();
+            }
         }
         mPopMovieAdapter.swapCursor(mCursor);
-        if (data.getCount() == 0) {
-            Log.e(LOG_TAG, "TODO: create a pop up to tell the user there was a network problem.");
-        }
+
     }
 
     /**

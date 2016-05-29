@@ -16,6 +16,6 @@
     <dimen name="popmovie_detail_orig_title_size">12sp</dimen>
     <dimen name="popmovie_detail_text">12sp</dimen>
     <dimen name="popmovie_detail_syn_size">14sp</dimen>
-    <dimen name="popmovie_detail_title_text">22sp</dimen>
+    <dimen name="popmovie_detail_title_text">33sp</dimen>
     <dimen name="text_margin">16dp</dimen>
 </resources>
