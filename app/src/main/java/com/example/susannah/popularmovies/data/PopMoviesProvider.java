@@ -334,7 +334,7 @@ public class PopMoviesProvider extends ContentProvider {
     }
 
     public Uri insert(@NonNull Uri uri, ContentValues contentValues) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        //final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         Uri returnUri;
         switch (sUriMatcher.match(uri)) {
             case POPMOVIE: {
@@ -644,7 +644,7 @@ public class PopMoviesProvider extends ContentProvider {
                                     null,
                                     value);
                         } catch (SQLiteConstraintException e) {
-                            Log.w(LOG_TAG, "Attempting to insert " +
+                            Log.v(LOG_TAG, "Attempting to insert " +
                                     value.getAsString(
                                             PopMoviesContract.PopMovieEntry.COLUMN_TITLE)
                                     + " but perhaps the value is already in the database.");
@@ -675,7 +675,7 @@ public class PopMoviesProvider extends ContentProvider {
                                     null,
                                     value);
                         } catch (SQLiteConstraintException e) {
-                            Log.w(LOG_TAG, "Attempting to insert " +
+                            Log.v(LOG_TAG, "Attempting to insert " +
                                     value.getAsString(
                                             PopMoviesContract.PopMovieEntry.COLUMN_TITLE)
                                     + " but perhaps the value is already in the database.");
@@ -707,7 +707,7 @@ public class PopMoviesProvider extends ContentProvider {
                                     null,
                                     value);
                         } catch (SQLiteConstraintException e) {
-                            Log.w(LOG_TAG, "Attempting to insert " +
+                            Log.v(LOG_TAG, "Attempting to insert a genre" +
                                     value.getAsString(
                                             PopMoviesContract.GenreEntry.COLUMN_NAME)
                                     + " but perhaps the value is already in the database.");
@@ -738,10 +738,10 @@ public class PopMoviesProvider extends ContentProvider {
                                     null,
                                     value);
                         } catch (SQLiteConstraintException e) {
-                            Log.w(LOG_TAG, "Attempting to insert " +
+                            Log.v(LOG_TAG, "Attempting to insert " +
                                     value.getAsString(
                                             PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_TMDID)
-                                    + " but perhaps the value is already in the database.");
+                                    + " in MovieToGenre but perhaps the value is already in the database.");
                         }
                         if (_id != -1) {
                             count++;
@@ -754,7 +754,7 @@ public class PopMoviesProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 break;
-            case MOVIE_FAVORITES_IDS:
+            case MOVIE_FAVORITES_IDS: //TODO this table should not be used anymore.
                 db.beginTransaction();
 
                 try {
@@ -769,10 +769,10 @@ public class PopMoviesProvider extends ContentProvider {
                                     null,
                                     value);
                         } catch (SQLiteConstraintException e) {
-                            Log.w(LOG_TAG, "Attempting to insert " +
+                            Log.v(LOG_TAG, "Attempting to insert " +
                                     value.getAsString(
                                             PopMoviesContract.MovieFavoriteTmdId.COLUMN_MOVIE_TMDID)
-                                    + " but perhaps the value is already in the database.");
+                                    + " into FavoriteIds but perhaps the value is already in the database.");
                         }
                         if (_id != -1) {
                             count++;
@@ -802,10 +802,10 @@ public class PopMoviesProvider extends ContentProvider {
                                     null,
                                     value);
                         } catch (SQLiteConstraintException e) {
-                            Log.w(LOG_TAG, "Attempting to insert " +
+                            Log.v(LOG_TAG, "Attempting to insert " +
                                     value.getAsString(
                                             PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID)
-                                    + " but perhaps the value is already in the database.");
+                                    + " poster image but perhaps the value is already in the database.");
                         }
                         if (_id != -1) {
                             count++;
@@ -834,7 +834,7 @@ public class PopMoviesProvider extends ContentProvider {
                                     null,
                                     value);
                         } catch (SQLiteConstraintException e) {
-                            Log.w(LOG_TAG, "Attempting to insert " +
+                            Log.v(LOG_TAG, "Attempting to insert review for " +
                                     value.getAsString( PopMoviesContract.ReviewEntry.COLUMN_TMDID)
                                     + " but something went wrong." + e.getMessage() + " " + e.getCause());
                         }

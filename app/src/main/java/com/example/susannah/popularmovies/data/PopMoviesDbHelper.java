@@ -3,6 +3,7 @@ package com.example.susannah.popularmovies.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.design.BuildConfig;
 import android.util.Log;
 
 /**
@@ -14,7 +15,7 @@ class PopMoviesDbHelper extends SQLiteOpenHelper {
     private static final String LOG_TAG = PopMoviesDbHelper.class.getSimpleName();
 
     // DB name and version
-    protected static final String DATABASE_NAME = "popmovies.db";
+    private static final String DATABASE_NAME = "popmovies.db";
     private static final int DATABASE_VERSION = 12;
 
     public PopMoviesDbHelper(Context context) {

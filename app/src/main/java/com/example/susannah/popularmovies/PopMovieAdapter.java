@@ -89,16 +89,18 @@ class PopMovieAdapter extends CursorAdapter {
                     PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " =? ",
                     new String[]{String.valueOf(tmdId)},
                     null);
-            // TODO catch null errors and not-found errors here.  I want to do a try...catch, but I don't know which exceptions to handle!
-            idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
-            imageCursor.moveToFirst();
-            byte[] bytes = imageCursor.getBlob(idx);
-            bm = DbBitmapUtility.getImage(bytes);
-            errorImage = new BitmapDrawable(mContext.getResources(), bm);
+
+            if (imageCursor.moveToFirst()) {
+                idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
+                byte[] bytes = imageCursor.getBlob(idx);
+                bm = DbBitmapUtility.getImage(bytes);
+                errorImage = new BitmapDrawable(mContext.getResources(), bm);
+            }
         } catch (CursorIndexOutOfBoundsException | NullPointerException e) {
             // It's not in the database table. That's okay.
         } catch (SQLException e) {
             // The Cursor doesn't have the format we expect. Probably image not found in table. That's okay.
+
         } finally {
             if (imageCursor != null) imageCursor.close();
         }

@@ -34,7 +34,7 @@ class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
             mContext = context;
         }
 
-        private Boolean getGenreDataFromJson(String genreJsonStr)
+        private void getGenreDataFromJson(String genreJsonStr)
                 throws JSONException {
             // These are the names of the JSON objects that need to be extracted.
             final String TMD_GENRES = "genres";
@@ -74,7 +74,6 @@ class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
                 Log.e(LOG_TAG, "exception " + e.getMessage() + " " + e.toString());
             }
 
-            return Boolean.TRUE;
         }
 
         /*
@@ -146,7 +145,8 @@ class FetchGenresTask extends AsyncTask<String, Void, Boolean> {
             }
 
             try {
-                return getGenreDataFromJson(genreJsonString);
+                getGenreDataFromJson(genreJsonString);
+                return Boolean.TRUE;
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();

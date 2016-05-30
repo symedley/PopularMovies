@@ -22,11 +22,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Vector;
 
-/** FetchMovieTask is an Async (background) task for retrieving data via internet from themoviedb.
- *
+/**
+ * FetchMovieTask is an Async (background) task for retrieving data via internet from themoviedb.
+ * <p/>
  * Created by Susannah on 2/24/2016.
  */
-class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
+class FetchMovieTask extends AsyncTask<Void, Void, Boolean> {
 
     // A size, which will be one of the following: "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using w185
     private static final String IMAGE_SIZE = "w342";
@@ -41,8 +42,9 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         mContext = context;
     }
 
-    /**getMovieDataFromJson - after the data has been received as a JSON buffer, pick it apart and populate the database.
-     *
+    /**
+     * getMovieDataFromJson - after the data has been received as a JSON buffer, pick it apart and populate the database.
+     * <p/>
      * Delete the old content in the database right before inserting the newly retrieved data
      *
      * @param movieJsonStr - the data that came back from the server
@@ -97,7 +99,7 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         // and set the boolean flag FAVORITE to true.
         Cursor favs =
                 mContext.getContentResolver().query(PopMoviesContract.FavoriteMovieEntry.buildAllFavoriteMoviesUri(),
-                        new String[] { PopMoviesContract.PopMovieEntry.COLUMN_TMDID }, // projection of just TmdId
+                        new String[]{PopMoviesContract.PopMovieEntry.COLUMN_TMDID}, // projection of just TmdId
                         null,
                         null,
                         null
@@ -168,12 +170,12 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_BACKDROPPATH, backdropPath);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_POPULARITY, popularity);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTECOUNT, voteCount);
-            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO,  (video ? 1 : 0));
+            movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VIDEO, (video ? 1 : 0));
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_VOTEAVERAGE, voteAverage);
             movieValues.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, favorites.contains(tmdId) ? 1 : 0);
 
             // Genres are a special case
-            for (int j=0; j<genreIdArray.length(); j++) {
+            for (int j = 0; j < genreIdArray.length(); j++) {
                 ContentValues genreValues = new ContentValues();
                 genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_MOVIE_TMDID, tmdId);
                 genreValues.put(PopMoviesContract.MovieToGenresEntry.COLUMN_GENRE_ID, genreIds[j]);
@@ -203,7 +205,7 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             }
             count = mContext.getContentResolver().delete(PopMoviesContract.MovieToGenresEntry.CONTENT_URI, null, null);
             if (movieToGenres.size() > 0) {
-                 count = mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieToGenresEntry.CONTENT_URI,
+                count = mContext.getContentResolver().bulkInsert(PopMoviesContract.MovieToGenresEntry.CONTENT_URI,
                         movieToGenres.toArray(new ContentValues[movieToGenres.size()]));
                 if (count != movieToGenres.size())
                     Log.d(LOG_TAG, "the number of genres added doesn't match the number we TRIED to add");
@@ -224,7 +226,7 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
      *
      */
     @Override
-    protected Boolean doInBackground(String... params) {
+    protected Boolean doInBackground(Void... params) {
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -237,7 +239,6 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
         Boolean retval;
 
         final String API_KEY_PARAM = "api_key";
-        final String TOP_RATED = "top_rated";
         final String SORT_BY_PARAM = "sort_by";
         final String POPULARITY_DESC = "popularity.desc"; // sort by value is mPopularity descending
         final String RATED_DESC = "vote_average.desc"; // sort by value is vote average descending
@@ -250,7 +251,6 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             // Construct a URL for the query.
             // The API documentation is here: http://docs.themoviedb.apiary.io/#
             // but the documentation tool is almost unusable.
-            final String BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
             final String BASE_URL_DISCOVER = "https://api.themoviedb.org/3/discover/movie";
 
             if (mSortPopular)
@@ -319,12 +319,12 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if (success != null) {
-          if(success == Boolean.TRUE){
+            if (success == Boolean.TRUE) {
                 Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
                         " " + Thread.currentThread().getStackTrace()[2].getMethodName());
-            }else{ // oh no! false success!
-              Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
-                      " " + Thread.currentThread().getStackTrace()[2].getMethodName() +
+            } else { // oh no! false success!
+                Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
+                        " " + Thread.currentThread().getStackTrace()[2].getMethodName() +
                         " Failed to retrieve movies!");
             }
 
@@ -332,16 +332,17 @@ class FetchMovieTask extends AsyncTask<String, Void, Boolean> {
             int tmds[];
             Cursor tmdIdsCursor = mContext.getContentResolver().query(
                     PopMoviesContract.PopMovieEntry.CONTENT_URI,
-                    new String[] {PopMoviesContract.PopMovieEntry.COLUMN_TMDID}, // projection: only these two columns
+                    new String[]{PopMoviesContract.PopMovieEntry.COLUMN_TMDID}, // projection: only these two columns
                     null,
                     null,
                     null);
-            tmds = new int[tmdIdsCursor.getCount()];
+            tmds = new int [0];
             if (tmdIdsCursor != null) {
+                tmds = new int[tmdIdsCursor.getCount()];
                 tmdIdsCursor.moveToFirst();
                 int columnIndex = tmdIdsCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
 
-                for (int i=0; !tmdIdsCursor.isAfterLast(); i++ ){
+                for (int i = 0; !tmdIdsCursor.isAfterLast(); i++) {
                     tmds[i] = tmdIdsCursor.getInt(columnIndex);
                     tmdIdsCursor.moveToNext();
                 }

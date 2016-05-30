@@ -1,14 +1,15 @@
 package com.example.susannah.popularmovies;
 
 /**
+ * Data for a single movie review. Needed in an object so it can be used by a list adapter.
  * Created by Susannah on 5/5/2016.
  */
-public class ReviewForOneMovie {
+ class ReviewForOneMovie {
 
-    int id;
+    private int id;
     String author;
     String review;
-    String url;
+    private String url;
 
     public ReviewForOneMovie(int _id, String _author, String _review, String _url){
         id = _id;

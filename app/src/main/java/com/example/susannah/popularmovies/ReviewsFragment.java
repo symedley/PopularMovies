@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.StringBuilderPrinter;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -18,12 +19,11 @@ import java.util.ArrayList;
  * ReviewsFragment - The user will open this activity to read reviews. Linked to from the Details view.
  * Created by Susannah on 5/8/2016.
  */
-public class ReviewsFragment extends Fragment {
-    static final String LOG_TAG = ReviewsFragment.class.getSimpleName();
+public class ReviewsFragment extends android.support.v4.app.Fragment {
+    private static final String LOG_TAG = ReviewsFragment.class.getSimpleName();
     static final String KEY_TMDID = "TMDID";
     static final String KEY_TITLE = "TITLE";
-    private int mTmdId;
-    private String mTitle;
+
     private View root;
 
     public ReviewsFragment() {}
@@ -37,6 +37,8 @@ public class ReviewsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        int mTmdId;
+        String mTitle;
         if (root == null) {
             root = inflater.inflate(R.layout.fragment_reviews, container, false);
 
@@ -80,5 +82,13 @@ public class ReviewsFragment extends Fragment {
             }
         }
         return root;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        if (id==android.R.id.home) {
+            getActivity().finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

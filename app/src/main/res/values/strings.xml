@@ -72,7 +72,7 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
-    <string name="by">By</string>
+    <string name="by">By </string>
     <string name="paren_author_paren">(author)</string>
     <string name="paren_review_text_paren">(review text)</string>
     <string name="read_reviews">Read reviews</string>
@@ -83,5 +83,8 @@
     <string name="rr_r_10">RR.r/10</string>
     <string name="year">YEAR</string>
     <string name="trailers">Trailers:</string>
+    <string name="by_space">"By "</string>
+    <string name="no_detail_yet">No detail yet&#8230;</string>
+    <string name="play_button">Play Button</string>
 
 </resources>

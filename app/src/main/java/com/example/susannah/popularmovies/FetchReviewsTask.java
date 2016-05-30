@@ -32,15 +32,15 @@ import java.util.Vector;
  * <p/>
  * Created by Susannah on 2/24/2016.
  */
-class FetchReviewsTask extends AsyncTask<Integer, Void, Boolean> {
+class FetchReviewsTask extends AsyncTask<Void, Void, Boolean> {
 
     private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
-    int[] mTargetTmdIds;
+    private int[] mTargetTmdIds;
 
     private final Context mContext;
 
-    final String REVIEWS = "reviews";
-    final String VIDEOS = "videos";
+    private final String REVIEWS = "reviews";
+    private final String VIDEOS = "videos";
 
     public FetchReviewsTask(int[] tmdIds, Context context) {
         mTargetTmdIds = tmdIds;
@@ -60,9 +60,9 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, Boolean> {
             throws JSONException {
         // These are the names of the JSON objects that need to be extracted.
         final String TMD_RESULTS = "results";
-        final String TMD_ID = "id"; // we already know this because it was passed in.
-        final String VIDEO_ID = "id";                            // int the ID of the video is not interesting.
-        String videoId;
+        // final String TMD_ID = "id"; // we already know this because it was passed in.
+        // final String VIDEO_ID = "id";       // int the ID of the video is not interesting.
+        // String videoId;
         final String TMD_KEY = "key";
         String keyToYouTubeMovie;
         final String TMD_NAME = "name";
@@ -80,7 +80,6 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, Boolean> {
         JSONArray videoArray = reviewJson.getJSONArray(TMD_RESULTS);
 
         Vector<ContentValues> cVVector = new Vector<>(videoArray.length());
-        Log.v(LOG_TAG, videoArray.length() + " reviews were returned");
         for (int i = 0; i < videoArray.length(); i++) {
             JSONObject oneVideoJSON = videoArray.getJSONObject(i);
 
@@ -152,7 +151,6 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, Boolean> {
 
         Vector<ContentValues> cVVector = new Vector<>(reviewArray.length());
 
-        Log.v(LOG_TAG, reviewArray.length() + " reviews were returned");
         for (int i = 0; i < reviewArray.length(); i++) {
             JSONObject oneReviewJson = reviewArray.getJSONObject(i);
 
@@ -198,20 +196,7 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, Boolean> {
      * Gets the resulting JSON and parses the data.
      */
     @Override
-    protected Boolean doInBackground(Integer... params) {// TODO get rid of the unused params
-
-        // These two need to be declared outside the try/catch
-        // so that they can be closed in the finally block.
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-
-        // Will contain the raw JSON response as a string.
-        String moviesJsonStr = null;
-
-        final String API_KEY_PARAM = "api_key";
-
-        int successCount = 0;
-        int failCount = 0;
+    protected Boolean doInBackground(Void... params) {
         Boolean retval = Boolean.TRUE;
 
         for (int tmdId : mTargetTmdIds) {
@@ -242,7 +227,7 @@ class FetchReviewsTask extends AsyncTask<Integer, Void, Boolean> {
         storeFavoritesPostersTask.execute();
     }
 
-    Boolean getReviewsAndTrailersForOne(int tmdId, String reviewsOrVideos) {
+    private Boolean getReviewsAndTrailersForOne(int tmdId, String reviewsOrVideos) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;

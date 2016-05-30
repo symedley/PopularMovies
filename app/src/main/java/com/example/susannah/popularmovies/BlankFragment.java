@@ -67,15 +67,11 @@ public class BlankFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Cursor movieCursor;
 
         if (root == null) {
             root = inflater.inflate(layout.blank_fragment, container, false);
-
             Context context = getActivity().getApplicationContext();
-
         }
-
         return root;
     }
 

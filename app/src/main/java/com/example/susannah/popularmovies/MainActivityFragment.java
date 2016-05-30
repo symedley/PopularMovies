@@ -151,40 +151,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         Log.v(LOG_TAG, Thread.currentThread().getStackTrace()[2].getClassName() +
                 " " + Thread.currentThread().getStackTrace()[2].getMethodName());
         initializeSortOrder();
-        mIsTwoPane = false;
-        Fragment rightSideFragment = getActivity().getSupportFragmentManager().findFragmentByTag(MainActivity.RIGHT_PANE_FRAGMENT);
-        if (rightSideFragment != null) {
-            mIsTwoPane = true;
-//            View rightPanelView = inflate(R.layout.content_main_detail_panel, container, false);
-        }
-
 
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_main, container, false);
-//            RelativeLayout mRightDetailPane = (RelativeLayout) rootView.findViewById(R.id.right_panel);
-//            if (mRightDetailPane != null) {
-//                View rightPanelView = inflater.inflate(R.layout.content_main_detail_panel, container, false);
-//                rightPanelView.findViewById(R.id.right_panel);
-//                mIsTwoPane = true;
-//                DetailFragment df = new DetailFragment();
-//                getActivity().getSupportFragmentManager().beginTransaction()
-//                        .replace(R.id.right_panel,
-//                                df,
-//                                RIGHT_PANE_FRAGMENT).commit();
-//
-//                Log.v(LOG_TAG, "this is a tablet screen!");
-//
-//            }
-
             // PopMovieAdapter created with activity, mCursor, flags, loaderID
             mPopMovieAdapter = new PopMovieAdapter(getActivity(), mCursor, 0);
             // initialize to the GridView in fragment_main.xml
             mGridView = (GridView) rootView.findViewById(R.id.gridView);
             // set the GridView's adapter to be our CursorAdapter, PopMovieAdapter
             mGridView.setAdapter(mPopMovieAdapter);
-
-            // When user clicks on a movie, open an activity with detail about
-            // that one movie.
         }
         return rootView;
     }
@@ -201,17 +176,17 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             // get the item clicked on and display it's information
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                detailFragmentOnRight = new DetailFragment();
                 mCursor.moveToPosition(position);
 
                 int idx = mCursor.getColumnIndex(PopMoviesContract.PopMovieEntry.COLUMN_TMDID);
                 Integer tmdId = mCursor.getInt(idx);
 
-                Bundle args = new Bundle();
-                args.putInt(DetailFragment.KEY_TMDID, tmdId);
-                detailFragmentOnRight.setArguments(args);
 
                 if (mIsTwoPane) {
+                    detailFragmentOnRight = new DetailFragment();
+                    Bundle args = new Bundle();
+                    args.putInt(DetailFragment.KEY_TMDID, tmdId);
+                    detailFragmentOnRight.setArguments(args);
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.right_panel,
                                     detailFragmentOnRight,
@@ -278,8 +253,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         FetchGenresTask fetchGenresTask = new FetchGenresTask(getContext());
         fetchGenresTask.execute();
-
-
     }
 
     /**
@@ -318,12 +291,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
             mPopMovieAdapter.swapCursor(mCursor);
             getActivity().setTitle(mSortOrderTitle);
+            // Blank the detail panel, if there is one
+            if (mIsTwoPane) {
+                BlankFragment df = new BlankFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.right_panel,
+                                df,
+                                MainActivity.RIGHT_PANE_FRAGMENT).commit();
+            }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     /**

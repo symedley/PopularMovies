@@ -17,7 +17,7 @@ import java.util.List;
  *
  * Created by Susannah on 5/5/2016.
  */
-public class ReviewArrayAdapter extends ArrayAdapter {
+class ReviewArrayAdapter extends ArrayAdapter {
     public ReviewArrayAdapter(Activity context, ArrayList<ReviewForOneMovie> reviews) {
         super(context, 0, reviews);
     }

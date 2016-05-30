@@ -16,7 +16,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/black"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -32,6 +31,7 @@
         android:divider="?android:attr/dividerHorizontal"
         android:fitsSystemWindows="true"
         android:orientation="horizontal"
+        android:baselineAligned="false"
         tools:context="com.example.susannah.popularmovies.MainActivity">
 
 
@@ -47,7 +47,6 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:layout="@layout/fragment_main" />
 
-        <include layout="@layout/content_main_detail_panel"></include>
-
+        <include layout="@layout/content_main_detail_panel" />
     </LinearLayout>
 </RelativeLayout>

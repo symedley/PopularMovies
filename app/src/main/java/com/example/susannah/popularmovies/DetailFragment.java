@@ -3,7 +3,6 @@
  */
 package com.example.susannah.popularmovies;
 
-import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
@@ -34,8 +33,6 @@ import android.widget.TextView;
 import com.example.susannah.popularmovies.data.DbBitmapUtility;
 import com.example.susannah.popularmovies.data.PopMoviesContract;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
 
 import static com.example.susannah.popularmovies.R.*;
 import static com.example.susannah.popularmovies.R.drawable.ic_play_arrow_black_24dp;
@@ -177,8 +174,10 @@ public class DetailFragment extends android.support.v4.app.Fragment {
                             new String[]{String.valueOf(mTmdId)},
                             null);
             int reviewsCount = 0;
-            if (reviewsCursor != null) reviewsCount = reviewsCursor.getCount();
-            reviewsCursor.close();
+            if (reviewsCursor != null) {
+                reviewsCount = reviewsCursor.getCount();
+                reviewsCursor.close();
+            }
 
             TextView readReviews = (TextView) root.findViewById(id.reviews);
 
@@ -214,7 +213,7 @@ public class DetailFragment extends android.support.v4.app.Fragment {
             videos.setText(vids);
 
             LinearLayout trailerList = (LinearLayout) root.findViewById(id.trailerList);
-            if (videosCursor.moveToFirst() && (videosCount > 0)) {
+            if ((videosCursor != null) && videosCursor.moveToFirst() && (videosCount > 0)) {
                 videosCursor.moveToPrevious();
                 int idxKey = videosCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_KEY);
                 int idxName = videosCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_NAME);
@@ -233,7 +232,7 @@ public class DetailFragment extends android.support.v4.app.Fragment {
                     linearLayout.addView(trailerName);
                     trailerList.addView(linearLayout);
                     // On the TextView that's already added to the layout, set its layout gravity so it's centered vertically
-                    ((LinearLayout.LayoutParams) trailerName.getLayoutParams()).gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+                    ((LinearLayout.LayoutParams) trailerName.getLayoutParams()).gravity = Gravity.START | Gravity.CENTER_VERTICAL;
                     final View.OnClickListener onClickListener = new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -263,6 +262,8 @@ public class DetailFragment extends android.support.v4.app.Fragment {
                     playButton.setOnClickListener(onClickListener);
                 }
             }
+            if (videosCursor != null)
+                videosCursor.close();
 
             ImageView thumbView = (ImageView) root.findViewById(id.movie_poster);
 
@@ -293,10 +294,8 @@ public class DetailFragment extends android.support.v4.app.Fragment {
             final ImageButton favButton = (ImageButton) root.findViewById(id.toggleFavoriteBtn);
 
             if (mIsFavorite) {
-                Log.d(LOG_TAG, "This movie is a fav");
                 favButton.setSelected(Boolean.TRUE);
             } else {
-                Log.d(LOG_TAG, "This movie is NOT a fav: " + mTmdId);
                 favButton.setSelected(Boolean.FALSE);
             }
             // User can toggle favorite status of this movie by clicking the button
@@ -309,7 +308,6 @@ public class DetailFragment extends android.support.v4.app.Fragment {
                             Log.v(LOG_TAG, uri.toString());
                             if (clicked) {
                                 // The user wants to un-set the favorites status
-                                Log.d(LOG_TAG, "This movie is no longer a fav: " + mTmdId);
                                 // delete from the list of favs table.
                                 getActivity().getContentResolver().delete(uri, null, null);
 
@@ -319,7 +317,6 @@ public class DetailFragment extends android.support.v4.app.Fragment {
                                 Uri movieUri = PopMoviesContract.PopMovieEntry.buildPopMoviesUriBy_Id(m_id);
                                 cv.put(PopMoviesContract.PopMovieEntry.COLUMN_IS_FAVORITE, 0);
                                 int numUpdated = getActivity().getContentResolver().update(movieUri, cv, null, null);
-
 
                                 // delete from the favoriteMovies table.
                                 String sTmdId = String.valueOf(mTmdId);
@@ -372,11 +369,6 @@ public class DetailFragment extends android.support.v4.app.Fragment {
         }
 
         return root;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
     }
 
     private ContentValues cursorToContentValues(Cursor movieCursor) {
@@ -454,8 +446,8 @@ public class DetailFragment extends android.support.v4.app.Fragment {
                     PopMoviesContract.MovieImages.COLUMN_MOVIE_TMDID + " =? ",
                     new String[]{String.valueOf(tmdId)},
                     null);
-            int idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
             imageCursor.moveToFirst();
+            int idx = imageCursor.getColumnIndex(PopMoviesContract.MovieImages.COLUMN_IMAGE_DATA);
             byte[] bytes = imageCursor.getBlob(idx);
             retval = DbBitmapUtility.getImage(bytes);
         } catch (CursorIndexOutOfBoundsException e) {
@@ -468,26 +460,11 @@ public class DetailFragment extends android.support.v4.app.Fragment {
         return retval;
     }
 
-    private TrailerForOneMovie cursorToTrailer(int tmdId, Cursor trailerCursor) {
-        int idx = trailerCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_KEY);
-        String key = trailerCursor.getString(idx);
-        idx = trailerCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_NAME);
-        String name = trailerCursor.getString(idx);
-        idx = trailerCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_SITE);
-        String site = trailerCursor.getString(idx);
-        idx = trailerCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_SIZE);
-        String size = trailerCursor.getString(idx);
-        idx = trailerCursor.getColumnIndex(PopMoviesContract.VideoEntry.COLUMN_TYPE);
-        String type = trailerCursor.getString(idx);
-        return new TrailerForOneMovie(tmdId, key, name, site, size, type);
-    }
-
     /**
      * Save the data displayed in case the screen was rotated
      */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-
         savedInstanceState.putInt(KEY_TMDID, mTmdId);
     }
 }
