@@ -3,6 +3,7 @@ ApiKey.java
 
 .gradle
 /.idea/
+.idea/
 *.iml
 
 .DS_Store
@@ -39,3 +40,4 @@ proguard/
 
 # gvim temp files
 *.*~
+*.swp
