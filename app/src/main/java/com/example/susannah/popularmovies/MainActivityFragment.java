@@ -78,7 +78,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             updateMovies();
         setHasOptionsMenu(true);
 
-        Picasso.with(getContext()).setIndicatorsEnabled(true);
+        Picasso.with(getContext()).setIndicatorsEnabled(false);
     }
 
     @Override
